@@ -1,4 +1,4 @@
-# Express.js Project with Sequelize ORM
+# How to setup
 
 This project is built using **Express.js**, **Sequelize ORM**, and **pnpm** for dependency management. It serves as a foundation for building robust web applications with a clean, structured codebase.
 
