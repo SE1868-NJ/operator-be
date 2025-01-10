@@ -1,12 +1,12 @@
 // config .ENV
-require("dotenv").config({ path: "./.env" });
 
 const PORT = 3000;
-
-const cors = require("cors");
-const morgan = require("morgan");
-const express = require("express");
-const bodyParser = require("body-parser");
+import bodyParser from "body-parser";
+import cors from "cors";
+import express from "express";
+import morgan from "morgan";
+import db from "./config/sequelize.js";
+import { User } from "./models/User.js";
 
 const app = express();
 
@@ -26,8 +26,7 @@ app.use(
     }),
 );
 
-const { User } = require("./models");
-
+// get all users
 app.get("/select", (req, res) => {
     User.findAll({
         where: { firstName: "Kira" },
@@ -55,6 +54,13 @@ app.get("/select", (req, res) => {
 //         }
 //     })
 // })
+
+// check db connection
+try {
+    await db.authenticate();
+} catch (error) {
+    console.error("ERR: ", error);
+}
 
 app.listen(PORT, (err) => {
     if (!err) {
