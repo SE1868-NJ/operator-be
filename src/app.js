@@ -5,8 +5,9 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
 import morgan from "morgan";
-import db from "./config/sequelize.js";
-import { User } from "./models/User.js";
+import db from "./config/sequelize.config.js";
+import { User } from "./models/user.model.js";
+import route from "./routes/index.js";
 
 const app = express();
 
@@ -69,3 +70,5 @@ app.listen(PORT, (err) => {
         console.log("Error occurred, server can not start", err);
     }
 });
+
+route(app);
