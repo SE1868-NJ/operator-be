@@ -26,21 +26,35 @@ app.use(
     }),
 );
 
-const mysql = require("mysql");
-const db = mysql.createConnection({
-    user: "root",
-    host: "localhost",
-    database: "db",
+const { User } = require("./models");
+
+app.get("/select", (req, res) => {
+    User.findAll({
+        where: { firstName: "Kira" },
+    })
+        .then((users) => {
+            res.status(500).json({
+                users,
+            });
+        })
+        .catch((err) => {
+            res.status(400).json({
+                message: "ERR",
+            });
+        });
 });
 
-db.connect();
-
-app.get("/", (req, res) => {
-    db.query("create table dba(id int)");
-    res.json({
-        message: "hello",
-    });
-});
+/* Create new user record */
+// app.get("/insert", (req, res) => {
+//     User.create({
+//         firstName: "Kira",
+//         age: 20
+//     }).catch(err => {
+//         if (err) {
+//             console.error(err)
+//         }
+//     })
+// })
 
 app.listen(PORT, (err) => {
     if (!err) {
