@@ -18,7 +18,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // setup terminal logger
-app.use(morgan("combined"));
+// app.use(morgan("combined"));
 
 app.use(bodyParser.json());
 app.use(
