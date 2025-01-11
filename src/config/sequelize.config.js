@@ -1,9 +1,9 @@
 import { Sequelize } from "sequelize";
-import { DATABASE, PASSWORD, USERNAME } from "./config.js";
+import { DATABASE, DBHOST, DIALECT, PASSWORD, USERNAME } from "./config.js";
 
-const db = new Sequelize(DATABASE, USERNAME, PASSWORD, {
-    host: "localhost",
-    dialect: "mysql",
+const sequelize = new Sequelize(DATABASE, USERNAME, PASSWORD, {
+    host: DBHOST,
+    dialect: DIALECT,
 });
 
-export default db;
+export default sequelize;

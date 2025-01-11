@@ -8,7 +8,8 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "nodemon src/app.js",
         "prepare": "husky",
-        "check:fix": "biome check . --write"
+        "check:fix": "biome check . --write",
+        "migrate": "node src/migrate.js"
     },
     "lint-staged": {
         "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": ["pnpm check:fix"]

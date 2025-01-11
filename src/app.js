@@ -1,16 +1,12 @@
-// config .ENV
-
 const PORT = 3000;
 import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
 import morgan from "morgan";
-import db from "./config/sequelize.config.js";
-import { User } from "./models/user.model.js";
+import db from "./models/index.js";
 import route from "./routes/index.js";
 
 const app = express();
-
 const corsOptions = {
     origin: "*",
 };
@@ -18,7 +14,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // setup terminal logger
-// app.use(morgan("combined"));
+app.use(morgan("combined"));
 
 app.use(bodyParser.json());
 app.use(
@@ -27,34 +23,12 @@ app.use(
     }),
 );
 
-// get all users
-app.get("/select", (req, res) => {
-    User.findAll({
-        where: { firstName: "Kira" },
-    }).then((users) => {
-        res.status(500).json({
-            users,
-        });
-    });
-});
-
-/* Create new user record */
-// app.get("/insert", (req, res) => {
-//     User.create({
-//         firstName: "Kira",
-//         age: 20
-//     }).catch(err => {
-//         if (err) {
-//             console.error(err)
-//         }
-//     })
-// })
-
-// check db connection
+/* check db connection */
 try {
-    await db.authenticate();
+    await db.sequelize.authenticate();
+    console.log("Database connected successfully!");
 } catch (error) {
-    console.error("ERR: ", error);
+    console.error("Error occurs when connecting to database!", error);
 }
 
 app.listen(PORT, (err) => {
