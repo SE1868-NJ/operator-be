@@ -30,6 +30,11 @@ pnpm install
 ```
 
 ... Create database, change db info in src/config/config.js
+### Migrate database
+
+```bash
+pnpm migrate
+```
 
 ### Start server
 
