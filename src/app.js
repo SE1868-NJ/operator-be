@@ -31,17 +31,11 @@ app.use(
 app.get("/select", (req, res) => {
     User.findAll({
         where: { firstName: "Kira" },
-    })
-        .then((users) => {
-            res.status(500).json({
-                users,
-            });
-        })
-        .catch((err) => {
-            res.status(400).json({
-                message: "ERR",
-            });
+    }).then((users) => {
+        res.status(500).json({
+            users,
         });
+    });
 });
 
 /* Create new user record */
