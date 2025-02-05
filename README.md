@@ -61,8 +61,8 @@ Follow these steps to get the project running on your local machine.
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/SE1868-NJ/auth-backend-core
-cd auth-backend-core
+git clone https://github.com/SE1868-NJ/operator-be
+cd operator-be
 ```
 
 ### Install dependencies
