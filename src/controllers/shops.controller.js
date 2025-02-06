@@ -1,5 +1,5 @@
-import { Shop } from "../models/shop.model";
-import { ShopOwner } from "../models/shopOwner.model";
+import { Shop } from "../models/shop.model.js";
+import { ShopOwner } from "../models/shopOwner.model.js";
 
 export const getAllShops = async (req, res) => {
     try {

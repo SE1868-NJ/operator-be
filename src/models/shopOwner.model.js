@@ -96,3 +96,7 @@ ShopOwner.associate = (models) => {
         as: "Shop", // Tùy chọn, để dễ truy vấn sau này
     });
 };
+
+export default (sequelize, DataTypes) => {
+    return ShopOwner;
+};

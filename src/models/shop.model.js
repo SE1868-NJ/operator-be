@@ -118,3 +118,6 @@ Shop.associate = (models) => {
 };
 
 // Không cần export default hàm
+export default (sequelize, DataTypes) => {
+    return Shop;
+};
