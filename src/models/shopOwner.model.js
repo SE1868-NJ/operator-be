@@ -82,6 +82,7 @@ export const ShopOwner = sequelize.define(
                 key: "id", // Tên cột khóa chính trong bảng Shops
             },
         },
+
     },
     {
         tableName: "ShopOwners", // Đặt tên bảng
@@ -96,6 +97,7 @@ ShopOwner.associate = (models) => {
         as: "Shop", // Tùy chọn, để dễ truy vấn sau này
     });
 };
+
 
 export default (sequelize, DataTypes) => {
     return ShopOwner;
