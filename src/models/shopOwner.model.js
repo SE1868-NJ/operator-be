@@ -73,6 +73,17 @@ export const ShopOwner = sequelize.define(
                 notEmpty: true,
             },
         },
+
+        shopID: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            // Bạn có thể thêm foreign key constraint ở đây nếu ShopOwner có quan hệ 1-1 hoặc 1-n với Shop
+            references: {
+                model: "Shops", // Tên bảng
+                key: "id", // Tên cột khóa chính trong bảng Shops
+            },
+        },
+
     },
     {
         tableName: "ShopOwners", // Đặt tên bảng
@@ -87,6 +98,7 @@ export const ShopOwner = sequelize.define(
 //         as: "Shop", // Tùy chọn, để dễ truy vấn sau này
 //     });
 // };
+
 
 export default (sequelize, DataTypes) => {
     return ShopOwner;
