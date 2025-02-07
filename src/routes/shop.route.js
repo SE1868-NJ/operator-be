@@ -7,7 +7,7 @@ import { ShopOwner } from "../models/shopOwner.model.js";
 
 const shopRouter = express.Router();
 
-shopRouter.get("/", getAllShops);
 shopRouter.get("/:id", getShopById);
+shopRouter.get("/", getAllShops);
 //shopRouter.put('/:id', updateStatusShop);
 export default shopRouter;

@@ -14,7 +14,7 @@ export const getAllShops = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Get all shops successfully",
-            data: shops,
+            // data: shops,
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
