@@ -13,8 +13,8 @@ shopRouter.get("/", (req, res) => {
     });
 });
 
-shopRouter.get("/pendingshoplist", getPendingShops);
-shopRouter.get("/pendingshoplist/:id", getPendingShopById);
-shopRouter.patch("/pendingshoplist/:id", updateShopStatus);
+shopRouter.get("/pendingshops", getPendingShops);
+shopRouter.get("/pendingshop/:id", getPendingShopById);
+shopRouter.patch("/pendingshop/:id", updateShopStatus);
 
 export default shopRouter;
