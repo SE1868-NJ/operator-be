@@ -1,6 +1,3 @@
-
-import { Shop } from "../models/shop.model.js";
-import { ShopOwner } from "../models/shopOwner.model.js";
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shop } from "../models/shop.model.js";
 import { ShopOwner } from "../models/shopOwner.model.js";
@@ -96,7 +93,9 @@ export const updateShopStatus = async (req, res) => {
         return res.status(500).json({
             error: `Request not found! ${error}.`,
         });
-      
+    }
+};
+
 export const getAllShops = async (req, res) => {
     try {
         const shops = await Shop.findAll({
