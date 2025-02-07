@@ -12,6 +12,7 @@ import { ShopOwner } from "../models/shopOwner.model.js";
 
 const shopRouter = express.Router();
 
+
 shopRouter.get("/pendingshops", getPendingShops);
 shopRouter.get("/pendingshop/:id", getPendingShopById);
 shopRouter.patch("/pendingshop/:id", updateShopStatus);

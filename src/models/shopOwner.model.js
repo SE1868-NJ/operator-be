@@ -73,6 +73,7 @@ export const ShopOwner = sequelize.define(
                 notEmpty: true,
             },
         },
+
         shopID: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -91,12 +92,12 @@ export const ShopOwner = sequelize.define(
 );
 
 // Quan hệ (nếu cần, sau khi đã định nghĩa model Shop)
-ShopOwner.associate = (models) => {
-    ShopOwner.belongsTo(models.Shop, {
-        foreignKey: "shopID",
-        as: "Shop", // Tùy chọn, để dễ truy vấn sau này
-    });
-};
+// ShopOwner.associate = (models) => {
+//     ShopOwner.belongsTo(models.Shop, {
+//         foreignKey: "shopID",
+//         as: "Shop", // Tùy chọn, để dễ truy vấn sau này
+//     });
+// };
 
 
 export default (sequelize, DataTypes) => {
