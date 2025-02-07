@@ -5,16 +5,46 @@ export const getPendingShops = async (req, res) => {
     try {
         const pendingShops = await Shop.findAll({
             where: {
-                status: "pending",
+                shopStatus: "pending",
             },
         });
-        res.status(200).json({
+        return res.status(200).json({
+            success: true,
             message: "Get pending shops successfully",
-            pendingShops: pendingShops,
+            data: pendingShops,
         });
     } catch (error) {
         return res.status(500).json({
+            success: false,
             error: `An error occured during find pending shops! ${error}.`,
+        });
+    }
+};
+
+export const getPendingShopById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const pendingShop = await Shop.findOne({
+            where: {
+                shopID: id,
+                shopStatus: "pending",
+            },
+        });
+        if (!pendingShop) {
+            return res.status(404).json({
+                success: false,
+                message: "Pending shop not found",
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: "Get pending shop successfully",
+            data: pendingShop,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: `An error occured during find pending shop by ID! ${error}.`,
         });
     }
 };
@@ -24,31 +54,35 @@ export const updateShopStatus = async (req, res) => {
         const { id } = req.params;
         const updatedStatus = req.body;
         const { status, description } = updatedStatus;
-        const newStatus = { status };
-        const reason = { description };
-        // Lưu lý do
+        const newStatus = status === "accepted" ? "active" : "rejected";
+        const reason = description;
+
         try {
-            await ReasonChangeStatus.create({
+            // update status of shop
+            const updatedShop = await Shop.update(
+                {
+                    shopStatus: newStatus,
+                },
+                {
+                    where: {
+                        shopID: id,
+                    },
+                },
+            );
+
+            // lưu lý do cập nhật trên bảng ReasonChangeStatus
+            const insertedReason = await ReasonChangeStatus.create({
                 operatorID: 1,
                 shopID: id,
-                reason: description,
+                changedStatus: status,
+                reason: reason,
             });
-        } catch (error) {
-            return res.status(500).json({
-                error: `An error occured during insert reason! ${error}.`,
-            });
-        }
-        // Update status shop
-        try {
-            const updatedShop = await Shop.update(newStatus, {
-                where: {
-                    shop_id: id,
-                },
-            }).then((shop) => {
-                res.status(200).json({
-                    message: "Update status shop successfully",
-                    shop: shop,
-                });
+
+            res.status(200).json({
+                message: "Update shop status and insert reason successfully",
+                reasonChangeStatus: reason,
+                newStatus: newStatus,
+                data: updatedShop,
             });
         } catch (error) {
             return res.status(500).json({

@@ -25,6 +25,13 @@ export const ReasonChangeStatus = sequelize.define(
                 key: "shopID", // Tên của khóa chính trong bảng Shops
             },
         },
+        changedStatus: {
+            type: DataTypes.ENUM("accepted", "rejected"),
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+            },
+        },
         reason: {
             type: DataTypes.STRING,
             allowNull: false,
