@@ -1,6 +1,5 @@
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shop } from "../models/shop.model.js";
-import { ShopOwner } from "../models/shopOwner.model.js";
 export const getPendingShops = async (req, res) => {
     try {
         const pendingShops = await Shop.findAll({
