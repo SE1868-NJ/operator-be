@@ -1,20 +1,15 @@
-import { Shop } from "../models/shop.model.js";
-import { ShopOwner } from "../models/shopOwner.model.js";
+// shops.controller.js
+import ShopService from "../services/shop.service.js";
 
+// shops.controller.js: Xử lý các yêu cầu HTTP và sử dụng các dịch vụ
+// từ shop.service.js để lấy dữ liệu hoặc thực hiện các thao tác cần thiết.
 export const getAllShops = async (req, res) => {
     try {
-        const shops = await Shop.findAll({
-            include: [
-                {
-                    model: ShopOwner,
-                    as: "Owner",
-                },
-            ],
-        });
+        const shops = await ShopService.getAllShops();
         res.status(200).json({
             success: true,
             message: "Get all shops successfully",
-            // data: shops,
+            shops: shops,
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -23,54 +18,11 @@ export const getAllShops = async (req, res) => {
 
 export const getShopById = async (req, res) => {
     try {
-        const shop = await Shop.findByPk(req.params.id, {
-            include: [
-                {
-                    model: ShopOwner,
-                    as: "Owner",
-                },
-            ],
-        });
-        if (!shop) {
-            return res.status(404).json({
-                success: false,
-                message: "Shop not found",
-            });
-        }
+        const shop = await ShopService.getShopById(req.params.id);
         res.status(200).json({
             success: true,
             message: "Get shop by id successfully",
-            data: shop,
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-export const updateStatusShop = async (req, res) => {
-    try {
-        // Tìm shop theo ID từ request params
-        const shop = await Shop.findByPk(req.params.id);
-
-        // Kiểm tra nếu không tìm thấy shop
-        if (!shop) {
-            return res.status(404).json({
-                success: false,
-                message: "Shop not found",
-            });
-        }
-
-        // Chuyển đổi trạng thái: Active -> Suspend, Suspend -> Active
-        shop.status = shop.status === "Active" ? "Suspend" : "Active";
-
-        // Lưu thay đổi vào database
-        await shop.save();
-
-        // Trả về phản hồi thành công
-        res.status(200).json({
-            success: true,
-            message: `Shop status changed to ${shop.status}`,
-            data: shop,
+            shop: shop,
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

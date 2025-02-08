@@ -21,11 +21,18 @@ export const Shop = sequelize.define(
             allowNull: false,
             // Thêm foreign key constraint nếu Shop có quan hệ với ShopOwner
             references: {
-                model: "ShopOwners", // Tên bảng
-                key: "ownerID", // Tên cột khóa chính trong bảng ShopOwners
+                model: "Users", // Tên bảng
+                key: "userID", // Tên cột khóa chính trong bảng ShopOwners
             },
             onUpdate: "CASCADE", // Tùy chọn, cập nhật ownerID nếu ownerID của ShopOwner thay đổi
             onDelete: "CASCADE", // Tùy chọn, xóa Shop nếu ShopOwner bị xóa
+        },
+        taxCode: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+            },
         },
         shopEmail: {
             type: DataTypes.STRING,
@@ -61,6 +68,8 @@ export const Shop = sequelize.define(
         shopAvatar: {
             type: DataTypes.STRING, // URL hoặc đường dẫn file
             allowNull: true,
+            defaultValue:
+                "https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg",
         },
         shopOperationHours: {
             type: DataTypes.STRING,
@@ -111,13 +120,12 @@ export const Shop = sequelize.define(
 
 // Quan hệ (nếu cần, sau khi đã định nghĩa model ShopOwner)
 Shop.associate = (models) => {
-    Shop.belongsTo(models.ShopOwner, {
+    Shop.belongsTo(models.User, {
         foreignKey: "ownerID",
         as: "Owner", // Tùy chọn, để dễ truy vấn sau này
     });
 };
 
-// Không cần export default hàm
 export default (sequelize, DataTypes) => {
     return Shop;
 };

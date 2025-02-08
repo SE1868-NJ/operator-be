@@ -1,12 +1,11 @@
 import express from "express";
 import { getAllShops } from "../controllers/shops.controller.js";
 import { getShopById } from "../controllers/shops.controller.js";
-import { updateStatusShop } from "../controllers/shops.controller.js";
-import { Shop } from "../models/shop.model.js";
-import { ShopOwner } from "../models/shopOwner.model.js";
+// import { updateShopStatus } from "../controllers/shops.controller.js";
 
 const shopRouter = express.Router();
 
+// shopRouter.put("/:id/status", updateShopStatus); // Route để cập nhật trạng thái
 shopRouter.get("/:id", getShopById);
 shopRouter.get("/", getAllShops);
 //shopRouter.put('/:id', updateStatusShop);
