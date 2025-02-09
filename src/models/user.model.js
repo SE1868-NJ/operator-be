@@ -50,6 +50,13 @@ export const User = sequelize.define(
                 notEmpty: true,
             },
         },
+        userAddress: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+            },
+        },
         identificationNumber: {
             // CCCD
             type: DataTypes.STRING,
