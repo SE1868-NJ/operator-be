@@ -1,7 +1,8 @@
 import emergencyContact from "../models/emergencyContact.model.js";
 import { Role } from "../models/role.model.js";
 import { Shipper } from "../models/shipper.model.js";
-import ShipperServices from "../services/shipper.service.js";
+
+import ShipperService from "../services/shipper.service.js";
 
 export const getAllShippers = async (req, res) => {
     try {
@@ -43,5 +44,15 @@ export const updateShipperPending = async (req, res) => {
             success: false,
             error: `An error occured during find pending shipper! ${error}.`,
         });
+    }
+}
+export const updateShipperStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const shipper = await ShipperService.updateShipperStatus(id, req.body.status);
+
+        res.status(200).json(shipper);
+    } catch (error) {
+        res.status(500).json({ message: "Error", error: error.message });
     }
 };
