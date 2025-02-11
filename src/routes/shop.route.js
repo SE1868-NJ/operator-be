@@ -9,6 +9,7 @@ import {
     updateShopStatus,
 } from "../controllers/shops.controller.js";
 
+
 const shopRouter = express.Router();
 
 shopRouter.get("/pendingshops", getPendingShops);
