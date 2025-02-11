@@ -6,4 +6,4 @@ export const DATABASE = process.env.DATABASE || "operator";
 export const USERNAME = process.env.USERNAME || "root";
 export const PASSWORD = process.env.PASSWORD || "meomeo5104";
 export const DIALECT = process.env.DIALECT || "mysql";
-export const DBHOST = process.env.DIALECT || "localhost";
+export const DBHOST = process.env.DBHOST || "localhost";

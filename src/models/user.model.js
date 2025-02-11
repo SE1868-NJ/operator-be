@@ -41,9 +41,17 @@ export const User = sequelize.define(
                 notEmpty: true,
                 len: [10, 11],
             },
+
         },
         userCitizenID: {
             // số thẻ chung cư
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+            },
+        },
+        userAddress: {
             type: DataTypes.STRING,
             allowNull: false,
             validate: {
