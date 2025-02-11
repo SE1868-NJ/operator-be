@@ -77,6 +77,58 @@ const ShopService = {
             throw new Error(error.message);
         }
     },
+    async updateShopDetailStatus(id, updatedStatus) {
+        const transaction = await sequelize.transaction();
+        try {
+            const { status } = updatedStatus;
+            const newStatus = status === "active" ? "suspended" : "active";
+
+            try {
+                const updatedShop = await Shop.update(
+                    {
+                        shopStatus: newStatus,
+                    },
+                    {
+                        where: {
+                            shopID: id,
+                        },
+                        transaction: transaction,
+                    },
+                );
+
+                // Kiểm tra xem shop có tồn tại hay không
+                if (updatedShop === null) {
+                    await transaction.rollback();
+                    throw new Error("Shop not found");
+                }
+
+                await transaction.commit();
+                return newStatus;
+            } catch (error) {
+                await transaction.rollback();
+                console.error(
+                    "Error during updateShopStatus (inner try) - Shop ID:",
+                    id,
+                    "Error:",
+                    error,
+                    "Request Body:",
+                    req.body,
+                );
+                throw new Error(error.message);
+            }
+        } catch (error) {
+            await transaction.rollback();
+            console.error(
+                "Error during updateShopStatus (outer try) - Shop ID:",
+                id,
+                "Error:",
+                error,
+                "Request Body:",
+                req.body,
+            );
+            throw new Error(error.message);
+        }
+    },
     async updateShopStatus(id, updatedStatus) {
         const transaction = await sequelize.transaction();
         try {
