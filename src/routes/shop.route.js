@@ -8,7 +8,6 @@ import {
     updateShopStatus,
 } from "../controllers/shops.controller.js";
 import { Shop } from "../models/shop.model.js";
-import { ShopOwner } from "../models/shopOwner.model.js";
 
 const shopRouter = express.Router();
 
