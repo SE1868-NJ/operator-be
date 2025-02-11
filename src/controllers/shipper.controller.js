@@ -1,6 +1,7 @@
 import emergencyContact from "../models/emergencyContact.model.js";
 import { Role } from "../models/role.model.js";
 import { Shipper } from "../models/shipper.model.js";
+import ShipperServices from "../services/shipper.service.js";
 
 export const getAllShippers = async (req, res) => {
     try {
@@ -24,5 +25,23 @@ export const getShipperById = async (req, res) => {
         res.status(200).json(shipper);
     } catch (error) {
         res.status(500).json({ message: "Lỗi khi lấy chi tiết shipper", error: error.message });
+    }
+};
+
+export const updateShipperPending = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        const newStatus = status === "rejected" ? "rejected" : "Active";
+        const shipper = await ShipperServices.updateShipperPending(id, newStatus);
+        return res.status(200).json({
+            success: true,
+            message: "Update pending shipper successfully",
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: `An error occured during find pending shipper! ${error}.`,
+        });
     }
 };

@@ -1,6 +1,5 @@
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shop } from "../models/shop.model.js";
-import { ShopOwner } from "../models/shopOwner.model.js";
 export const getPendingShops = async (req, res) => {
     try {
         const pendingShops = await Shop.findAll({
@@ -99,12 +98,12 @@ export const updateShopStatus = async (req, res) => {
 export const getAllShops = async (req, res) => {
     try {
         const shops = await Shop.findAll({
-            include: [
-                {
-                    model: ShopOwner,
-                    as: "Owner",
-                },
-            ],
+            // include: [
+            //     {
+            //         model: ShopOwner,
+            //         as: "Owner",
+            //     },
+            // ],
         });
         res.status(200).json({
             success: true,
@@ -119,12 +118,12 @@ export const getAllShops = async (req, res) => {
 export const getShopById = async (req, res) => {
     try {
         const shop = await Shop.findByPk(req.params.id, {
-            include: [
-                {
-                    model: ShopOwner,
-                    as: "Owner",
-                },
-            ],
+            // include: [
+            //     {
+            //         model: ShopOwner,
+            //         as: "Owner",
+            //     },
+            // ],
         });
         if (!shop) {
             return res.status(404).json({
