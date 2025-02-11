@@ -1,6 +1,7 @@
 import express from "express";
 import { getAllShops } from "../controllers/shops.controller.js";
 import { getShopById } from "../controllers/shops.controller.js";
+
 import { updateStatusShop } from "../controllers/shops.controller.js";
 import {
     getPendingShopById,
@@ -14,7 +15,8 @@ const shopRouter = express.Router();
 shopRouter.get("/pendingshops", getPendingShops);
 shopRouter.get("/pendingshop/:id", getPendingShopById);
 shopRouter.patch("/pendingshop/:id", updateShopStatus);
-shopRouter.get("/", getAllShops);
 shopRouter.get("/:id", getShopById);
+shopRouter.get("/", getAllShops);
+
 
 export default shopRouter;

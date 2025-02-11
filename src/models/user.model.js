@@ -41,6 +41,7 @@ export const User = sequelize.define(
                 notEmpty: true,
                 len: [10, 11],
             },
+
         },
         userCitizenID: {
             // số thẻ chung cư

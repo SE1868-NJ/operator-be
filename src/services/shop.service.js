@@ -1,3 +1,4 @@
+
 import sequelize from "../config/sequelize.config.js";
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shop } from "../models/shop.model.js";
@@ -17,18 +18,17 @@ const ShopService = {
                     },
                 ],
             });
+
             return pendingShops;
         } catch (error) {
             throw new Error(error.message);
         }
     },
-    async getPendingShop(id) {
+
+    async getShopById(id) {
         try {
-            const pendingShop = await Shop.findOne({
-                where: {
-                    shopID: id,
-                    shopStatus: "pending",
-                },
+            const shop = await Shop.findByPk(id, {
+
                 include: [
                     {
                         model: User,
@@ -36,10 +36,10 @@ const ShopService = {
                     },
                 ],
             });
-            if (!pendingShop) {
-                throw new Error("Pending shop not found");
+            if (!shop) {
+                throw new Error("Shop not found");
             }
-            return pendingShop;
+            return shop;
         } catch (error) {
             throw new Error(error.message);
         }
