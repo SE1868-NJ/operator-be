@@ -4,6 +4,22 @@ import { Shop } from "../models/shop.model.js";
 import { User } from "../models/user.model.js";
 
 const ShopService = {
+    async getAllShops() {
+        try {
+            const shops = await Shop.findAll({
+                include: [
+                    {
+                        model: User,
+                        as: "Owner",
+                    },
+                ],
+            });
+
+            return shops;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
     async getPendingShops() {
         try {
             const pendingShops = await Shop.findAll({
@@ -17,18 +33,35 @@ const ShopService = {
                     },
                 ],
             });
+
             return pendingShops;
         } catch (error) {
             throw new Error(error.message);
         }
     },
-    async getPendingShop(id) {
+
+    async getPendingShopById(id) {
         try {
-            const pendingShop = await Shop.findOne({
-                where: {
-                    shopID: id,
-                    shopStatus: "pending",
-                },
+            const shop = await Shop.findByPk(id, {
+                include: [
+                    {
+                        model: User,
+                        as: "Owner",
+                        status: "pending",
+                    },
+                ],
+            });
+            if (!shop) {
+                throw new Error("Shop not found");
+            }
+            return shop;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+    async getShopById(id) {
+        try {
+            const shop = await Shop.findByPk(id, {
                 include: [
                     {
                         model: User,
@@ -36,10 +69,10 @@ const ShopService = {
                     },
                 ],
             });
-            if (!pendingShop) {
-                throw new Error("Pending shop not found");
+            if (!shop) {
+                throw new Error("Shop not found");
             }
-            return pendingShop;
+            return shop;
         } catch (error) {
             throw new Error(error.message);
         }
@@ -70,7 +103,7 @@ const ShopService = {
                     throw new Error("Shop not found");
                 }
 
-                const insertedReason = await ReasonChangeStatus.create(
+                await ReasonChangeStatus.create(
                     {
                         operatorID: 1,
                         shopID: id,

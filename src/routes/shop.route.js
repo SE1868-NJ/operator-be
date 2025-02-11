@@ -1,7 +1,7 @@
 import express from "express";
 import { getAllShops } from "../controllers/shops.controller.js";
 import { getShopById } from "../controllers/shops.controller.js";
-import { updateStatusShop } from "../controllers/shops.controller.js";
+
 import {
     getPendingShopById,
     getPendingShops,
