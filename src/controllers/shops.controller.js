@@ -4,7 +4,7 @@ import ShopService from "../services/shop.service.js";
 
 export const getPendingShops = async (req, res) => {
     try {
-        const pensdingShops = await ShopService.getPendingShops();
+        const pendingShops = await ShopService.getPendingShops();
         return res.status(200).json({
             success: true,
             message: "Get pending shops successfully",
