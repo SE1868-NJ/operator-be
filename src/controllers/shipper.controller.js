@@ -5,16 +5,23 @@ import { Shipper } from "../models/shipper.model.js";
 import ShipperService from "../services/shipper.service.js";
 
 export const getAllShippers = async (req, res) => {
-    const { offset = 0, limit = 10 } = req.body;
     try {
-        const shippers = await Shipper.findAll({
+        const offset = Number.parseInt(req.query.offset) || 0;
+        const limit = Number.parseInt(req.query.limit) || 10;
+
+        const data = await Shipper.findAll({
             offset,
             limit,
         });
-        res.json(shippers);
+        const count = await Shipper.count();
+
+        res.json({
+            totalCount: count, // Tổng số shipper
+            shippers: data, // Danh sách shipper
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Internal server error: " });
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 
