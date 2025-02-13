@@ -1,9 +1,9 @@
-
+import express from "express";
 import {
     getAllShippers,
     getShipperById,
+    updateShipperPending,
     updateShipperStatus,
-  updateShipperPending
 } from "../controllers/shipper.controller.js";
 
 const shipperRouter = express.Router();

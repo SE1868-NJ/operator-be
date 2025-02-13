@@ -1,4 +1,4 @@
-const PORT = 3000;
+const PORT = 3050;
 import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";

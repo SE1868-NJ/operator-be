@@ -1,11 +1,13 @@
 import { Shipper } from "../models/shipper.model.js";
 
 const ShipperServices = {
-    async getAllShippersPending() {
+    async getAllShippersPending(offset, limit) {
         const shippers = await Shipper.findAll({
             where: {
                 status: "pending",
             },
+            offset,
+            limit,
         })
             .then((res) => res)
             .catch((err) => {
@@ -38,7 +40,7 @@ const ShipperServices = {
             });
         return shipper;
     },
-  async updateShipperStatus(id, status) {
+    async updateShipperStatus(id, status) {
         try {
             const shipper = await Shipper.findByPk(id);
             if (!shipper) {
@@ -54,4 +56,3 @@ const ShipperServices = {
 };
 
 export default ShipperServices;
-
