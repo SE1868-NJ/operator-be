@@ -5,8 +5,12 @@ import { Shipper } from "../models/shipper.model.js";
 import ShipperService from "../services/shipper.service.js";
 
 export const getAllShippers = async (req, res) => {
+    const { offset = 0, limit = 10 } = req.body;
     try {
-        const shippers = await Shipper.findAll();
+        const shippers = await Shipper.findAll({
+            offset,
+            limit,
+        });
         res.json(shippers);
     } catch (error) {
         console.error(error);
