@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // DB config
-export const DATABASE = process.env.DATABASE || "operator";
+export const DATABASE = process.env.DATABASE || "db";
 export const USERNAME = process.env.USERNAME || "root";
 export const PASSWORD = process.env.PASSWORD || "";
 export const DIALECT = process.env.DIALECT || "mysql";
