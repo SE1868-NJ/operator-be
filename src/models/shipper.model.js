@@ -20,8 +20,8 @@ export const Shipper = sequelize.define("Shipper", {
         allowNull: false,
         validate: {
             isIn: {
-                args: [["male", "female", "other"]],
-                msg: "Gender must be male, female, or other.",
+                args: [["Nam", "Nữ", "Khác"]],
+                msg: "Giới tính phải là Nam, Nữ, hoặc Khác.",
             },
         },
     },
@@ -30,11 +30,11 @@ export const Shipper = sequelize.define("Shipper", {
         allowNull: false,
         validate: {
             isDate: {
-                msg: "Date of birth must be a valid date format.",
+                msg: "Ngày sinh sai format.",
             },
             isBefore: {
                 args: new Date().toISOString().split("T")[0],
-                msg: "Date of birth must be a date before the current date.",
+                msg: "Ngày sinh phải là ngày trước thời gian hiện tại.",
             },
         },
     },
@@ -62,19 +62,19 @@ export const Shipper = sequelize.define("Shipper", {
         unique: true,
         validate: {
             isEmail: {
-                msg: "Invalid email.",
+                msg: "Email không hợp lệ.",
             },
             len: {
                 args: [5, 255],
-                msg: "Email must be between 5 and 255 characters in length.",
+                msg: "Email phải chứa 5 đến 255 ký tự",
             },
         },
     },
     status: {
-        type: DataTypes.ENUM("Pending", "Rejected", "Active", "Deactive"),
+        type: DataTypes.ENUM("Đang duyệt", "Đang hoạt động", "Dừng hoạt động"),
 
         allowNull: false,
-        defaultValue: "pending",
+        defaultValue: "Đang duyệt",
     },
     activityArea: {
         type: DataTypes.STRING,
