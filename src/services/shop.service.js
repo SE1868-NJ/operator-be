@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shop } from "../models/shop.model.js";
@@ -20,22 +21,58 @@ const ShopService = {
             throw new Error(error.message);
         }
     },
-    async getPendingShops() {
+    async getPendingShops(offset, limit, filterData = {}) {
         try {
-            const pendingShops = await Shop.findAll({
-                where: {
-                    shopStatus: "pending",
+            const whereClause = {}; // Không khởi tạo shopStatus ở đây, sẽ thêm sau nếu cần
+
+            // Lọc Shop
+            if (filterData?.shopName) {
+                whereClause.shopName = { [Op.like]: `%${filterData.shopName}%` };
+            }
+            if (filterData?.shopEmail) {
+                whereClause.shopEmail = { [Op.like]: `%${filterData.shopEmail}%` };
+            }
+            if (filterData?.shopPhone) {
+                whereClause.shopPhone = { [Op.like]: `%${filterData.shopPhone}%` };
+            }
+            if (filterData?.shopStatus) {
+                // Thêm filter shopStatus
+                whereClause.shopStatus = filterData.shopStatus;
+            } else {
+                whereClause.shopStatus = "pending"; // Giá trị mặc định là pending nếu không có filter nào
+            }
+
+            const includeClause = [
+                {
+                    model: User,
+                    as: "Owner",
+                    where: {},
+                    required: true,
                 },
-                include: [
-                    {
-                        model: User,
-                        as: "Owner",
-                    },
-                ],
+            ];
+
+            // Lọc User (Owner)
+            if (filterData?.ownerName) {
+                includeClause[0].where.fullName = {
+                    [Op.like]: `%${filterData.ownerName}%`,
+                };
+            }
+
+            const pendingShops = await Shop.findAll({
+                where: whereClause,
+                offset,
+                limit,
+                include: includeClause,
             });
 
-            return pendingShops;
+            const totalPendingShops = await Shop.count({
+                where: whereClause,
+                include: includeClause,
+            });
+
+            return { pendingShops, totalPendingShops };
         } catch (error) {
+            console.error("Error fetching pending shops:", error);
             throw new Error(error.message);
         }
     },

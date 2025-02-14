@@ -3,12 +3,25 @@ import { Shop } from "../models/shop.model.js";
 import ShopService from "../services/shop.service.js";
 
 export const getPendingShops = async (req, res) => {
+    const { offset, limit } = req.query;
+    const o = Number.parseInt(offset);
+    const l = Number.parseInt(limit);
+    const { shopName, shopEmail, shopPhone, ownerName } = req.query;
     try {
-        const pensdingShops = await ShopService.getPendingShops();
+        const filterData = {
+            shopName,
+            shopEmail,
+            shopPhone,
+            ownerName,
+        };
+        // Spread operator để ghi đè các giá trị mặc định bằng các giá trị từ req.body
+        // const filterData = { ...defaultFilterData, ...req.query };
+        console.log(offset, limit, shopName, shopEmail, shopPhone, ownerName);
+        const responseData = await ShopService.getPendingShops(o, l, filterData);
         return res.status(200).json({
             success: true,
             message: "Get pending shops successfully",
-            data: pendingShops,
+            data: responseData,
         });
     } catch (error) {
         return res.status(500).json({
@@ -52,7 +65,6 @@ export const updateShopDetailStatus = async (req, res) => {
 
 export const updateShopStatus = async (req, res) => {
     try {
-
         const newStatus = await ShopService.updateShopStatus(req.params.id, req.body);
         return res.status(200).json({
             success: true,
@@ -71,7 +83,6 @@ export const updateShopStatus = async (req, res) => {
 // từ shop.service.js để lấy dữ liệu hoặc thực hiện các thao tác cần thiết.
 export const getAllShops = async (req, res) => {
     try {
-
         const shops = await ShopService.getAllShops();
 
         res.status(200).json({
