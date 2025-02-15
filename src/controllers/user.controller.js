@@ -1,10 +1,8 @@
 import userService from "../services/user.service.js";
 export const getAllUsers = async (req, res) => {
     try {
-        const { page, limit } = req.query;
-        console.log(page);
-        console.log(limit);
-        const response = await userService.getAllUsers(page, limit);
+        const { page, limit, name, phone, status } = req.query;
+        const response = await userService.getAllUsers(page, limit, name, phone, status);
         res.status(200).json({
             sucess: true,
             message: "Get all users successfully",

@@ -1,15 +1,31 @@
+import { Op, where } from "sequelize";
 import { User } from "../models/user.model.js";
 const userService = {
-    async getAllUsers(page, limit) {
+    async getAllUsers(page, limit, name, phone, status) {
         try {
             const offset = (page - 1) * limit;
+            const whereCondition = {};
+            if (name) {
+                whereCondition.fullName = { [Op.like]: `%${name}%` }; // Tìm kiếm theo tên
+            }
+
+            if (phone) {
+                whereCondition.userPhone = { [Op.like]: `%${phone}%` }; // Tìm kiếm theo SĐT
+            }
+
+            if (status) {
+                whereCondition.status = status; // Lọc theo trạng thái
+            }
+
+            console.log(whereCondition);
             const response = await User.findAll({
+                where: whereCondition,
                 limit: Number(limit),
                 offset: Number(offset),
             });
 
             // tinh total page
-            const totalRecords = await User.count();
+            const totalRecords = await User.count({ where: whereCondition });
             const totalPages = Math.ceil(totalRecords / limit);
 
             return {
