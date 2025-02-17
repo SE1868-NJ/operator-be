@@ -1,6 +1,7 @@
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shop } from "../models/shop.model.js";
 import ShopService from "../services/shop.service.js";
+
 export const getPendingShops = async (req, res) => {
     try {
         const pendingShops = await ShopService.getPendingShops();
@@ -29,6 +30,22 @@ export const getPendingShopById = async (req, res) => {
         return res.status(500).json({
             success: false,
             error: `An error occured during find pending shop by ID! ${error}.`,
+        });
+    }
+};
+
+export const updateShopDetailStatus = async (req, res) => {
+    try {
+        const newStatus = await ShopService.updateShopDetailStatus(req.params.id, req.body);
+        return res.status(200).json({
+            success: true,
+            message: "Update shop detail status successfully",
+            newStatus: newStatus,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: `An error occured during update status shop detail! ${error}.`,
         });
     }
 };

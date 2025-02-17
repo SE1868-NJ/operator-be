@@ -1,5 +1,6 @@
 import sequelize from "./config/sequelize.config.js";
 import { Operator } from "./models/operator.model.js";
+import { Shipper } from "./models/shipper.model.js";
 import { Shop } from "./models/shop.model.js";
 
 async function insertShops() {
@@ -119,3 +120,92 @@ async function insertShops() {
 // }
 
 // insertOperators();
+
+
+async function insertShippers() {
+    try {
+        await sequelize.sync(); // Ensure database schema is up to date
+
+        const shippers = [
+            {
+                avatar: "https://example.com/avatar1.jpg",
+                name: "Nguyen Van A",
+                gender: "male",
+                dateOfBirth: "1990-05-20",
+                hometown: "Hanoi",
+                address: "123 Hoan Kiem, Hanoi",
+                phone: "0987654321",
+                cccd: "0123456789",
+                email: "nguyenvana@example.com",
+                status: "Active",
+                activityArea: "Hanoi",
+                shippingMethod: "Motorbike",
+            },
+            {
+                avatar: "https://example.com/avatar2.jpg",
+                name: "Tran Thi B",
+                gender: "female",
+                dateOfBirth: "1995-08-15",
+                hometown: "Ho Chi Minh City",
+                address: "456 District 1, HCMC",
+                phone: "0976543210",
+                cccd: "0987654321",
+                email: "tranthib@example.com",
+                status: "Active",
+                activityArea: "HCMC",
+                shippingMethod: "Bicycle",
+            },
+            {
+                avatar: "https://example.com/avatar3.jpg",
+                name: "Pham Van C",
+                gender: "male",
+                dateOfBirth: "1988-12-10",
+                hometown: "Da Nang",
+                address: "789 Hai Chau, Da Nang",
+                phone: "0965432109",
+                cccd: "0876543210",
+                email: "phamvanc@example.com",
+                status: "Inactive",
+                activityArea: "Da Nang",
+                shippingMethod: "Truck",
+            },
+            {
+                avatar: "https://example.com/avatar4.jpg",
+                name: "Le Thi D",
+                gender: "female",
+                dateOfBirth: "1993-07-25",
+                hometown: "Can Tho",
+                address: "101 Ninh Kieu, Can Tho",
+                phone: "0954321098",
+                cccd: "0765432109",
+                email: "lethid@example.com",
+                status: "Active",
+                activityArea: "Can Tho",
+                shippingMethod: "Motorbike",
+            },
+            {
+                avatar: "https://example.com/avatar5.jpg",
+                name: "Hoang Van E",
+                gender: "male",
+                dateOfBirth: "1985-03-30",
+                hometown: "Hue",
+                address: "202 Phu Cat, Hue",
+                phone: "0943210987",
+                cccd: "0654321098",
+                email: "hoangvane@example.com",
+                status: "Inactive",
+                activityArea: "Hue",
+                shippingMethod: "Van",
+            },
+        ];
+
+        await Shipper.bulkCreate(shippers);
+        console.log("5 Shippers inserted successfully.");
+    } catch (error) {
+        console.error("Error inserting shippers:", error);
+    } finally {
+        await sequelize.close(); // Close the connection
+    }
+}
+
+insertShippers();

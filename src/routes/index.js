@@ -6,9 +6,8 @@ import userRouter from "./user.route.js";
 const route = (app) => {
     app.use("/auth", authRouter);
     app.use("/admin", authRouter);
+    app.use("/shippers", shipperRouter);
     app.use("/shops", shopRouter);
-    app.use("/shipper", shipperRouter);
-    app.use("/user", userRouter);
 };
 
 export default route;
