@@ -1,4 +1,4 @@
-import { Op, Sequelize } from "sequelize";
+import { Model, Op, Sequelize } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
 import { getApprovedShops } from "../controllers/shops.controller.js";
 import reasonChangeStatusModel, { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
@@ -79,78 +79,70 @@ const ShopService = {
     },
 
     async getApprovedShops(offset = 0, limit = 10, filterData = {}) {
+        const role = "Shop";
         try {
-            const operatorID = 1;
-            const role = "Shop";
-            const { shopName, ownerName, shopEmail, shopPhone } = filterData; // Destructure
-
-            // Association tạm thời trong hàm
-            Shop.hasOne(ReasonChangeStatus, {
-                foreignKey: "pendingID",
-                as: "reasonTemp", // Alias khác để tránh xung đột
-            });
-
-            const whereClause = {};
-
-            // Lọc dựa trên thông tin Shop (shopName, shopEmail, shopPhone)
-            if (shopName) {
-                whereClause.shopName = { [Op.like]: `%${shopName}%` };
-            }
-            if (shopEmail) {
-                whereClause.shopEmail = { [Op.like]: `%${shopEmail}%` };
-            }
-            if (shopPhone) {
-                whereClause.shopPhone = { [Op.like]: `%${shopPhone}%` };
-            }
-
-            const includeOptions = [
+            // Lọc Shop
+            const includeClause = [
                 {
-                    model: ReasonChangeStatus,
-                    as: "reasonTemp",
-                    required: true,
-                    where: {
-                        operatorID: operatorID,
-                        role: role,
-                    },
-                },
-                {
-                    model: User,
-                    as: "Owner", //Đảm bảo khớp với alias trong Shop.belongsTo
+                    model: Shop,
+                    as: "shop",
+                    where: {},
+                    include: [
+                        {
+                            model: User,
+                            as: "Owner",
+                            where: {},
+                            required: true,
+                        },
+                    ],
                     required: true,
                 },
             ];
 
-            // Lọc dựa trên Owner name
-            if (ownerName) {
-                includeOptions[1].where = {
-                    fullName: { [Op.like]: `%${ownerName}%` },
+            if (filterData?.shopName) {
+                includeClause[0].where.shopName = {
+                    [Op.like]: `%${filterData.shopName}%`,
+                };
+            }
+            if (filterData?.shopEmail) {
+                includeClause[0].where.shopEmail = {
+                    [Op.like]: `%${filterData.shopEmail}%`,
+                };
+            }
+            if (filterData?.shopPhone) {
+                includeClause[0].where.shopPhone = {
+                    [Op.like]: `%${filterData.shopPhone}%`,
+                };
+            }
+            if (filterData?.ownerName) {
+                includeClause[0].include[0].where.fullName = {
+                    [Op.like]: `%${filterData.ownerName}%`,
                 };
             }
 
-            const shops = await Shop.findAll({
-                where: whereClause, // Sử dụng whereClause
-                include: includeOptions,
-                order: [[sequelize.literal("`reasonTemp`.`createAt`"), "DESC"]],
+            const approvedShops = await ReasonChangeStatus.findAll({
+                where: {
+                    operatorID: 1,
+                    role: role,
+                },
+                include: includeClause,
                 offset: offset,
                 limit: limit,
+                order: [["createAt", "DESC"]],
             });
 
-            const totalApprovedShops = await Shop.count({
-                where: whereClause,
-                include: includeOptions,
+            const totalApprovedShops = await ReasonChangeStatus.count({
+                where: {
+                    operatorID: 1,
+                    role: role,
+                },
+                include: includeClause,
             });
 
-            return {
-                approvedShops: shops,
-                totalApprovedShops: totalApprovedShops,
-            };
+            return { approvedShops, totalApprovedShops };
         } catch (error) {
             console.error("Error fetching approved shops:", error);
             throw new Error(error.message);
-        } finally {
-            //Remove association tạm thời
-            Shop.removeAttribute("reasonTemp");
-            Shop.associations.reasonTemp = undefined;
         }
     },
 
