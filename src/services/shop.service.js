@@ -1,6 +1,7 @@
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
-import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
+import { getApprovedShops } from "../controllers/shops.controller.js";
+import reasonChangeStatusModel, { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shop } from "../models/shop.model.js";
 import { User } from "../models/user.model.js";
 
@@ -74,6 +75,82 @@ const ShopService = {
         } catch (error) {
             console.error("Error fetching pending shops:", error);
             throw new Error(error.message);
+        }
+    },
+
+    async getApprovedShops(offset = 0, limit = 10, filterData = {}) {
+        try {
+            const operatorID = 1;
+            const role = "Shop";
+            const { shopName, ownerName, shopEmail, shopPhone } = filterData; // Destructure
+
+            // Association tạm thời trong hàm
+            Shop.hasOne(ReasonChangeStatus, {
+                foreignKey: "pendingID",
+                as: "reasonTemp", // Alias khác để tránh xung đột
+            });
+
+            const whereClause = {};
+
+            // Lọc dựa trên thông tin Shop (shopName, shopEmail, shopPhone)
+            if (shopName) {
+                whereClause.shopName = { [Op.like]: `%${shopName}%` };
+            }
+            if (shopEmail) {
+                whereClause.shopEmail = { [Op.like]: `%${shopEmail}%` };
+            }
+            if (shopPhone) {
+                whereClause.shopPhone = { [Op.like]: `%${shopPhone}%` };
+            }
+
+            const includeOptions = [
+                {
+                    model: ReasonChangeStatus,
+                    as: "reasonTemp",
+                    required: true,
+                    where: {
+                        operatorID: operatorID,
+                        role: role,
+                    },
+                },
+                {
+                    model: User,
+                    as: "Owner", //Đảm bảo khớp với alias trong Shop.belongsTo
+                    required: true,
+                },
+            ];
+
+            // Lọc dựa trên Owner name
+            if (ownerName) {
+                includeOptions[1].where = {
+                    fullName: { [Op.like]: `%${ownerName}%` },
+                };
+            }
+
+            const shops = await Shop.findAll({
+                where: whereClause, // Sử dụng whereClause
+                include: includeOptions,
+                order: [[sequelize.literal("`reasonTemp`.`createAt`"), "DESC"]],
+                offset: offset,
+                limit: limit,
+            });
+
+            const totalApprovedShops = await Shop.count({
+                where: whereClause,
+                include: includeOptions,
+            });
+
+            return {
+                approvedShops: shops,
+                totalApprovedShops: totalApprovedShops,
+            };
+        } catch (error) {
+            console.error("Error fetching approved shops:", error);
+            throw new Error(error.message);
+        } finally {
+            //Remove association tạm thời
+            Shop.removeAttribute("reasonTemp");
+            Shop.associations.reasonTemp = undefined;
         }
     },
 
@@ -166,7 +243,7 @@ const ShopService = {
             throw new Error(error.message);
         }
     },
-    async updateShopStatus(id, updatedStatus) {
+    async updateShopStatus(shopID, updatedStatus) {
         const transaction = await sequelize.transaction();
         try {
             const { status, description } = updatedStatus;
@@ -180,7 +257,7 @@ const ShopService = {
                     },
                     {
                         where: {
-                            shopID: id,
+                            shopID: shopID,
                         },
                         transaction: transaction,
                     },
@@ -195,7 +272,8 @@ const ShopService = {
                 await ReasonChangeStatus.create(
                     {
                         operatorID: 1,
-                        shopID: id,
+                        pendingID: shopID,
+                        role: "Shop",
                         changedStatus: status,
                         reason: reason,
                     },
