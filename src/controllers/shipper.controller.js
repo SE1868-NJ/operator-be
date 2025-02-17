@@ -9,14 +9,17 @@ export const getAllShippers = async (req, res) => {
         const offset = Number.parseInt(req.query.offset) || 0;
         const limit = Number.parseInt(req.query.limit) || 10;
         const search = req.query.search || "";
-        const whereCondition = search
-            ? {
-                  [Op.or]: [
-                      { name: { [Op.like]: `%${search}%` } },
-                      { phone: { [Op.like]: `%${search}%` } },
-                  ],
-              }
-            : {};
+        const status = req.query.status || "";
+
+        const whereCondition = {
+            ...(search && {
+                [Op.or]: [
+                    { name: { [Op.like]: `%${search}%` } },
+                    { phone: { [Op.like]: `%${search}%` } },
+                ],
+            }),
+            ...(status && { status }),
+        };
 
         const data = await Shipper.findAll({
             where: whereCondition,
