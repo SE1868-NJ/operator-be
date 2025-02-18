@@ -121,7 +121,6 @@ async function insertShops() {
 
 // insertOperators();
 
-
 async function insertShippers() {
     try {
         await sequelize.sync(); // Ensure database schema is up to date
@@ -208,4 +207,4 @@ async function insertShippers() {
     }
 }
 
-insertShippers();
+// insertShippers();

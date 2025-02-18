@@ -16,13 +16,26 @@ export const Report = sequelize.define("Report", {
         allowNull: false,
         comment: "ID of the user reporting the issue",
     },
+    reporter_email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        comment: "Email of the user reporting the issue",
+    },
+    report_title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
     content: {
         type: DataTypes.TEXT,
         allowNull: false,
     },
     status: {
-        type: DataTypes.ENUM("pending", "reviewed", "resolved"),
+        type: DataTypes.ENUM("pending", "resolved"),
         defaultValue: "pending",
+    },
+    response: {
+        type: DataTypes.TEXT,
+        allowNull: true,
     },
 });
 
