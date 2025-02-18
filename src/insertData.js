@@ -102,22 +102,22 @@ async function insertShops() {
     }
 }
 
-// insertShops();
+//insertShops();
 
-async function insertOperators() {
-    try {
-        await sequelize.sync(); // Ensure database schema is up to date
+// async function insertOperators() {
+//     try {
+//         await sequelize.sync(); // Ensure database schema is up to date
 
-        const operators = [{ operatorName: "John Doe" }, { operatorName: "Jane Smith" }];
+//         const operators = [{ operatorName: "John Doe" }, { operatorName: "Jane Smith" }];
 
-        await Operator.bulkCreate(operators);
-        console.log("Operators inserted successfully.");
-    } catch (error) {
-        console.error("Error inserting operators:", error);
-    } finally {
-        await sequelize.close(); // Close the connection
-    }
-}
+//         await Operator.bulkCreate(operators);
+//         console.log("Operators inserted successfully.");
+//     } catch (error) {
+//         console.error("Error inserting operators:", error);
+//     } finally {
+//         await sequelize.close(); // Close the connection
+//     }
+// }
 
 // insertOperators();
 

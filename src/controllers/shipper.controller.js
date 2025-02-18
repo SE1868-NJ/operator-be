@@ -1,16 +1,41 @@
+import { Op, where } from "sequelize";
 import emergencyContact from "../models/emergencyContact.model.js";
 import { Role } from "../models/role.model.js";
 import { Shipper } from "../models/shipper.model.js";
-
 import ShipperService from "../services/shipper.service.js";
 
 export const getAllShippers = async (req, res) => {
     try {
-        const shippers = await Shipper.findAll();
-        res.json(shippers);
+        const offset = Number.parseInt(req.query.offset) || 0;
+        const limit = Number.parseInt(req.query.limit) || 10;
+        const search = req.query.search || "";
+        const status = req.query.status || "";
+
+        const whereCondition = {
+            ...(search && {
+                [Op.or]: [
+                    { name: { [Op.like]: `%${search}%` } },
+                    { phone: { [Op.like]: `%${search}%` } },
+                ],
+            }),
+            ...(status && { status }),
+        };
+
+        const data = await Shipper.findAll({
+            where: whereCondition,
+            offset,
+            limit,
+        });
+        const count = await Shipper.count({ where: whereCondition });
+
+        res.json({
+            where: whereCondition,
+            totalCount: count,
+            shippers: data,
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Internal server error: " });
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 

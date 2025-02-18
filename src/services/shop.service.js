@@ -23,6 +23,7 @@ const ShopService = {
                     [Op.like]: `%${filterData.shopEmail}%`,
                 };
             }
+
             if (filterData?.shopPhone) {
                 whereClause.shopPhone = {
                     [Op.like]: `%${filterData.shopPhone}%`,
@@ -35,7 +36,6 @@ const ShopService = {
                     [Op.or]: ["active", "suspended"],
                 };
             }
-
             const includeClause = [
                 {
                     model: User,
