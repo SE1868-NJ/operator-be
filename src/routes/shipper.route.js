@@ -1,3 +1,4 @@
+import express from "express";
 import {
     getAllShippers,
     getShipperById,
@@ -6,7 +7,6 @@ import {
 } from "../controllers/shipper.controller.js";
 
 const shipperRouter = express.Router();
-import express from "express";
 
 shipperRouter.patch("/:id", updateShipperStatus);
 shipperRouter.get("/:id", getShipperById);
