@@ -38,7 +38,7 @@ const ShipperServices = {
             });
         return shipper;
     },
-  async updateShipperStatus(id, status) {
+    async updateShipperStatus(id, status) {
         try {
             const shipper = await Shipper.findByPk(id);
             if (!shipper) {
@@ -54,4 +54,3 @@ const ShipperServices = {
 };
 
 export default ShipperServices;
-

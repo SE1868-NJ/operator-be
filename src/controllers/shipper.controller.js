@@ -45,7 +45,7 @@ export const updateShipperPending = async (req, res) => {
             error: `An error occured during find pending shipper! ${error}.`,
         });
     }
-}
+};
 export const updateShipperStatus = async (req, res) => {
     try {
         const { id } = req.params;
