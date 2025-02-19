@@ -1,19 +1,62 @@
+import e from "express";
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shop } from "../models/shop.model.js";
 import ShopService from "../services/shop.service.js";
 
 export const getPendingShops = async (req, res) => {
+    const { offset, limit } = req.query;
+    const o = Number.parseInt(offset);
+    const l = Number.parseInt(limit);
+    const { shopName, shopEmail, shopPhone, ownerName } = req.query;
     try {
-        const pensdingShops = await ShopService.getPendingShops();
+
+        const filterData = {
+            shopName,
+            shopEmail,
+            shopPhone,
+            ownerName,
+        };
+        // Spread operator để ghi đè các giá trị mặc định bằng các giá trị từ req.body
+        // const filterData = { ...defaultFilterData, ...req.query };
+        // console.log(offset, limit, shopName, shopEmail, shopPhone, ownerName);
+        const responseData = await ShopService.getPendingShops(o, l, filterData);
         return res.status(200).json({
             success: true,
             message: "Get pending shops successfully",
-            data: pendingShops,
+            data: responseData,
         });
     } catch (error) {
         return res.status(500).json({
             success: false,
             error: `An error occured during find pending shops! ${error}.`,
+        });
+    }
+};
+
+export const getApprovedShops = async (req, res) => {
+    try {
+        const { shopName, shopEmail, shopPhone, ownerName, offset, limit } = req.query;
+        const o = Number.parseInt(offset) || 0;
+        const l = Number.parseInt(limit) || 10;
+        const filter = {
+            shopName,
+            shopEmail,
+            shopPhone,
+            ownerName,
+        };
+        // Ép kiểu operatorID về số và đảm bảo nó là số dương
+
+        const result = await ShopService.getApprovedShops(o, l, filter); // Gọi hàm ĐÚNG
+        return res.status(200).json({
+            success: true,
+            message: "Get approved shops successfully",
+            data: result, // Spread để trả về approvedShops và totalApprovedShops
+        });
+    } catch (error) {
+        console.error("Lỗi getApprovedShops:", error); // Thêm log lỗi
+        return res.status(500).json({
+            success: false,
+            error: `An error occurred during find approved shops! ${error}.`,
         });
     }
 };
