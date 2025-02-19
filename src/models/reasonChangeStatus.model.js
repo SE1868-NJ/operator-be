@@ -17,12 +17,18 @@ export const ReasonChangeStatus = sequelize.define(
                 key: "operatorID", // Tên của khóa chính trong bảng Operators
             },
         },
-        shopID: {
+        pendingID: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            references: {
-                model: "Shops", // Tên bảng
-                key: "shopID", // Tên của khóa chính trong bảng Shops
+            validate: {
+                notEmpty: true,
+            },
+        },
+        role: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: true,
             },
         },
         changedStatus: {
@@ -34,10 +40,7 @@ export const ReasonChangeStatus = sequelize.define(
         },
         reason: {
             type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            },
+            allowNull: true,
         },
         createAt: {
             type: DataTypes.DATE,
@@ -50,12 +53,33 @@ export const ReasonChangeStatus = sequelize.define(
     },
 );
 
+// ReasonChangeStatus.associate = (models) => {
+//     ReasonChangeStatus.hasMany(models.Shop, {
+//         foreignKey: "shopID",
+//     });
+//     ReasonChangeStatus.hasMany(models.Operator, {
+//         foreignKey: "operatorID",
+//     });
+// };
+
 ReasonChangeStatus.associate = (models) => {
-    ReasonChangeStatus.hasMany(models.Shop, {
-        foreignKey: "shopID",
+    ReasonChangeStatus.belongsTo(models.Shop, {
+        foreignKey: "pendingID", // pendingID lưu trữ shopID
+        as: "shop", // Bí danh cho liên kết Shop
+        constraints: false, // Cho phép pendingID là NULL hoặc trỏ đến các bảng khác.
+        foreignKeyConstraint: false, // Ngăn chặn các lỗi ràng buộc khóa ngoại.
     });
-    ReasonChangeStatus.hasMany(models.Operator, {
+
+    ReasonChangeStatus.belongsTo(models.Shipper, {
+        foreignKey: "pendingID", // pendingID lưu trữ shipperID
+        as: "shipper", // Bí danh cho liên kết Shipper
+        constraints: false, // Cho phép pendingID là NULL hoặc trỏ đến các bảng khác.
+        foreignKeyConstraint: false, // Ngăn chặn các lỗi ràng buộc khóa ngoại.
+    });
+
+    ReasonChangeStatus.belongsTo(models.Operator, {
         foreignKey: "operatorID",
+        as: "operator", // Bí danh cho liên kết Operator
     });
 };
 
