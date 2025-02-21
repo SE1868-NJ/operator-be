@@ -17,12 +17,18 @@ export const ReasonChangeStatus = sequelize.define(
                 key: "operatorID", // Tên của khóa chính trong bảng Operators
             },
         },
-        shopID: {
+        pendingID: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            references: {
-                model: "Shops", // Tên bảng
-                key: "shopID", // Tên của khóa chính trong bảng Shops
+            validate: {
+                notEmpty: true,
+            },
+        },
+        role: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: true,
             },
         },
         changedStatus: {
@@ -34,10 +40,7 @@ export const ReasonChangeStatus = sequelize.define(
         },
         reason: {
             type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            },
+            allowNull: true,
         },
         createAt: {
             type: DataTypes.DATE,

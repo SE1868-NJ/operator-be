@@ -4,7 +4,7 @@ import ShopService from "../services/shop.service.js";
 
 export const getPendingShops = async (req, res) => {
     try {
-        const pensdingShops = await ShopService.getPendingShops();
+        const pendingShops = await ShopService.getPendingShops();
         return res.status(200).json({
             success: true,
             message: "Get pending shops successfully",
@@ -52,7 +52,6 @@ export const updateShopDetailStatus = async (req, res) => {
 
 export const updateShopStatus = async (req, res) => {
     try {
-
         const newStatus = await ShopService.updateShopStatus(req.params.id, req.body);
         return res.status(200).json({
             success: true,
@@ -71,7 +70,6 @@ export const updateShopStatus = async (req, res) => {
 // từ shop.service.js để lấy dữ liệu hoặc thực hiện các thao tác cần thiết.
 export const getAllShops = async (req, res) => {
     try {
-
         const shops = await ShopService.getAllShops();
 
         res.status(200).json({
