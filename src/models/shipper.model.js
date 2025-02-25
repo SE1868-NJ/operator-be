@@ -74,6 +74,7 @@ export const Shipper = sequelize.define("Shipper", {
         type: DataTypes.ENUM("Đang duyệt", "Đang hoạt động", "Dừng hoạt động"),
 
         allowNull: false,
+
         defaultValue: "Đang duyệt",
     },
     activityArea: {
