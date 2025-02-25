@@ -56,6 +56,14 @@ export const Shipper = sequelize.define("Shipper", {
         allowNull: false,
         unique: true,
     },
+    idCardFrontFile: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    idCardBackFile: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -74,6 +82,7 @@ export const Shipper = sequelize.define("Shipper", {
         type: DataTypes.ENUM("Đang duyệt", "Đang hoạt động", "Dừng hoạt động"),
 
         allowNull: false,
+
         defaultValue: "Đang duyệt",
     },
     activityArea: {
