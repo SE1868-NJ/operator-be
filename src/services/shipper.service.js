@@ -110,6 +110,7 @@ const ShipperServices = {
         }
     },
 
+
     async updateShipperStatus(id, status) {
         try {
             const shipper = await Shipper.findByPk(id);
