@@ -56,6 +56,14 @@ export const Shipper = sequelize.define("Shipper", {
         allowNull: false,
         unique: true,
     },
+    idCardFrontFile: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    idCardBackFile: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
