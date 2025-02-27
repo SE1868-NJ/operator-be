@@ -43,73 +43,21 @@ const ShipperServices = {
         return shipper;
     },
 
-    async updateShipperPending(id, updatedStatus) {
-        const transaction = await sequelize.transaction();
-        try {
-            const { status, description } = updatedStatus;
-            const newStatus = status === "rejected" ? "Rejected" : "Active";
-            const reason = description;
-
-            try {
-                const updatedShipper = await Shipper.update(
-                    {
-                        status: newStatus,
-                    },
-                    {
-                        where: {
-                            id: id,
-                        },
-                        transaction: transaction,
-                    },
-                );
-
-                // Kiểm tra xem shop có tồn tại hay không
-                if (updatedShipper === null) {
-                    await transaction.rollback();
-                    throw new Error("Shipper not found");
-                }
-
-                await ReasonChangeStatus.create(
-                    {
-                        operatorID: 1,
-                        pendingID: id,
-                        role: "Shipper",
-                        changedStatus: status,
-                        reason: reason,
-                    },
-                    {
-                        transaction: transaction,
-                    },
-                );
-
-                await transaction.commit();
-                return updatedShipper;
-            } catch (error) {
-                await transaction.rollback();
-                console.error(
-                    "Error during updateShopStatus (inner try) - Shop ID:",
-                    id,
-                    "Error:",
-                    error,
-                    "Request Body:",
-                    req.body,
-                );
-                throw new Error(error.message);
-            }
-        } catch (error) {
-            await transaction.rollback();
-            console.error(
-                "Error during updateShopStatus (outer try) - Shop ID:",
-                id,
-                "Error:",
-                error,
-                "Request Body:",
-                req.body,
-            );
-            throw new Error(error.message);
-        }
+    async updateShipperPending(id, status) {
+        const shipper = await Shipper.update(
+            { status: status },
+            {
+                where: {
+                    id: id,
+                },
+            },
+        )
+            .then((res) => res)
+            .catch((err) => {
+                console.log(err);
+            });
+        return shipper;
     },
-
     async updateShipperStatus(id, status) {
         try {
             const shipper = await Shipper.findByPk(id);

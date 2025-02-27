@@ -9,6 +9,16 @@ export const User = sequelize.define(
             primaryKey: true,
             autoIncrement: true,
         },
+        status: {
+            type: DataTypes.ENUM("active", "inactive", "suspended"),
+            allowNull: false,
+            defaultValue: "active",
+        },
+        avatar: {
+            type: DataTypes.STRING, // URL hoặc đường dẫn file
+            allowNull: true, // Có thể null nếu người dùng chưa đặt avatar
+            defaultValue: "https://i.pinimg.com/236x/5e/e0/82/5ee082781b8c41406a2a50a0f32d6aa6.jpg",
+        },
         fullName: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -24,7 +34,7 @@ export const User = sequelize.define(
             },
         },
         gender: {
-            type: DataTypes.ENUM("Male", "Female", "Other"),
+            type: DataTypes.ENUM("male", "female", "other"),
             allowNull: false,
         },
         userEmail: {
@@ -43,7 +53,6 @@ export const User = sequelize.define(
             },
         },
         userCitizenID: {
-            // số thẻ chung cư
             type: DataTypes.STRING,
             allowNull: false,
             validate: {
@@ -58,7 +67,6 @@ export const User = sequelize.define(
             },
         },
         identificationNumber: {
-            // CCCD
             type: DataTypes.STRING,
             allowNull: false,
             validate: {
@@ -66,17 +74,17 @@ export const User = sequelize.define(
             },
         },
         idCardFrontFile: {
-            type: DataTypes.STRING, // URL hoặc đường dẫn file
+            type: DataTypes.STRING,
             allowNull: false,
         },
         idCardBackFile: {
-            type: DataTypes.STRING, // URL hoặc đường dẫn file
+            type: DataTypes.STRING,
             allowNull: false,
         },
     },
     {
         tableName: "Users",
-        timestamps: false, // Tắt tự động thêm createdAt và updatedAt nếu không cần
+        timestamps: false,
     },
 );
 
