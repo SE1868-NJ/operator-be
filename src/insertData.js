@@ -1,5 +1,9 @@
 import sequelize from "./config/sequelize.config.js";
+import { Address } from "./models/address.model.js";
 import { Operator } from "./models/operator.model.js";
+import { Order } from "./models/order.model.js";
+import { OrderItem } from "./models/orderItem.model.js";
+import { Product } from "./models/product.model.js";
 import { Shipper } from "./models/shipper.model.js";
 import { Shop } from "./models/shop.model.js";
 
@@ -207,4 +211,201 @@ async function insertShippers() {
     }
 }
 
-insertShippers();
+// insertShippers();
+
+async function insertAddresses() {
+    try {
+        await Address.bulkCreate([
+            {
+                user_id: 1,
+                fullName: "Nguyễn Văn A",
+                phone: "0901234567",
+                province: "Hồ Chí Minh",
+                city: "Hồ Chí Minh",
+                district: "Quận 1",
+                ward: "Phường Bến Nghé",
+                street: "Đường Đồng Khởi",
+                default: true,
+            },
+            {
+                user_id: 1,
+                fullName: "Nguyễn Văn A",
+                phone: "0908765432",
+                province: "Hà Nội",
+                city: "Hà Nội",
+                district: "Ba Đình",
+                ward: "Điện Biên",
+                street: "Phố Điện Biên Phủ",
+                default: false,
+            },
+            {
+                user_id: 2,
+                fullName: "Trần Thị B",
+                phone: "0911223344",
+                province: "Đà Nẵng",
+                city: "Đà Nẵng",
+                district: "Hải Châu",
+                ward: "Thạch Thang",
+                street: "Đường Lê Duẩn",
+                default: true,
+            },
+            {
+                user_id: 3,
+                fullName: "Lê Văn C",
+                phone: "0922334455",
+                province: "Cần Thơ",
+                city: "Cần Thơ",
+                district: "Ninh Kiều",
+                ward: "An Hội",
+                street: "Đường Hai Bà Trưng",
+                default: false,
+            },
+            {
+                user_id: 3,
+                fullName: "Lê Văn C",
+                phone: "0933445566",
+                province: "Hải Phòng",
+                city: "Hải Phòng",
+                district: "Ngô Quyền",
+                ward: "Lạch Tray",
+                street: "Đường Lạch Tray",
+                default: false,
+            },
+        ]);
+        console.log("5 Addresses inserted successfully.");
+    } catch (error) {
+        console.error("Error inserting addresses:", error);
+    } finally {
+        await sequelize.close(); // Close the connection
+    }
+}
+
+// insertAddresses();
+
+async function insertOrders() {
+    try {
+        const order1 = await Order.create({
+            shop_id: 1,
+            customer_id: 2,
+            address_id: 1,
+            productFee: 250000,
+            shippingFee: 30000,
+            status: "pending",
+            total: 280000, // 280,000 VND
+            note: "Giao hàng giờ hành chính. Gọi trước khi đến.",
+            payment_status: "pending",
+            shipping_status: "not_yet_shipped",
+            payment_method: "COD", // Thanh toán khi nhận hàng
+        });
+
+        const order2 = await Order.create({
+            shop_id: 2,
+            customer_id: 3,
+            address_id: 2,
+            productFee: 1500000,
+            shippingFee: 0,
+            status: "processing",
+            total: 1500000, // 1,500,000 VND
+            note: "Gói cẩn thận, tránh va đập.",
+            payment_status: "paid",
+            shipping_status: "shipping",
+            payment_method: "Credit Card", // Thẻ tín dụng
+        });
+
+        console.log("Dữ liệu đã được thêm thành công!");
+    } catch (error) {
+        console.error("Lỗi khi thêm dữ liệu:", error);
+    } finally {
+        await sequelize.close();
+    }
+}
+
+// insertOrders();
+
+async function insertProducts() {
+    try {
+        await Product.bulkCreate([
+            {
+                shop_id: 1, // ID của shop "Cửa hàng Táo Đỏ"
+                product_name: "iPhone 15 Pro Max 256GB",
+                description:
+                    "Điện thoại iPhone 15 Pro Max với chip A17 Bionic mạnh mẽ, màn hình Super Retina XDR, và camera chuyên nghiệp.",
+                status: "active",
+                price: 34990000, // 34,990,000 VND
+                quantity: 10,
+            },
+            {
+                shop_id: 2, // ID của shop "Siêu thị Điện máy Xanh"
+                product_name: "Tivi Samsung 55 inch 4K",
+                description:
+                    "Tivi Samsung 55 inch độ phân giải 4K UHD, công nghệ HDR, và âm thanh sống động.",
+                status: "active",
+                price: 18490000, // 18,490,000 VND
+                quantity: 5,
+            },
+            {
+                shop_id: 1, // ID của shop "Cửa hàng Táo Đỏ"
+                product_name: "AirPods Pro 2",
+                description:
+                    "Tai nghe AirPods Pro 2 với khả năng chống ồn chủ động, âm thanh chất lượng cao.",
+                status: "active",
+                price: 6990000, // 6,990,000 VND
+                quantity: 20,
+            },
+        ]);
+
+        console.log("Products inserted successfully.");
+    } catch (error) {
+        console.error("Error inserting products:", error);
+    } finally {
+        await sequelize.close(); // Close the connection
+    }
+}
+
+//   insertProducts();
+async function insertOrderItems() {
+    try {
+        const orderItem1_1 = await OrderItem.create({
+            order_id: 1,
+            product_id: 1, // ID của sản phẩm "Áo thun nam"
+            price: 50000,
+            quantity: 2,
+            total: 100000, // 100,000 VND (mỗi áo 50,000 VND)
+        });
+
+        const orderItem1_2 = await OrderItem.create({
+            order_id: 1,
+            product_id: 2, // ID của sản phẩm "Quần jean nữ"
+            price: 150000,
+            quantity: 1,
+            total: 150000, // 150,000 VND
+        });
+
+        // Tạo order items cho order 2
+        const orderItem2_1 = await OrderItem.create({
+            order_id: 2,
+            product_id: 3, // ID của sản phẩm "Điện thoại Samsung Galaxy S23"
+            price: 1500000,
+            quantity: 1,
+            total: 1500000, // 1,500,000 VND
+        });
+
+        console.log("Order items inserted successfully.");
+    } catch (error) {
+        console.error("Error inserting order items:", error);
+    } finally {
+        await sequelize.close(); // Close the connection
+    }
+}
+
+insertOrderItems();
+
+// async function doInsert() {
+//   await insertShops();
+//   await insertShippers();
+//   await insertOrders();
+//   await insertProducts();
+//   await insertOrderItems();
+// }
+
+// doInsert();
