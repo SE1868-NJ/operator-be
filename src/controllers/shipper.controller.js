@@ -4,11 +4,10 @@ import { Role } from "../models/role.model.js";
 import { Shipper } from "../models/shipper.model.js";
 import ShipperServices from "../services/shipper.service.js";
 
-import ShipperService from "../services/shipper.service.js";
-
 export const getAllShippers = async (req, res) => {
     try {
-        const shippers = await Shipper.findAll();
+        const { offset = 0, limit = 10 } = req.body;
+        const shippers = await ShipperServices.getAllShippers(offset, limit);
         res.json(shippers);
     } catch (error) {
         console.error(error);

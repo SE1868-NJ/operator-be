@@ -9,16 +9,6 @@ export const User = sequelize.define(
             primaryKey: true,
             autoIncrement: true,
         },
-        status: {
-            type: DataTypes.ENUM("active", "inactive", "suspended"),
-            allowNull: false,
-            defaultValue: "active",
-        },
-        avatar: {
-            type: DataTypes.STRING, // URL hoặc đường dẫn file
-            allowNull: true, // Có thể null nếu người dùng chưa đặt avatar
-            defaultValue: "https://i.pinimg.com/236x/5e/e0/82/5ee082781b8c41406a2a50a0f32d6aa6.jpg",
-        },
         fullName: {
             type: DataTypes.STRING,
             allowNull: false,
