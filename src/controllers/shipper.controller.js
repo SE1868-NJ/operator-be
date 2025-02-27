@@ -6,7 +6,6 @@ import ShipperServices from "../services/shipper.service.js";
 
 export const getAllShippers = async (req, res) => {
     try {
-
         const offset = Number.parseInt(req.query.offset) || 0;
         const limit = Number.parseInt(req.query.limit) || 10;
         const search = req.query.search || "";

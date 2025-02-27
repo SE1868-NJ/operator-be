@@ -9,8 +9,6 @@ export const getPendingShops = async (req, res) => {
     const l = Number.parseInt(limit);
     const { shopName, shopEmail, shopPhone, ownerName } = req.query;
     try {
-
-
         const filterData = {
             shopName,
             shopEmail,
@@ -113,7 +111,6 @@ export const updateShopStatus = async (req, res) => {
 // shops.controller.js: Xử lý các yêu cầu HTTP và sử dụng các dịch vụ
 // từ shop.service.js để lấy dữ liệu hoặc thực hiện các thao tác cần thiết.
 export const getAllShops = async (req, res) => {
-
     const { offset, limit } = req.query;
     const o = Number.parseInt(offset) || 0;
     const l = Number.parseInt(limit) || 10;

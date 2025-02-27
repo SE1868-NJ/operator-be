@@ -1,4 +1,3 @@
-
 import { Model, Op, Sequelize } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
 import { getApprovedShops } from "../controllers/shops.controller.js";
