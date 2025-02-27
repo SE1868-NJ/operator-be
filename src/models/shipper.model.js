@@ -20,7 +20,7 @@ export const Shipper = sequelize.define("Shipper", {
         allowNull: false,
         validate: {
             isIn: {
-                args: [["Nam", "Nữ", "Khác"]],
+                args: [["Male", "Female", "Other"]],
                 msg: "Giới tính phải là Nam, Nữ, hoặc Khác.",
             },
         },
@@ -79,10 +79,11 @@ export const Shipper = sequelize.define("Shipper", {
         },
     },
     status: {
-        type: DataTypes.ENUM("Đang duyệt", "Đang hoạt động", "Dừng hoạt động"),
+        type: DataTypes.ENUM("Pending", "Active", "Deactive"),
 
         allowNull: false,
-        defaultValue: "Đang duyệt",
+
+        defaultValue: "Pending",
     },
     activityArea: {
         type: DataTypes.STRING,
