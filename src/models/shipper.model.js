@@ -20,8 +20,8 @@ export const Shipper = sequelize.define("Shipper", {
         allowNull: false,
         validate: {
             isIn: {
-                args: [["Nam", "Nữ", "Khác"]],
-                msg: "Giới tính phải là Nam, Nữ, hoặc Khác.",
+                args: [["male", "female", "other"]],
+                msg: "Gender must be male, female, or other.",
             },
         },
     },
@@ -30,11 +30,11 @@ export const Shipper = sequelize.define("Shipper", {
         allowNull: false,
         validate: {
             isDate: {
-                msg: "Ngày sinh sai format.",
+                msg: "Date of birth must be a valid date format.",
             },
             isBefore: {
                 args: new Date().toISOString().split("T")[0],
-                msg: "Ngày sinh phải là ngày trước thời gian hiện tại.",
+                msg: "Date of birth must be a date before the current date.",
             },
         },
     },
@@ -56,34 +56,25 @@ export const Shipper = sequelize.define("Shipper", {
         allowNull: false,
         unique: true,
     },
-    idCardFrontFile: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    idCardBackFile: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
         validate: {
             isEmail: {
-                msg: "Email không hợp lệ.",
+                msg: "Invalid email.",
             },
             len: {
                 args: [5, 255],
-                msg: "Email phải chứa 5 đến 255 ký tự",
+                msg: "Email must be between 5 and 255 characters in length.",
             },
         },
     },
     status: {
-        type: DataTypes.ENUM("Đang duyệt", "Đang hoạt động", "Dừng hoạt động"),
+        type: DataTypes.ENUM("pending", "active", "inactive"),
 
         allowNull: false,
-
-        defaultValue: "Đang duyệt",
+        defaultValue: "pending",
     },
     activityArea: {
         type: DataTypes.STRING,

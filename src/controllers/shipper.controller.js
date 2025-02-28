@@ -57,11 +57,12 @@ export const getShipperById = async (req, res) => {
 export const updateShipperPending = async (req, res) => {
     try {
         const { id } = req.params;
-        const shipper = await ShipperServices.updateShipperPending(id, req.body);
+        const { status } = req.body;
+        const newStatus = status === "rejected" ? "rejected" : "Active";
+        const shipper = await ShipperServices.updateShipperPending(id, newStatus);
         return res.status(200).json({
             success: true,
             message: "Update pending shipper successfully",
-            data: shipper,
         });
     } catch (error) {
         return res.status(500).json({
