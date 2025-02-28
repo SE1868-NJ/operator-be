@@ -73,22 +73,6 @@ export const getPendingShopById = async (req, res) => {
     }
 };
 
-export const updateShopDetailStatus = async (req, res) => {
-    try {
-        const newStatus = await ShopService.updateShopDetailStatus(req.params.id, req.body);
-        return res.status(200).json({
-            success: true,
-            message: "Update shop detail status successfully",
-            newStatus: newStatus,
-        });
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            error: `An error occured during update status shop detail! ${error}.`,
-        });
-    }
-};
-
 export const updateShopStatus = async (req, res) => {
     try {
         const newStatus = await ShopService.updateShopStatus(req.params.id, req.body);
