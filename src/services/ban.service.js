@@ -52,7 +52,7 @@ const BanService = {
                 );
             } else if (userType === "shipper") {
                 await Shipper.update(
-                    { status: "Deactive" },
+                    { status: "deactive" },
                     {
                         where: {
                             id: userId,
@@ -149,7 +149,7 @@ const BanService = {
                 );
             } else if (banRecord?.userType === "shipper") {
                 await Shipper.update(
-                    { status: "Active" },
+                    { status: "active" },
                     {
                         where: {
                             id: userId,
