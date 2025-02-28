@@ -34,7 +34,7 @@ const BanService = {
 
             if (userType === "customer") {
                 await User.update(
-                    { status: "Đình chỉ" },
+                    { status: "suspended" },
                     {
                         where: {
                             userID: userId,
@@ -43,7 +43,7 @@ const BanService = {
                 );
             } else if (userType === "shop") {
                 await Shop.update(
-                    { shopStatus: "Đình chỉ" },
+                    { shopStatus: "suspended" },
                     {
                         where: {
                             shopID: userId,
@@ -52,7 +52,7 @@ const BanService = {
                 );
             } else if (userType === "shipper") {
                 await Shipper.update(
-                    { status: "Đình chỉ" },
+                    { status: "suspended" },
                     {
                         where: {
                             id: userId,
@@ -90,16 +90,16 @@ const BanService = {
                 for (const ban of expireBans) {
                     if (ban.userType === "customer") {
                         updateTasks.push(
-                            User.update({ status: "Hoạt động" }, { where: { userID: ban.userId } }),
+                            User.update({ status: "active" }, { where: { userID: ban.userId } }),
                         );
                     } else if (ban.userType === "shipper") {
                         updateTasks.push(
-                            Shipper.update({ status: "Hoạt động" }, { where: { id: ban.userId } }),
+                            Shipper.update({ status: "active" }, { where: { id: ban.userId } }),
                         );
                     } else if (ban.userType === "shop") {
                         updateTasks.push(
                             Shop.update(
-                                { shopStatus: "Hoạt động" },
+                                { shopStatus: "active" },
                                 { where: { shopID: ban.userId } },
                             ),
                         );
@@ -131,7 +131,7 @@ const BanService = {
 
             if (banRecord?.userType === "customer") {
                 await User.update(
-                    { status: "Hoạt động" },
+                    { status: "active" },
                     {
                         where: {
                             userID: userId,
@@ -140,7 +140,7 @@ const BanService = {
                 );
             } else if (banRecord?.userType === "shop") {
                 await Shop.update(
-                    { shopStatus: "Hoạt động" },
+                    { shopStatus: "active" },
                     {
                         where: {
                             shopID: userId,
@@ -149,7 +149,7 @@ const BanService = {
                 );
             } else if (banRecord?.userType === "shipper") {
                 await Shipper.update(
-                    { status: "Hoạt động" },
+                    { status: "active" },
                     {
                         where: {
                             id: userId,

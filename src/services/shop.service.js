@@ -1,7 +1,6 @@
-import { Model, Op, Sequelize } from "sequelize";
+import { Op } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
-import { getApprovedShops } from "../controllers/shops.controller.js";
-import reasonChangeStatusModel, { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
+import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shop } from "../models/shop.model.js";
 import { User } from "../models/user.model.js";
 
@@ -24,7 +23,6 @@ const ShopService = {
                     [Op.like]: `%${filterData.shopEmail}%`,
                 };
             }
-
             if (filterData?.shopPhone) {
                 whereClause.shopPhone = {
                     [Op.like]: `%${filterData.shopPhone}%`,
@@ -37,6 +35,7 @@ const ShopService = {
                     [Op.or]: ["active", "suspended"],
                 };
             }
+
             const includeClause = [
                 {
                     model: User,
@@ -72,126 +71,23 @@ const ShopService = {
             throw new Error(error.message);
         }
     },
-    async getPendingShops(offset, limit, filterData = {}) {
+    async getPendingShops() {
         try {
-            const whereClause = {}; // Không khởi tạo shopStatus ở đây, sẽ thêm sau nếu cần
-
-            // Lọc Shop
-            if (filterData?.shopName) {
-                whereClause.shopName = { [Op.like]: `%${filterData.shopName}%` };
-            }
-            if (filterData?.shopEmail) {
-                whereClause.shopEmail = { [Op.like]: `%${filterData.shopEmail}%` };
-            }
-            if (filterData?.shopPhone) {
-                whereClause.shopPhone = { [Op.like]: `%${filterData.shopPhone}%` };
-            }
-            if (filterData?.shopStatus) {
-                // Thêm filter shopStatus
-                whereClause.shopStatus = filterData.shopStatus;
-            } else {
-                whereClause.shopStatus = "pending"; // Giá trị mặc định là pending nếu không có filter nào
-            }
-
-            const includeClause = [
-                {
-                    model: User,
-                    as: "Owner",
-                    where: {},
-                    required: true,
-                },
-            ];
-
-            // Lọc User (Owner)
-            if (filterData?.ownerName) {
-                includeClause[0].where.fullName = {
-                    [Op.like]: `%${filterData.ownerName}%`,
-                };
-            }
-
             const pendingShops = await Shop.findAll({
-                where: whereClause,
-                offset,
-                limit,
-                include: includeClause,
-            });
-
-            const totalPendingShops = await Shop.count({
-                where: whereClause,
-                include: includeClause,
-            });
-
-            return { pendingShops, totalPendingShops };
-        } catch (error) {
-            console.error("Error fetching pending shops:", error);
-            throw new Error(error.message);
-        }
-    },
-
-    async getApprovedShops(offset = 0, limit = 10, filterData = {}) {
-        const role = "Shop";
-        try {
-            // Lọc Shop
-            const includeClause = [
-                {
-                    model: Shop,
-                    as: "shop",
-                    where: {},
-                    include: [
-                        {
-                            model: User,
-                            as: "Owner",
-                            where: {},
-                            required: true,
-                        },
-                    ],
-                    required: true,
-                },
-            ];
-
-            if (filterData?.shopName) {
-                includeClause[0].where.shopName = {
-                    [Op.like]: `%${filterData.shopName}%`,
-                };
-            }
-            if (filterData?.shopEmail) {
-                includeClause[0].where.shopEmail = {
-                    [Op.like]: `%${filterData.shopEmail}%`,
-                };
-            }
-            if (filterData?.shopPhone) {
-                includeClause[0].where.shopPhone = {
-                    [Op.like]: `%${filterData.shopPhone}%`,
-                };
-            }
-            if (filterData?.ownerName) {
-                includeClause[0].include[0].where.fullName = {
-                    [Op.like]: `%${filterData.ownerName}%`,
-                };
-            }
-
-            const approvedShops = await ReasonChangeStatus.findAll({
                 where: {
-                    operatorID: 1,
-                    role: role,
+                    shopStatus: "pending",
                 },
-                include: includeClause,
-                offset: offset,
-                limit: limit,
-                order: [["createAt", "DESC"]],
+                include: [
+                    {
+                        model: User,
+                        as: "Owner",
+                    },
+                ],
+                order: [["shopID", "ASC"]],
             });
 
-            const totalApprovedShops = await ReasonChangeStatus.count({
-                where: {
-                    operatorID: 1,
-                    role: role,
-                },
-                include: includeClause,
-            });
-
-            return { approvedShops, totalApprovedShops };
+            return pendingShops;
         } catch (error) {
-            console.error("Error fetching approved shops:", error);
             throw new Error(error.message);
         }
     },
@@ -237,7 +133,7 @@ const ShopService = {
         const transaction = await sequelize.transaction();
         try {
             const { status, description } = updatedStatus;
-            const newStatus = status === "active" ? "suspended" : "active";
+            const newStatus = status === "active" ? "rejected" : "accepted";
             const reason = description;
 
             try {
@@ -252,24 +148,35 @@ const ShopService = {
                         transaction: transaction,
                     },
                 );
+                console.log("B1");
 
                 // Kiểm tra xem shop có tồn tại hay không
-                if (updatedShop === null) {
+                if (updatedShop[0] === 0) {
                     await transaction.rollback();
-                    throw new Error("Shop not found");
+                    throw new Error("Shop not found or no update was made.");
                 }
 
-                await ReasonChangeStatus.create(
-                    {
-                        operatorID: 1,
-                        shopID: id,
-                        changedStatus: status,
-                        reason: reason,
-                    },
-                    {
-                        transaction: transaction,
-                    },
-                );
+                console.log("B2");
+
+                console.log("B2.1 - Inserting reason change status:", {
+                    operatorID: 1,
+                    shopID: id,
+                    changedStatus: newStatus,
+                    reason: reason,
+                });
+                console.log("B2.1 - Checking changedStatus:", newStatus);
+                if (!["active", "suspended"].includes(newStatus)) {
+                    throw new Error(`Invalid changedStatus: ${newStatus}`);
+                }
+
+                await ReasonChangeStatus.create({
+                    operatorID: 1,
+                    shopID: id,
+                    changedStatus: "accepted",
+                    reason: reason,
+                });
+
+                console.log("B3");
 
                 await transaction.commit();
                 return newStatus;
@@ -298,7 +205,7 @@ const ShopService = {
             throw new Error(error.message);
         }
     },
-    async updateShopStatus(shopID, updatedStatus) {
+    async updateShopStatus(id, updatedStatus) {
         const transaction = await sequelize.transaction();
         try {
             const { status, description } = updatedStatus;
@@ -312,7 +219,7 @@ const ShopService = {
                     },
                     {
                         where: {
-                            shopID: shopID,
+                            shopID: id,
                         },
                         transaction: transaction,
                     },
@@ -327,8 +234,7 @@ const ShopService = {
                 await ReasonChangeStatus.create(
                     {
                         operatorID: 1,
-                        pendingID: shopID,
-                        role: "Shop",
+                        shopID: id,
                         changedStatus: status,
                         reason: reason,
                     },

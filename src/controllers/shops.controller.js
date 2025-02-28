@@ -1,6 +1,3 @@
-import e from "express";
-import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
-import { Shop } from "../models/shop.model.js";
 import ShopService from "../services/shop.service.js";
 
 export const getPendingShops = async (req, res) => {

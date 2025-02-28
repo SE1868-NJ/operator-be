@@ -71,6 +71,14 @@ export const User = sequelize.define(
             type: DataTypes.STRING,
             allowNull: false,
         },
+        status: {
+            type: DataTypes.ENUM("active", "inactive", "suspended"),
+            allowNull: false,
+        },
+        avatar: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
     },
     {
         tableName: "Users",
