@@ -67,6 +67,10 @@ Product.associate = (models) => {
         foreignKey: "shop_id",
         as: "Shop",
     });
+    Product.hasMany(models.OrderItem, {
+        foreignKey: "product_id",
+        as: "OrderItems",
+    });
 };
 
 export default (sequelize, DataTypes) => {

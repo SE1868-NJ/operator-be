@@ -1,6 +1,13 @@
 import { Op } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
+import { Feedback } from "../models/feedback.model.js";
+import { Media } from "../models/media.model.js";
+import { MediaItem } from "../models/mediaItem.model.js";
+import { Order } from "../models/order.model.js";
+import { OrderItem } from "../models/orderItem.model.js";
+import { Product } from "../models/product.model.js";
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
+import { ReplyFeedback } from "../models/replyFeedback.model.js";
 import { Shop } from "../models/shop.model.js";
 import { User } from "../models/user.model.js";
 
@@ -71,23 +78,126 @@ const ShopService = {
             throw new Error(error.message);
         }
     },
-    async getPendingShops() {
+    async getPendingShops(offset, limit, filterData = {}) {
         try {
-            const pendingShops = await Shop.findAll({
-                where: {
-                    shopStatus: "pending",
+            const whereClause = {}; // Không khởi tạo shopStatus ở đây, sẽ thêm sau nếu cần
+
+            // Lọc Shop
+            if (filterData?.shopName) {
+                whereClause.shopName = { [Op.like]: `%${filterData.shopName}%` };
+            }
+            if (filterData?.shopEmail) {
+                whereClause.shopEmail = { [Op.like]: `%${filterData.shopEmail}%` };
+            }
+            if (filterData?.shopPhone) {
+                whereClause.shopPhone = { [Op.like]: `%${filterData.shopPhone}%` };
+            }
+            if (filterData?.shopStatus) {
+                // Thêm filter shopStatus
+                whereClause.shopStatus = filterData.shopStatus;
+            } else {
+                whereClause.shopStatus = "pending"; // Giá trị mặc định là pending nếu không có filter nào
+            }
+
+            const includeClause = [
+                {
+                    model: User,
+                    as: "Owner",
+                    where: {},
+                    required: true,
                 },
-                include: [
-                    {
-                        model: User,
-                        as: "Owner",
-                    },
-                ],
-                order: [["shopID", "ASC"]],
+            ];
+
+            // Lọc User (Owner)
+            if (filterData?.ownerName) {
+                includeClause[0].where.fullName = {
+                    [Op.like]: `%${filterData.ownerName}%`,
+                };
+            }
+
+            const pendingShops = await Shop.findAll({
+                where: whereClause,
+                offset,
+                limit,
+                include: includeClause,
             });
 
-            return pendingShops;
+            const totalPendingShops = await Shop.count({
+                where: whereClause,
+                include: includeClause,
+            });
+
+            return { pendingShops, totalPendingShops };
         } catch (error) {
+            console.error("Error fetching pending shops:", error);
+            throw new Error(error.message);
+        }
+    },
+
+    async getApprovedShops(offset = 0, limit = 10, filterData = {}) {
+        const role = "Shop";
+        try {
+            // Lọc Shop
+            const includeClause = [
+                {
+                    model: Shop,
+                    as: "shop",
+                    where: {},
+                    include: [
+                        {
+                            model: User,
+                            as: "Owner",
+                            where: {},
+                            required: true,
+                        },
+                    ],
+                    required: true,
+                },
+            ];
+
+            if (filterData?.shopName) {
+                includeClause[0].where.shopName = {
+                    [Op.like]: `%${filterData.shopName}%`,
+                };
+            }
+            if (filterData?.shopEmail) {
+                includeClause[0].where.shopEmail = {
+                    [Op.like]: `%${filterData.shopEmail}%`,
+                };
+            }
+            if (filterData?.shopPhone) {
+                includeClause[0].where.shopPhone = {
+                    [Op.like]: `%${filterData.shopPhone}%`,
+                };
+            }
+            if (filterData?.ownerName) {
+                includeClause[0].include[0].where.fullName = {
+                    [Op.like]: `%${filterData.ownerName}%`,
+                };
+            }
+
+            const approvedShops = await ReasonChangeStatus.findAll({
+                where: {
+                    operatorID: 1,
+                    role: role,
+                },
+                include: includeClause,
+                offset: offset,
+                limit: limit,
+                order: [["createAt", "DESC"]],
+            });
+
+            const totalApprovedShops = await ReasonChangeStatus.count({
+                where: {
+                    operatorID: 1,
+                    role: role,
+                },
+                include: includeClause,
+            });
+
+            return { approvedShops, totalApprovedShops };
+        } catch (error) {
+            console.error("Error fetching approved shops:", error);
             throw new Error(error.message);
         }
     },
@@ -112,15 +222,108 @@ const ShopService = {
         }
     },
     async getShopById(id) {
+        console.log("B1");
         try {
             const shop = await Shop.findByPk(id, {
                 include: [
                     {
                         model: User,
-                        as: "Owner",
+                        as: "Owner", // Chủ shop
                     },
+                    {
+                        model: Order,
+                        as: "Order",
+                        include: [
+                            {
+                                model: OrderItem,
+                                as: "OrderItems",
+                                include: [
+                                    {
+                                        model: Product,
+                                        as: "ProductIT",
+                                    },
+                                    {
+                                        model: Feedback,
+                                        as: "Feedbacks",
+                                        include: [
+                                            {
+                                                model: User,
+                                                as: "Customer",
+                                            },
+                                            {
+                                                model: ReplyFeedback,
+                                                as: "Reply",
+                                                include: [
+                                                    {
+                                                        model: User,
+                                                        as: "ReplyUser",
+                                                    },
+                                                ],
+                                            },
+                                            {
+                                                model: Media,
+                                                as: "Media",
+                                                include: [
+                                                    {
+                                                        model: MediaItem,
+                                                        as: "MediaItems",
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                    // {
+                    //     model: Feedback,
+                    //     as: "Feedbacks",
+                    //     include: [
+                    //         {
+                    //             model: User,
+                    //             as: "Customer",
+                    //             attributes: ["userID", "fullName", "userEmail", "userPhone", "avatar"], // Người gửi feedback
+                    //         },
+                    // {
+                    //     model: ReplyFeedback,
+                    //     as: "Replies",
+                    //     include: [
+                    //         {
+                    //             model: User,
+                    //             as: "ReplyUser",
+                    //             attributes: ["userID", "fullName"], // Người phản hồi feedback
+                    //         },
+                    //     ],
+                    // },
+                    // {
+                    //     model: Media,
+                    //     as: "Media", // Ảnh/video trong Feedback
+                    //     include: [
+                    //         {
+                    //             model: MediaItem,
+                    //             as: "MediaItems",
+                    //             attributes: ["mediaItemURL", "type"], // Đường dẫn ảnh/video
+                    //         },
+                    //     ],
+                    // },
+                    // {
+                    //     model: OrderItem,
+                    //     as: "OrderItem", // Sản phẩm được đánh giá
+                    //     include: [
+                    //         {
+                    //             model: Product,
+                    //             as: "ProductIT",
+                    //             attributes: ["product_id", "product_name", "price", "description"], // Thông tin sản phẩm
+                    //         },
+                    //     ],
+                    // },
+                    //     ],
+                    //     order: [["createdAt", "DESC"]], // Sắp xếp feedback mới nhất trước
+                    // },
                 ],
             });
+
             if (!shop) {
                 throw new Error("Shop not found");
             }

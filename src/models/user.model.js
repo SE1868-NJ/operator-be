@@ -86,6 +86,18 @@ export const User = sequelize.define(
     },
 );
 
+User.associate = (models) => {
+    User.hasMany(models.Feedback, {
+        foreignKey: "customerID",
+        as: "Feedbacks",
+    });
+
+    User.hasMany(models.ReplyFeedback, {
+        foreignKey: "replyUserID",
+        as: "Replies",
+    });
+};
+
 export default (sequelize, DataTypes) => {
     return User;
 };
