@@ -53,7 +53,6 @@ const BanService = {
             } else if (userType === "shipper") {
                 await Shipper.update(
                     { status: "suspended" },
-
                     {
                         where: {
                             id: userId,
