@@ -2,3 +2,4 @@
 node_modules/
 api.http
 src/config/config.js
+test.js

@@ -9,22 +9,17 @@ export const User = sequelize.define(
             primaryKey: true,
             autoIncrement: true,
         },
-        status: {
-            type: DataTypes.ENUM("Hoạt động", "Không hoạt động", "Đình chỉ"),
-            allowNull: false,
-            defaultValue: "Hoạt động",
-        },
-        avatar: {
-            type: DataTypes.STRING, // URL hoặc đường dẫn file
-            allowNull: true, // Có thể null nếu người dùng chưa đặt avatar
-            defaultValue: "https://i.pinimg.com/236x/5e/e0/82/5ee082781b8c41406a2a50a0f32d6aa6.jpg",
-        },
         fullName: {
             type: DataTypes.STRING,
             allowNull: false,
             validate: {
                 notEmpty: true,
             },
+        },
+        status: {
+            type: DataTypes.ENUM("active", "suspended"),
+            allowNull: false,
+            defaultValue: "active",
         },
         dateOfBirth: {
             type: DataTypes.DATEONLY,
@@ -34,7 +29,7 @@ export const User = sequelize.define(
             },
         },
         gender: {
-            type: DataTypes.ENUM("Male", "Female", "Other"),
+            type: DataTypes.ENUM("male", "female", "other"),
             allowNull: false,
         },
         userEmail: {
