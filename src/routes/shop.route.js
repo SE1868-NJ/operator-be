@@ -5,7 +5,6 @@ import {
     getPendingShopById,
     getPendingShops,
     getShopById,
-    updateShopDetailStatus,
     updateShopStatus,
 } from "../controllers/shops.controller.js";
 
@@ -15,7 +14,6 @@ shopRouter.get("/approvedshops", getApprovedShops);
 shopRouter.get("/pendingshops", getPendingShops);
 shopRouter.get("/pendingshop/:id", getPendingShopById);
 shopRouter.patch("/pendingshop/:id", updateShopStatus);
-shopRouter.patch("/:id", updateShopDetailStatus);
 shopRouter.get("/:id", getShopById);
 shopRouter.get("/", getAllShops);
 
