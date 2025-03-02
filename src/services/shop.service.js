@@ -1,3 +1,4 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Op } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
 import { Feedback } from "../models/feedback.model.js";
@@ -10,6 +11,7 @@ import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { ReplyFeedback } from "../models/replyFeedback.model.js";
 import { Shop } from "../models/shop.model.js";
 import { User } from "../models/user.model.js";
+import { model } from "../utils/gemini.js";
 
 const ShopService = {
     async getAllShops(offset, limit, filterData = {}) {
@@ -221,6 +223,124 @@ const ShopService = {
             throw new Error(error.message);
         }
     },
+    async getProductByShopId(id) {
+        try {
+            const products = await Product.findAll({
+                where: {
+                    shop_id: id,
+                },
+                include: [
+                    {
+                        model: OrderItem,
+                        as: "OrderItems",
+                        required: false,
+                        include: [
+                            {
+                                model: Feedback,
+                                as: "Feedbacks",
+                                required: false,
+                            },
+                        ],
+                    },
+                ],
+            });
+            if (!products) {
+                throw new Error("Product not found");
+            }
+            return products;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+    async getFeedbacksByShopId(id) {
+        try {
+            // 1️⃣ Lấy danh sách feedbacks của cửa hàng
+            const feedbacks = await Feedback.findAll({
+                include: [
+                    {
+                        model: User,
+                        as: "Customer", // ✅ Người mua feedback
+                    },
+                    {
+                        model: ReplyFeedback,
+                        as: "Reply",
+                        include: [
+                            {
+                                model: User,
+                                as: "ReplyUser", // ✅ Người phản hồi
+                            },
+                        ],
+                    },
+                    {
+                        model: Media,
+                        as: "Media",
+                        include: [
+                            {
+                                model: MediaItem,
+                                as: "MediaItems",
+                            },
+                        ],
+                    },
+                    {
+                        model: OrderItem,
+                        as: "OrderItem", // ✅ Alias đúng vì Feedback belongsTo OrderItem
+                        required: true, // ✅ Chỉ lấy Feedback có OrderItem
+                        include: [
+                            {
+                                model: Order,
+                                as: "Order",
+                                where: {
+                                    shop_id: id, // ✅ Lọc theo shopID
+                                },
+                                required: true, // ✅ Chỉ lấy Order có shop_id phù hợp
+                            },
+                            {
+                                model: Product,
+                                as: "ProductIT",
+                            },
+                        ],
+                    },
+                ],
+            });
+            if (!feedbacks) {
+                throw new Error("Feedback not found");
+            }
+
+            // 2️⃣ Kiểm tra nếu không có feedback nào
+            if (!feedbacks.length) {
+                return "Chưa có đánh giá nào về cửa hàng này";
+            }
+
+            // 3️⃣ Chuyển feedbacks thành đoạn văn bản để gửi cho AI
+            const feedbackText = feedbacks
+                .map(
+                    (fb, index) =>
+                        `${index + 1}. **Khách hàng**: ${fb.Customer.fullName} | **Sản phẩm**: ${
+                            fb.OrderItems?.ProductIT?.product_name || "Không xác định"
+                        } | **Số sao**: ${fb.star}/5\n**Nội dung**: ${fb.content}\n`,
+                )
+                .join("\n");
+
+            // 4️⃣ Tạo prompt gửi đến AI
+            const prompt = `
+                Bạn là một trợ lý AI chuyên đánh giá mức độ hài lòng của khách hàng về các cửa hàng thương mại điện tử.
+                Dưới đây là danh sách các phản hồi từ khách hàng về cửa hàng này:
+
+                ${feedbackText}
+
+                Dựa trên những phản hồi trên, hãy đưa ra nhận xét tổng quan về cửa hàng. Đánh giá chất lượng dịch vụ và sản phẩm. 
+                Trả lời bằng một đoạn văn ngắn từ 3-5 câu.
+            `;
+
+            // 5️⃣ Gửi dữ liệu đến AI và nhận phản hồi
+            const result = await model.generateContent(prompt);
+            const aiReview = result.response.text();
+
+            return { feedbacks, aiReview };
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
     async getShopById(id) {
         console.log("B1");
         try {
@@ -230,97 +350,6 @@ const ShopService = {
                         model: User,
                         as: "Owner", // Chủ shop
                     },
-                    {
-                        model: Order,
-                        as: "Order",
-                        include: [
-                            {
-                                model: OrderItem,
-                                as: "OrderItems",
-                                include: [
-                                    {
-                                        model: Product,
-                                        as: "ProductIT",
-                                    },
-                                    {
-                                        model: Feedback,
-                                        as: "Feedbacks",
-                                        include: [
-                                            {
-                                                model: User,
-                                                as: "Customer",
-                                            },
-                                            {
-                                                model: ReplyFeedback,
-                                                as: "Reply",
-                                                include: [
-                                                    {
-                                                        model: User,
-                                                        as: "ReplyUser",
-                                                    },
-                                                ],
-                                            },
-                                            {
-                                                model: Media,
-                                                as: "Media",
-                                                include: [
-                                                    {
-                                                        model: MediaItem,
-                                                        as: "MediaItems",
-                                                    },
-                                                ],
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        ],
-                    },
-                    // {
-                    //     model: Feedback,
-                    //     as: "Feedbacks",
-                    //     include: [
-                    //         {
-                    //             model: User,
-                    //             as: "Customer",
-                    //             attributes: ["userID", "fullName", "userEmail", "userPhone", "avatar"], // Người gửi feedback
-                    //         },
-                    // {
-                    //     model: ReplyFeedback,
-                    //     as: "Replies",
-                    //     include: [
-                    //         {
-                    //             model: User,
-                    //             as: "ReplyUser",
-                    //             attributes: ["userID", "fullName"], // Người phản hồi feedback
-                    //         },
-                    //     ],
-                    // },
-                    // {
-                    //     model: Media,
-                    //     as: "Media", // Ảnh/video trong Feedback
-                    //     include: [
-                    //         {
-                    //             model: MediaItem,
-                    //             as: "MediaItems",
-                    //             attributes: ["mediaItemURL", "type"], // Đường dẫn ảnh/video
-                    //         },
-                    //     ],
-                    // },
-                    // {
-                    //     model: OrderItem,
-                    //     as: "OrderItem", // Sản phẩm được đánh giá
-                    //     include: [
-                    //         {
-                    //             model: Product,
-                    //             as: "ProductIT",
-                    //             attributes: ["product_id", "product_name", "price", "description"], // Thông tin sản phẩm
-                    //         },
-                    //     ],
-                    // },
-                    //     ],
-                    //     order: [["createdAt", "DESC"]], // Sắp xếp feedback mới nhất trước
-                    // },
                 ],
             });
 

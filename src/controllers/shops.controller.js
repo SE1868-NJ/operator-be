@@ -123,12 +123,18 @@ export const getAllShops = async (req, res) => {
 
 export const getShopById = async (req, res) => {
     try {
-        const shop = await ShopService.getShopById(req.params.id);
-
+        const { id } = req.params;
+        const shop = await ShopService.getShopById(id);
+        const feedbacks = await ShopService.getFeedbacksByShopId(id);
+        // const aiReview = await ShopService.getFeedbacksByShopId(id);
+        // shop.feedbacks = feedbacks;
+        const products = await ShopService.getProductByShopId(id);
         res.status(200).json({
             success: true,
             message: "Get shop by id successfully",
             shop: shop,
+            feedbacks: feedbacks,
+            products: products,
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

@@ -62,7 +62,7 @@ OrderItem.associate = (models) => {
         foreignKey: "order_id",
         as: "Order",
     });
-    OrderItem.hasMany(models.Feedback, {
+    OrderItem.hasOne(models.Feedback, {
         foreignKey: "orderItemID",
         as: "Feedbacks",
     });
