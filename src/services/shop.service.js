@@ -14,6 +14,51 @@ import { User } from "../models/user.model.js";
 import { model } from "../utils/gemini.js";
 
 const ShopService = {
+    async getProductByShopId(id, offset, limit) {
+        const o = Number.parseInt(offset) || 0;
+        const l = Number.parseInt(limit) || 5;
+
+        try {
+            // Dùng `findAndCountAll()` để lấy tổng số sản phẩm và danh sách sản phẩm cùng lúc
+            const { count, rows: products } = await Product.findAndCountAll({
+                where: { shop_id: id },
+                distinct: true,
+                include: [
+                    {
+                        model: OrderItem,
+                        as: "OrderItems",
+                        required: false,
+                        include: [
+                            {
+                                model: Feedback,
+                                as: "Feedbacks",
+                                required: false,
+                            },
+                        ],
+                    },
+                ],
+                offset: o,
+                limit: l,
+                order: [["product_id", "ASC"]],
+            });
+
+            if (!products || products.length === 0) {
+                throw new Error("No products found for this shop");
+            }
+
+            // Tính tổng số trang
+            const totalPages = Math.ceil(count / l);
+
+            return {
+                products,
+                totalProducts: count,
+                totalPages,
+                currentPage: Math.floor(o / l) + 1, // Xác định trang hiện tại
+            };
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
     async getAllShops(offset, limit, filterData = {}) {
         const o = Number.parseInt(offset) || 0;
         const l = Number.parseInt(limit) || 10;
@@ -219,35 +264,6 @@ const ShopService = {
                 throw new Error("Shop not found");
             }
             return shop;
-        } catch (error) {
-            throw new Error(error.message);
-        }
-    },
-    async getProductByShopId(id) {
-        try {
-            const products = await Product.findAll({
-                where: {
-                    shop_id: id,
-                },
-                include: [
-                    {
-                        model: OrderItem,
-                        as: "OrderItems",
-                        required: false,
-                        include: [
-                            {
-                                model: Feedback,
-                                as: "Feedbacks",
-                                required: false,
-                            },
-                        ],
-                    },
-                ],
-            });
-            if (!products) {
-                throw new Error("Product not found");
-            }
-            return products;
         } catch (error) {
             throw new Error(error.message);
         }

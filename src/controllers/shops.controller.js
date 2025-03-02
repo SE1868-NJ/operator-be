@@ -95,7 +95,7 @@ export const getAllShops = async (req, res) => {
     const { offset, limit } = req.query;
     const o = Number.parseInt(offset) || 0;
     const l = Number.parseInt(limit) || 10;
-    console.log(offset, limit);
+    // console.log(offset, limit);
     // const shops = await ShopService.getAllShops(offset, limit);
     const { shopName, shopEmail, shopPhone, ownerName } = req.query;
 
@@ -106,7 +106,7 @@ export const getAllShops = async (req, res) => {
             shopPhone: shopPhone,
             ownerName: ownerName,
         };
-        console.log(o, l, shopName, shopEmail, shopPhone, ownerName);
+        // console.log(o, l, shopName, shopEmail, shopPhone, ownerName);
         const responseData = await ShopService.getAllShops(o, l, filterData);
         res.status(200).json({
             success: true,
@@ -124,19 +124,32 @@ export const getAllShops = async (req, res) => {
 export const getShopById = async (req, res) => {
     try {
         const { id } = req.params;
+        const { offset, limit } = req.query;
+
+        // Lấy thông tin shop
         const shop = await ShopService.getShopById(id);
+        if (!shop) {
+            return res.status(404).json({ success: false, message: "Shop not found" });
+        }
+
+        // Lấy danh sách feedbacks
         const feedbacks = await ShopService.getFeedbacksByShopId(id);
-        // const aiReview = await ShopService.getFeedbacksByShopId(id);
-        // shop.feedbacks = feedbacks;
-        const products = await ShopService.getProductByShopId(id);
+
+        // Lấy danh sách sản phẩm với phân trang
+        const { products, totalProducts, totalPages, currentPage } =
+            await ShopService.getProductByShopId(id, offset, limit);
+
         res.status(200).json({
             success: true,
             message: "Get shop by id successfully",
-            shop: shop,
-            feedbacks: feedbacks,
-            products: products,
+            shop,
+            feedbacks,
+            products, // Danh sách sản phẩm
+            totalProducts, // Tổng số sản phẩm
+            totalPages, // Tổng số trang
+            currentPage, // Trang hiện tại
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 };
