@@ -1,8 +1,10 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Op } from "sequelize";
 import { Report } from "../models/report.model.js";
 import { model } from "../utils/gemini.js";
 import ReportCategoriesServices from "./report_categories.service.js";
+import ShipperServices from "./shipper.service.js";
+import ShopService from "./shop.service.js";
+import userService from "./user.service.js";
 
 const prompt = ({ category_name, report_title, report_type, content }) => `
 You are an AI assistant that analyzes user reports in an eCommerce system and determines their priority level.
@@ -35,6 +37,7 @@ const ReportsServices = {
             status = "pending",
             response = null,
             attachments = [],
+            problem_time = new Date().toISOString(),
         } = payload;
 
         // Validate required fields
@@ -44,15 +47,41 @@ const ReportsServices = {
             !content ||
             !reporter_email ||
             !category_id ||
-            !report_title
+            !report_title ||
+            !problem_time
         ) {
             throw new Error(
-                "Missing required fields: report_type, reporter_id, reporter_email, category_id, report_title, or content",
+                "Missing required fields: report_type, reporter_id, reporter_email, category_id, report_title, problem_time or content",
             );
         }
 
-        const category = await ReportCategoriesServices.getCategoryById(category_id);
+        switch (report_type) {
+            case "customer": {
+                const user = await userService.getUserById(reporter_id);
+                console.log(user);
+                if (!user) throw new Error("Customer does not exist!");
+                break;
+            }
+            case "shipper": {
+                const user = await ShipperServices.getShipperById(reporter_id);
+                console.log(user);
+                if (!user) throw new Error("Shipper does not exist!");
+                break;
+            }
+            case "shop": {
+                const shop = await ShopService.getShopById(reporter_id);
+                console.log(shop);
+                if (!shop) throw new Error("Shop does not exist!");
+                break;
+            }
+            default:
+                throw new Error("Invalid report type!");
+        }
 
+        const category = await ReportCategoriesServices.getCategoryById(category_id);
+        if (!category) throw new Error("Category not exist!");
+
+        // using Gemini AI to generate report priority
         const p = await model
             .generateContent(
                 prompt({
@@ -76,6 +105,7 @@ const ReportsServices = {
                 status,
                 response,
                 attachments,
+                problem_time,
             });
             return newReport;
         } catch (error) {
