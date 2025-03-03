@@ -1,4 +1,5 @@
 import { Op } from "sequelize";
+import sequelize from "../config/sequelize.config.js";
 import { Report } from "../models/report.model.js";
 import { model } from "../utils/gemini.js";
 import ReportCategoriesServices from "./report_categories.service.js";
@@ -37,7 +38,7 @@ const ReportsServices = {
             status = "pending",
             response = null,
             attachments = [],
-            problem_time = new Date().toISOString(),
+            problem_time,
         } = payload;
 
         // Validate required fields
@@ -115,7 +116,16 @@ const ReportsServices = {
     },
 
     async getReports(query) {
-        const { page = 1, limit = 10, search, report_type, status, priority, category_id } = query;
+        const {
+            page = 1,
+            limit = 10,
+            search,
+            report_type,
+            status,
+            priority,
+            category_id,
+            orderBy = "ASC",
+        } = query;
 
         const where = {};
 
@@ -136,7 +146,7 @@ const ReportsServices = {
             where,
             limit: Number(limit),
             offset: Number(offset),
-            order: [["createdAt", "DESC"]],
+            order: [["createdAt", orderBy]],
             include: [{ association: "category" }], // Ensure Report model has association with category
         });
 
@@ -158,6 +168,53 @@ const ReportsServices = {
     async updateReportStatus(id, response = null) {
         const report = await Report.update({ status: "resolved", response }, { where: { id } });
         return report;
+    },
+    async getNewReportCount(timeRange, interval = "hour") {
+        const now = new Date();
+        let startTime;
+        let dateGroupFormat;
+
+        switch (timeRange) {
+            case "24h":
+                startTime = new Date(now - 24 * 60 * 60 * 1000);
+                dateGroupFormat = "%Y-%m-%d %H:00:00"; // Group by hour
+                break;
+            case "7d":
+                startTime = new Date(now - 7 * 24 * 60 * 60 * 1000);
+                dateGroupFormat = "%Y-%m-%d"; // Group by day
+                break;
+            case "1m":
+                startTime = new Date(now.setMonth(now.getMonth() - 1));
+                dateGroupFormat = "%Y-%m-%d"; // Group by day
+                break;
+            case "1y":
+                startTime = new Date(now.setFullYear(now.getFullYear() - 1));
+                dateGroupFormat = "%Y-%m"; // Group by month
+                break;
+            case "all":
+                startTime = null;
+                dateGroupFormat = "%Y-%m"; // Group by month
+                break;
+            default:
+                throw new Error("Invalid time range");
+        }
+
+        const whereCondition = startTime ? { createdAt: { [Op.gte]: startTime } } : {};
+
+        const reports = await Report.findAll({
+            attributes: [
+                [sequelize.fn("DATE_FORMAT", sequelize.col("createdAt"), dateGroupFormat), "time"],
+                [sequelize.fn("COUNT", sequelize.col("id")), "count"],
+            ],
+            where: whereCondition,
+            group: ["time"],
+            order: [["time", "ASC"]],
+        });
+
+        return reports.map((report) => ({
+            time: report.dataValues.time,
+            count: report.dataValues.count,
+        }));
     },
 };
 

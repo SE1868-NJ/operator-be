@@ -2306,7 +2306,6 @@ async function insertData() {
     }
 }
 
-
 insertData();
 // await insertShippers();
 // await insertUsers();

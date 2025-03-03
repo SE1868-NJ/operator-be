@@ -75,3 +75,17 @@ export const responseReport = async (req, res) => {
         });
     }
 };
+
+export const getReportStatistic = async (req, res) => {
+    const { timeRange, interval } = req.query;
+    try {
+        const data = await ReportsServices.getNewReportCount(timeRange, interval);
+        res.status(200).json({
+            data,
+        });
+    } catch (error) {
+        res.status(400).json({
+            error: error.message,
+        });
+    }
+};
