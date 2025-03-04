@@ -169,7 +169,7 @@ const ReportsServices = {
         const report = await Report.update({ status: "resolved", response }, { where: { id } });
         return report;
     },
-    async getNewReportCount(timeRange, interval = "hour") {
+    async getNewReportCount(timeRange) {
         const now = new Date();
         let startTime;
         let dateGroupFormat;
@@ -203,7 +203,14 @@ const ReportsServices = {
 
         const reports = await Report.findAll({
             attributes: [
-                [sequelize.fn("DATE_FORMAT", sequelize.col("createdAt"), dateGroupFormat), "time"],
+                [
+                    sequelize.fn(
+                        "DATE_FORMAT",
+                        sequelize.fn("CONVERT_TZ", sequelize.col("createdAt"), "+00:00", "+07:00"),
+                        dateGroupFormat,
+                    ),
+                    "time",
+                ],
                 [sequelize.fn("COUNT", sequelize.col("id")), "count"],
             ],
             where: whereCondition,
