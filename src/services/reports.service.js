@@ -1,8 +1,11 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Op } from "sequelize";
+import sequelize from "../config/sequelize.config.js";
 import { Report } from "../models/report.model.js";
 import { model } from "../utils/gemini.js";
 import ReportCategoriesServices from "./report_categories.service.js";
+import ShipperServices from "./shipper.service.js";
+import ShopService from "./shop.service.js";
+import userService from "./user.service.js";
 
 const prompt = ({ category_name, report_title, report_type, content }) => `
 You are an AI assistant that analyzes user reports in an eCommerce system and determines their priority level.
@@ -35,6 +38,7 @@ const ReportsServices = {
             status = "pending",
             response = null,
             attachments = [],
+            problem_time,
         } = payload;
 
         // Validate required fields
@@ -44,15 +48,41 @@ const ReportsServices = {
             !content ||
             !reporter_email ||
             !category_id ||
-            !report_title
+            !report_title ||
+            !problem_time
         ) {
             throw new Error(
-                "Missing required fields: report_type, reporter_id, reporter_email, category_id, report_title, or content",
+                "Missing required fields: report_type, reporter_id, reporter_email, category_id, report_title, problem_time or content",
             );
         }
 
-        const category = await ReportCategoriesServices.getCategoryById(category_id);
+        switch (report_type) {
+            case "customer": {
+                const user = await userService.getUserById(reporter_id);
+                console.log(user);
+                if (!user) throw new Error("Customer does not exist!");
+                break;
+            }
+            case "shipper": {
+                const user = await ShipperServices.getShipperById(reporter_id);
+                console.log(user);
+                if (!user) throw new Error("Shipper does not exist!");
+                break;
+            }
+            case "shop": {
+                const shop = await ShopService.getShopById(reporter_id);
+                console.log(shop);
+                if (!shop) throw new Error("Shop does not exist!");
+                break;
+            }
+            default:
+                throw new Error("Invalid report type!");
+        }
 
+        const category = await ReportCategoriesServices.getCategoryById(category_id);
+        if (!category) throw new Error("Category not exist!");
+
+        // using Gemini AI to generate report priority
         const p = await model
             .generateContent(
                 prompt({
@@ -76,6 +106,7 @@ const ReportsServices = {
                 status,
                 response,
                 attachments,
+                problem_time,
             });
             return newReport;
         } catch (error) {
@@ -85,7 +116,16 @@ const ReportsServices = {
     },
 
     async getReports(query) {
-        const { page = 1, limit = 10, search, report_type, status, priority, category_id } = query;
+        const {
+            page = 1,
+            limit = 10,
+            search,
+            report_type,
+            status,
+            priority,
+            category_id,
+            orderBy = "ASC",
+        } = query;
 
         const where = {};
 
@@ -106,7 +146,7 @@ const ReportsServices = {
             where,
             limit: Number(limit),
             offset: Number(offset),
-            order: [["createdAt", "DESC"]],
+            order: [["createdAt", orderBy]],
             include: [{ association: "category" }], // Ensure Report model has association with category
         });
 
@@ -128,6 +168,60 @@ const ReportsServices = {
     async updateReportStatus(id, response = null) {
         const report = await Report.update({ status: "resolved", response }, { where: { id } });
         return report;
+    },
+    async getNewReportCount(timeRange) {
+        const now = new Date();
+        let startTime;
+        let dateGroupFormat;
+
+        switch (timeRange) {
+            case "24h":
+                startTime = new Date(now - 24 * 60 * 60 * 1000);
+                dateGroupFormat = "%Y-%m-%d %H:00:00"; // Group by hour
+                break;
+            case "7d":
+                startTime = new Date(now - 7 * 24 * 60 * 60 * 1000);
+                dateGroupFormat = "%Y-%m-%d"; // Group by day
+                break;
+            case "1m":
+                startTime = new Date(now.setMonth(now.getMonth() - 1));
+                dateGroupFormat = "%Y-%m-%d"; // Group by day
+                break;
+            case "1y":
+                startTime = new Date(now.setFullYear(now.getFullYear() - 1));
+                dateGroupFormat = "%Y-%m"; // Group by month
+                break;
+            case "all":
+                startTime = null;
+                dateGroupFormat = "%Y-%m"; // Group by month
+                break;
+            default:
+                throw new Error("Invalid time range");
+        }
+
+        const whereCondition = startTime ? { createdAt: { [Op.gte]: startTime } } : {};
+
+        const reports = await Report.findAll({
+            attributes: [
+                [
+                    sequelize.fn(
+                        "DATE_FORMAT",
+                        sequelize.fn("CONVERT_TZ", sequelize.col("createdAt"), "+00:00", "+07:00"),
+                        dateGroupFormat,
+                    ),
+                    "time",
+                ],
+                [sequelize.fn("COUNT", sequelize.col("id")), "count"],
+            ],
+            where: whereCondition,
+            group: ["time"],
+            order: [["time", "ASC"]],
+        });
+
+        return reports.map((report) => ({
+            time: report.dataValues.time,
+            count: report.dataValues.count,
+        }));
     },
 };
 

@@ -56,6 +56,11 @@ export const Report = sequelize.define("Report", {
         allowNull: true,
         comment: "Array of file URLs (e.g., images, PDFs) attached to the report",
     },
+    problem_time: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        comment: "Timestamp when the problem happened",
+    },
 });
 
 Report.belongsTo(ReportCategory, { foreignKey: "category_id", as: "category" });
