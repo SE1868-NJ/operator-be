@@ -20,6 +20,10 @@ export const Product = sequelize.define(
             onUpdate: "CASCADE",
             onDelete: "CASCADE",
         },
+        main_image: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
         product_name: {
             type: DataTypes.STRING,
             allowNull: false,

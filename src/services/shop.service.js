@@ -14,51 +14,6 @@ import { User } from "../models/user.model.js";
 import { model } from "../utils/gemini.js";
 
 const ShopService = {
-    async getProductByShopId(id, offset, limit) {
-        const o = Number.parseInt(offset) || 0;
-        const l = Number.parseInt(limit) || 5;
-
-        try {
-            // Dùng `findAndCountAll()` để lấy tổng số sản phẩm và danh sách sản phẩm cùng lúc
-            const { count, rows: products } = await Product.findAndCountAll({
-                where: { shop_id: id },
-                distinct: true,
-                include: [
-                    {
-                        model: OrderItem,
-                        as: "OrderItems",
-                        required: false,
-                        include: [
-                            {
-                                model: Feedback,
-                                as: "Feedbacks",
-                                required: false,
-                            },
-                        ],
-                    },
-                ],
-                offset: o,
-                limit: l,
-                order: [["product_id", "ASC"]],
-            });
-
-            if (!products || products.length === 0) {
-                throw new Error("No products found for this shop");
-            }
-
-            // Tính tổng số trang
-            const totalPages = Math.ceil(count / l);
-
-            return {
-                products,
-                totalProducts: count,
-                totalPages,
-                currentPage: Math.floor(o / l) + 1, // Xác định trang hiện tại
-            };
-        } catch (error) {
-            throw new Error(error.message);
-        }
-    },
     async getAllShops(offset, limit, filterData = {}) {
         const o = Number.parseInt(offset) || 0;
         const l = Number.parseInt(limit) || 10;
@@ -122,6 +77,112 @@ const ShopService = {
             return { shops, totalShops };
         } catch (error) {
             console.log("Error fetching shops: ", error);
+            throw new Error(error.message);
+        }
+    },
+    async getOrderByShopId(id, offset, limit) {
+        const o = Number.parseInt(offset) || 0;
+        const l = Number.parseInt(limit) || 5;
+        try {
+            const { count, rows: orders } = await Order.findAndCountAll({
+                where: {
+                    shop_id: id,
+                },
+                include: [
+                    {
+                        model: User,
+                        as: "Customer",
+                    },
+                ],
+                offset: o,
+                limit: l,
+                order: [["id", "DESC"]],
+            });
+
+            if (!orders || orders.length === 0) {
+                throw new Error("No orders found for this shop");
+            }
+
+            // Tính tổng số trang
+            const totalPages = Math.ceil(count / l);
+
+            return {
+                orders,
+                totalOrders: count,
+                totalPages,
+                currentPage: Math.floor(o / l) + 1,
+            };
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+    async getProductByShopId(id, offset, limit, filterData = {}) {
+        const o = Number.parseInt(offset) || 0;
+        const l = Number.parseInt(limit) || 5;
+        const minPrice = Number(filterData.minPrice) || undefined;
+        const maxPrice = Number(filterData.maxPrice) || undefined;
+        try {
+            const whereClause = { shop_id: id }; // Mặc định lọc theo shop_id
+
+            // Lọc theo tên sản phẩm (tìm kiếm gần đúng)
+            if (filterData?.productName) {
+                whereClause.product_name = {
+                    [Op.like]: `%${filterData.productName}%`,
+                };
+            }
+
+            // Lọc theo khoảng giá (min - max)
+            if (filterData?.minPrice && filterData?.maxPrice) {
+                whereClause.price = {
+                    [Op.between]: [minPrice, maxPrice],
+                };
+            } else if (filterData?.minPrice) {
+                whereClause.price = {
+                    [Op.gte]: minPrice, // Lọc sản phẩm có giá >= minPrice
+                };
+            } else if (filterData?.maxPrice) {
+                whereClause.price = {
+                    [Op.lte]: maxPrice, // Lọc sản phẩm có giá <= maxPrice
+                };
+            }
+
+            // Dùng `findAndCountAll()` để lấy tổng số sản phẩm và danh sách sản phẩm cùng lúc
+            const { count, rows: products } = await Product.findAndCountAll({
+                where: whereClause, // Áp dụng bộ lọc vào truy vấn
+                distinct: true,
+                include: [
+                    {
+                        model: OrderItem,
+                        as: "OrderItems",
+                        required: false,
+                        include: [
+                            {
+                                model: Feedback,
+                                as: "Feedbacks",
+                                required: false,
+                            },
+                        ],
+                    },
+                ],
+                offset: o,
+                limit: l,
+                order: [["product_id", "ASC"]],
+            });
+
+            if (!products || products.length === 0) {
+                throw new Error("No products found for this shop");
+            }
+
+            // Tính tổng số trang
+            const totalPages = Math.ceil(count / l);
+
+            return {
+                products,
+                totalProducts: count,
+                totalPages,
+                currentPage: Math.floor(o / l) + 1, // Xác định trang hiện tại
+            };
+        } catch (error) {
             throw new Error(error.message);
         }
     },
@@ -317,6 +378,7 @@ const ShopService = {
                         ],
                     },
                 ],
+                order: [["ID", "DESC"]],
             });
             if (!feedbacks) {
                 throw new Error("Feedback not found");
@@ -441,6 +503,55 @@ const ShopService = {
             );
             throw new Error(error.message);
         }
+    },
+    async getNewOrderCount(id, timeRange) {
+        const now = new Date();
+        let startTime;
+        let dateGroupFormat;
+
+        switch (timeRange) {
+            case "24h":
+                startTime = new Date(now - 24 * 60 * 60 * 1000);
+                dateGroupFormat = "%Y-%m-%d %H:00:00"; // Group by hour
+                break;
+            case "7d":
+                startTime = new Date(now - 7 * 24 * 60 * 60 * 1000);
+                dateGroupFormat = "%Y-%m-%d"; // Group by day
+                break;
+            case "1m":
+                startTime = new Date(now.setMonth(now.getMonth() - 1));
+                dateGroupFormat = "%Y-%m-%d"; // Group by day
+                break;
+            case "1y":
+                startTime = new Date(now.setFullYear(now.getFullYear() - 1));
+                dateGroupFormat = "%Y-%m"; // Group by month
+                break;
+            case "all":
+                startTime = null;
+                dateGroupFormat = "%Y-%m"; // Group by month
+                break;
+            default:
+                throw new Error("Invalid time range");
+        }
+
+        const whereCondition = startTime
+            ? { created_at: { [Op.gte]: startTime }, shop_id: id }
+            : {};
+
+        const orders = await Order.findAll({
+            attributes: [
+                [sequelize.fn("DATE_FORMAT", sequelize.col("created_at"), dateGroupFormat), "date"],
+                [sequelize.fn("COUNT", sequelize.col("id")), "count"],
+            ],
+            where: whereCondition,
+            group: ["date"],
+            order: [["date", "ASC"]],
+        });
+
+        return orders.map((order) => ({
+            date: order.dataValues.date,
+            count: order.dataValues.count,
+        }));
     },
 };
 

@@ -121,10 +121,72 @@ export const getAllShops = async (req, res) => {
     }
 };
 
-export const getShopById = async (req, res) => {
+export const getOrderByShopId = async (req, res) => {
     try {
         const { id } = req.params;
         const { offset, limit } = req.query;
+        const o = Number.parseInt(offset) || 0;
+        const l = Number.parseInt(limit) || 5;
+
+        const { orders, totalOrders, totalPages, currentPage } = await ShopService.getOrderByShopId(
+            id,
+            o,
+            l,
+        );
+
+        if (!orders) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Get order by shop id successfully",
+            orders,
+            totalOrders,
+            totalPages,
+            currentPage,
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const getProductByShopId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { offset, limit, productName, minPrice, maxPrice } = req.query; // Nhận thêm filter từ query params
+
+        // Chuẩn bị bộ lọc sản phẩm
+        const filterData = {
+            productName: productName || undefined, // Lọc theo tên sản phẩm nếu có
+            minPrice: Number(minPrice) || undefined, // Chuyển đổi về số
+            maxPrice: Number(maxPrice) || undefined, // Chuyển đổi về số
+        };
+
+        // Lấy danh sách sản phẩm với bộ lọc
+        const { products, totalProducts, totalPages, currentPage } =
+            await ShopService.getProductByShopId(id, offset, limit, filterData);
+
+        if (!products) {
+            return res.status(404).json({ success: false, message: "Product not found" });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Get shop by id successfully",
+            products, // Danh sách sản phẩm đã lọc
+            totalProducts, // Tổng số sản phẩm sau lọc
+            totalPages, // Tổng số trang
+            currentPage, // Trang hiện tại
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const getShopById = async (req, res) => {
+    try {
+        const { id } = req.params;
 
         // Lấy thông tin shop
         const shop = await ShopService.getShopById(id);
@@ -135,21 +197,29 @@ export const getShopById = async (req, res) => {
         // Lấy danh sách feedbacks
         const feedbacks = await ShopService.getFeedbacksByShopId(id);
 
-        // Lấy danh sách sản phẩm với phân trang
-        const { products, totalProducts, totalPages, currentPage } =
-            await ShopService.getProductByShopId(id, offset, limit);
-
         res.status(200).json({
             success: true,
             message: "Get shop by id successfully",
             shop,
             feedbacks,
-            products, // Danh sách sản phẩm
-            totalProducts, // Tổng số sản phẩm
-            totalPages, // Tổng số trang
-            currentPage, // Trang hiện tại
         });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const getOrderStatistic = async (req, res) => {
+    const { id } = req.params;
+    const { timeRange, interval } = req.query;
+    try {
+        const data = await ShopService.getNewOrderCount(id, timeRange, interval);
+        res.status(200).json({
+            data,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
 };
