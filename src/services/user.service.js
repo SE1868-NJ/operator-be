@@ -37,16 +37,8 @@ const userService = {
         }
     },
     async getUserById(id) {
-        try {
-            const user = await User.findOne({ where: { userID: id } });
-
-            if (!user) {
-                return false;
-            }
-            return user;
-        } catch (error) {
-            throw new Error(error.message);
-        }
+        const user = await User.findOne({ where: { userID: id } });
+        return user;
     },
     async updateUserStatus(id, newStatus) {
         try {

@@ -1,4 +1,4 @@
-import { updateShipperPending } from "../controllers/shipper.controller.js";
+import { getShipperById, updateShipperPending } from "../controllers/shipper.controller.js";
 import { Shipper } from "../models/shipper.model.js";
 
 const ShipperServices = {
@@ -122,6 +122,10 @@ const ShipperServices = {
         } catch (error) {
             throw new Error(error.message);
         }
+    },
+    async getShipperById(id) {
+        const shipper = await Shipper.findByPk(id);
+        return shipper;
     },
 };
 

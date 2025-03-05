@@ -71,6 +71,10 @@ export const User = sequelize.define(
             type: DataTypes.STRING,
             allowNull: false,
         },
+        avatar: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
     },
     {
         tableName: "Users",
