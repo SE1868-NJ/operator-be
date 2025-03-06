@@ -63,7 +63,7 @@ export const Operator = sequelize.define("Operator", {
     status: {
         type: DataTypes.ENUM("active", "inactive"),
         allowNull: false,
-        defaultValue: "Hoạt động",
+        defaultValue: "active",
     },
     roleCode: {
         type: DataTypes.INTEGER,
