@@ -1,6 +1,7 @@
 import authRouter from "./auth.route.js";
 import banRouter from "./ban.route.js";
 import notifRouter from "./notifications.route.js";
+import operatorRoute from "./operator.route.js";
 import reportCategoriesRouter from "./report_categories.route.js";
 import reportsRouter from "./reports.route.js";
 import shipperRouter from "./shipper.route.js";
@@ -18,6 +19,7 @@ const route = (app) => {
     app.use("/notification", notifRouter);
     app.use("/report_categories", reportCategoriesRouter);
     app.use("/ban", banRouter);
+    app.use("/operator", operatorRoute);
 };
 
 export default route;
