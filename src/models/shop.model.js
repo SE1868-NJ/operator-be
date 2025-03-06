@@ -124,6 +124,11 @@ Shop.associate = (models) => {
         foreignKey: "ownerID",
         as: "Owner", // Tùy chọn, để dễ truy vấn sau này
     });
+
+    Shop.hasMany(models.Order, {
+        foreignKey: "shop_id",
+        as: "Order",
+    });
 };
 
 export default (sequelize, DataTypes) => {
