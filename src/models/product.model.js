@@ -20,6 +20,10 @@ export const Product = sequelize.define(
             onUpdate: "CASCADE",
             onDelete: "CASCADE",
         },
+        main_image: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
         product_name: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -66,6 +70,10 @@ Product.associate = (models) => {
     Product.belongsTo(models.Shop, {
         foreignKey: "shop_id",
         as: "Shop",
+    });
+    Product.hasMany(models.OrderItem, {
+        foreignKey: "product_id",
+        as: "OrderItems",
     });
 };
 
