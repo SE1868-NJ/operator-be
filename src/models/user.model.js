@@ -9,6 +9,11 @@ export const User = sequelize.define(
             primaryKey: true,
             autoIncrement: true,
         },
+        status: {
+            type: DataTypes.ENUM("active", "suspended"),
+            allowNull: false,
+            defaultValue: "active",
+        },
         fullName: {
             type: DataTypes.STRING,
             allowNull: false,
