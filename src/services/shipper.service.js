@@ -1,4 +1,6 @@
-import { getShipperById, updateShipperPending } from "../controllers/shipper.controller.js";
+import { join } from "path";
+import { getShipperById } from "../controllers/shipper.controller.js";
+import { updateShipperPending } from "../controllers/shipper.controller.js";
 import { Shipper } from "../models/shipper.model.js";
 
 const ShipperServices = {
@@ -16,7 +18,7 @@ const ShipperServices = {
     async getAllShippersPending(offset = 0, limit = 10) {
         const shippers = await Shipper.findAll({
             where: {
-                status: "Pending",
+                status: "pending",
             },
             offset,
             limit,
@@ -28,7 +30,7 @@ const ShipperServices = {
 
         const total = await Shipper.count({
             where: {
-                status: "Pending",
+                status: "pending",
             },
         });
         return { shippers, total };
@@ -47,13 +49,14 @@ const ShipperServices = {
         const transaction = await sequelize.transaction();
         try {
             const { status, description } = updatedStatus;
-            const newStatus = status === "rejected" ? "Rejected" : "Active";
+            const newStatus = status === "rejected" ? "inactive" : "active";
             const reason = description;
 
             try {
                 const updatedShipper = await Shipper.update(
                     {
                         status: newStatus,
+                        joinedDate: new Date(),
                     },
                     {
                         where: {
