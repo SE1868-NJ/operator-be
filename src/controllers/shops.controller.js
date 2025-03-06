@@ -223,3 +223,209 @@ export const getOrderStatistic = async (req, res) => {
         });
     }
 };
+
+export const getAllShopsRevenues = async (req, res) => {
+    const { distanceTime, offset, limit, shopName, ownerName, shopEmail, shopPhone } = req.body;
+
+    const filter = {
+        shopName,
+        shopEmail,
+        shopPhone,
+        ownerName,
+    };
+
+    try {
+        const revenues = await ShopService.getRevenueByTimeAllShops(
+            distanceTime,
+            offset,
+            limit,
+            filter,
+        );
+        res.status(200).json({
+            success: true,
+            message: "Get revenue successfully",
+            data: revenues,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// danh sách các shop với tổng số orders, doanh thu, theo ngày - tháng - năm
+// hiển thị bảng ở AllShopRevenuesPage
+export const getRevenueByDate = async (req, res) => {
+    const { year, month, day, offset, limit, shopName, ownerName, shopEmail, shopPhone } =
+        req.query;
+
+    const filter = {
+        shopName,
+        shopEmail,
+        shopPhone,
+        ownerName,
+    };
+
+    const y = Number.parseInt(year) || 2025;
+    const m = Number.parseInt(month);
+    const d = Number.parseInt(day);
+    const o = Number.parseInt(offset) || 0;
+    const l = Number.parseInt(limit) || 10;
+
+    try {
+        const revenues = await ShopService.getTotalRevenueShopsByTime(d, m, y, o, l, filter);
+        res.status(200).json({
+            success: true,
+            message: "Get revenue successfully",
+            data: revenues,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// dùng trong trang one shop revenue
+// lấy danh sách các orders, có bộ lọc theo ngày - tháng - năm
+export const getOneShopRevenues = async (req, res) => {
+    const { id, year, month, day, offset, limit, shipperName, customerName } = req.query;
+
+    const filter = {
+        shipperName,
+        customerName,
+    };
+
+    const i = Number.parseInt(id);
+    const y = Number.parseInt(year) || 2025;
+    const m = Number.parseInt(month);
+    const d = Number.parseInt(day);
+    const o = Number.parseInt(offset) || 0;
+    const l = Number.parseInt(limit) || 10;
+
+    try {
+        const orders = await ShopService.getRevenueOneShopByTime(i, d, m, y, o, l, filter);
+        res.status(200).json({
+            success: true,
+            message: "Get revenue successfully",
+            revenue: orders,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const getLastTimesRevenues = async (req, res) => {
+    const { distanceTime, id, limit, offset } = req.body;
+
+    if (id) {
+        try {
+            const revenues = await ShopService.getRenenueByTimeOneShop(
+                id,
+                distanceTime,
+                offset,
+                limit,
+            );
+            res.status(200).json({
+                success: true,
+                message: "Get revenue one shop successfully",
+                revenues: revenues,
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: `get revenue one shop fail: ${error.message}`,
+            });
+        }
+    } else {
+        try {
+            const revenues = await ShopService.getLastTimesRevenues(id, distanceTime);
+            res.status(200).json({
+                success: true,
+                message: "Get revenues all shops successfully",
+                revenues: revenues,
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: `get revenues all shops fail: ${error.message}`,
+            });
+        }
+    }
+};
+
+//dùng
+export const getLastTimeRevenuesAllShops = async (req, res) => {
+    const { distanceTime } = req.query;
+    try {
+        const revenues = await ShopService.getRevenueByTimeAllShops(distanceTime);
+        res.status(200).json({
+            success: true,
+            message: "Get revenues all shops successfully",
+            revenues: revenues,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: `get revenues all shops fail: ${error.message}`,
+        });
+    }
+};
+
+//dùng
+export const getOneOrder = async (req, res) => {
+    try {
+        const order = await ShopService.getOneOrder(req.params.id);
+        res.status(200).json({
+            success: true,
+            message: "Get one order successfully",
+            order: order,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const getTotalRevenueAllShopsByLastTime = async (req, res) => {
+    const { distanceTime } = req.query;
+    try {
+        const totalRevenues = await ShopService.getTotalRevenueAllShopsByLastTime(distanceTime);
+        res.status(200).json({
+            success: true,
+            message: "Get total revenue all shops by time successfully",
+            totalRevenues: totalRevenues,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: `Get total revenue all shops by time fail: ${error.message}`,
+        });
+    }
+};
+
+export const getTotalRevenueOneShopByLastTime = async (req, res) => {
+    const { distanceTime } = req.query;
+    try {
+        const totalRevenues = await ShopService.getTotalRevenueOneShopByLastTime(
+            req.params.id,
+            distanceTime,
+        );
+        res.status(200).json({
+            success: true,
+            message: "Get total revenue one shop by time successfully",
+            totalRevenues: totalRevenues,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: `Get total revenue one shop by time fail: ${error.message}`,
+        });
+    }
+};
+
+export const test = async (req, res) => {
+    try {
+        const order = await ShopService.getRevenueLastMonthAllShops();
+        res.status(200).json({
+            success: true,
+            message: "Get one order successfully",
+            order: order,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
