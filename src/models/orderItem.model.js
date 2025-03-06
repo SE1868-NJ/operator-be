@@ -62,6 +62,10 @@ OrderItem.associate = (models) => {
         foreignKey: "order_id",
         as: "Order",
     });
+    OrderItem.hasOne(models.Product, {
+        foreignKey: "product_id",
+        as: "Product",
+    });
 };
 
 export default (sequelize, DataTypes) => {

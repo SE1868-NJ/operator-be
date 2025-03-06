@@ -16,11 +16,6 @@ export const User = sequelize.define(
                 notEmpty: true,
             },
         },
-        status: {
-            type: DataTypes.ENUM("active", "suspended"),
-            allowNull: false,
-            defaultValue: "active",
-        },
         dateOfBirth: {
             type: DataTypes.DATEONLY,
             allowNull: false,

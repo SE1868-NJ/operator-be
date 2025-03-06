@@ -1,3 +1,4 @@
+//./src/vailidation/insertData.js
 import sequelize from "./config/sequelize.config.js";
 import { Address } from "./models/address.model.js";
 import { Operator } from "./models/operator.model.js";
@@ -2305,7 +2306,6 @@ async function insertData() {
         console.log("Đã đóng kết nối database.");
     }
 }
-
 
 insertData();
 // await insertShippers();

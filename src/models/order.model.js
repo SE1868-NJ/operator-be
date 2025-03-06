@@ -89,10 +89,6 @@ export const Order = sequelize.define(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        created_at: {
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW,
-        },
     },
     {
         tableName: "Orders",
