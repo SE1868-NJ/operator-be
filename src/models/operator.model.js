@@ -78,6 +78,10 @@ export const Operator = sequelize.define(
     },
 );
 
+Operator.associate = (models) => {
+    Operator.hasMany(Ban, { foreignKey: "operatorId", onDelete: "CASCADE" });
+};
+
 export default (sequelize, DataTypes) => {
     return Operator;
 };
