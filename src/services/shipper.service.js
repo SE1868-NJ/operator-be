@@ -1,4 +1,9 @@
+import { Op, where } from "sequelize";
+// import { generateCSVReport } from '../utils/csvUtils';
+import sequelize from "../config/sequelize.config.js";
 import { updateShipperPending } from "../controllers/shipper.controller.js";
+import { Order } from "../models/order.model.js";
+import { OrderItem } from "../models/orderItem.model.js"; // { OrderItem }
 import { Shipper } from "../models/shipper.model.js";
 
 const ShipperServices = {
@@ -121,6 +126,57 @@ const ShipperServices = {
             return shipper;
         } catch (error) {
             throw new Error(error.message);
+        }
+    },
+
+    async getSumShippingFeeAllShippers(offset = 0, limit = 10) {
+        const sumShippingFee = await Order.findAll({
+            attributes: [
+                "shipper_id",
+                [sequelize.fn("SUM", sequelize.col("shippingFee")), "sum_shipping_fee"],
+                [sequelize.literal("SUM(shippingFee) * 0.9"), "sum_shipping_fee_adjusted"],
+                [sequelize.fn("COUNT", sequelize.col("*")), "count_order"],
+            ],
+            offset,
+            limit,
+            include: [
+                {
+                    model: Shipper,
+                    as: "Shipper",
+                },
+            ],
+            where: {
+                payment_status: "paid",
+            },
+            group: "shipper_id",
+        });
+
+        const totalRevenue = sumShippingFee.reduce(
+            (acc, row) => acc + Number.parseFloat(row.get("sum_shipping_fee")),
+            0,
+        );
+        const totalOrders = sumShippingFee.reduce((acc, row) => acc + row.get("count_order"), 0);
+        return { sumShippingFee, totalRevenue, totalOrders };
+    },
+
+    async getOrdersOfShipper(id) {
+        try {
+            const shipper = await Shipper.findOne({
+                where: { id },
+                attributes: ["id", "name"],
+                include: [
+                    {
+                        model: Order,
+                        as: "Orders",
+                        attributes: ["id", "shippingFee", "status", "shipping_status", "note"],
+                        order: [["createdAt", "DESC"]], // Sắp xếp theo ngày tạo mới nhất
+                    },
+                ],
+            });
+
+            return shipper;
+        } catch (error) {
+            throw new Error("Error fetching shipper orders: ");
         }
     },
 };

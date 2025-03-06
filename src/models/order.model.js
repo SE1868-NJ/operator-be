@@ -110,7 +110,7 @@ Order.associate = (models) => {
         foreignKey: "customer_id",
         as: "Customer",
     });
-    Order.belongsTo(models.User, {
+    Order.belongsTo(models.Shipper, {
         foreignKey: "shipper_id",
         as: "Shipper",
     });
