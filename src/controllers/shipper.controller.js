@@ -6,9 +6,37 @@ import ShipperServices from "../services/shipper.service.js";
 
 export const getAllShippers = async (req, res) => {
     try {
-        const { offset = 0, limit = 10 } = req.body;
-        const shippers = await ShipperServices.getAllShippers(offset, limit);
-        res.json(shippers);
+        const offset = Number.parseInt(req.query.offset) || 0;
+        const limit = Number.parseInt(req.query.limit) || 10;
+        const search = req.query.search || "";
+        const status = req.query.status || "";
+
+        const whereCondition = {
+            ...(search && {
+                [Op.or]: [
+                    { name: { [Op.like]: `%${search}%` } },
+                    { phone: { [Op.like]: `%${search}%` } },
+                ],
+            }),
+            ...(status && { status }),
+        };
+
+        const data = await Shipper.findAll({
+            where: whereCondition,
+            offset,
+            limit,
+        });
+        const count = await Shipper.count({ where: whereCondition });
+
+        res.json({
+            where: whereCondition,
+            totalCount: count,
+            shippers: data,
+        });
+
+//         const { offset = 0, limit = 10 } = req.body;
+//         const shippers = await ShipperServices.getAllShippers(offset, limit);
+//         res.json(shippers);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal server error" });

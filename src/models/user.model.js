@@ -16,6 +16,11 @@ export const User = sequelize.define(
                 notEmpty: true,
             },
         },
+        status: {
+            type: DataTypes.ENUM("active", "suspended"),
+            allowNull: false,
+            defaultValue: "active",
+        },
         dateOfBirth: {
             type: DataTypes.DATEONLY,
             allowNull: false,
@@ -70,6 +75,12 @@ export const User = sequelize.define(
         idCardBackFile: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+
+        avatar: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: "https://i.pinimg.com/236x/5e/e0/82/5ee082781b8c41406a2a50a0f32d6aa6.jpg",
         },
     },
     {
