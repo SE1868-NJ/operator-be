@@ -52,7 +52,7 @@ export const OrderItem = sequelize.define(
     },
     {
         tableName: "OrderItems",
-        timestamps: false,
+        timestamps: true,
     },
 );
 
@@ -62,13 +62,9 @@ OrderItem.associate = (models) => {
         foreignKey: "order_id",
         as: "Order",
     });
-    OrderItem.hasOne(models.Feedback, {
-        foreignKey: "orderItemID",
-        as: "Feedbacks",
-    });
-    OrderItem.belongsTo(models.Product, {
+    OrderItem.hasOne(models.Product, {
         foreignKey: "product_id",
-        as: "ProductIT",
+        as: "Product",
     });
 };
 

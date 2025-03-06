@@ -42,14 +42,14 @@ export const ReasonChangeStatus = sequelize.define(
             type: DataTypes.STRING,
             allowNull: true,
         },
-        createAt: {
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW,
-        },
+        // createAt: {
+        //     type: DataTypes.DATE,
+        //     defaultValue: DataTypes.NOW,
+        // },
     },
     {
         tableName: "ReasonChangeStatus",
-        timestamps: false,
+        timestamps: true,
     },
 );
 
