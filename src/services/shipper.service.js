@@ -1,4 +1,7 @@
-import { updateShipperPending } from "../controllers/shipper.controller.js";
+//.src/service/shipper.servi
+import sequelize from "../config/sequelize.config.js";
+import { getShipperById, updateShipperPending } from "../controllers/shipper.controller.js";
+import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shipper } from "../models/shipper.model.js";
 
 const ShipperServices = {
@@ -43,46 +46,61 @@ const ShipperServices = {
         return shipper;
     },
 
+    async updateShipperStatus(id, status) {
+        try {
+            const shipper = await Shipper.findByPk(id);
+            if (!shipper) {
+                throw new Error("Shipper not found");
+            }
+            shipper.status = status;
+            await shipper.save();
+            return shipper;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
     async updateShipperPending(id, updatedStatus) {
-        const transaction = await sequelize.transaction();
+        // const transaction = await sequelize.transaction();
         try {
             const { status, description } = updatedStatus;
-            const newStatus = status === "rejected" ? "Rejected" : "Active";
-            const reason = description;
+            const newStatus = status === "rejected" ? "inactive" : "active";
+            const reason = description || "được chấp nhận";
 
+            console.log("--------------", id, newStatus, "------------");
             try {
                 const updatedShipper = await Shipper.update(
                     {
                         status: newStatus,
+                        // joinedDate: new Date(),
                     },
                     {
                         where: {
                             id: id,
                         },
-                        transaction: transaction,
+                        // transaction: transaction,
                     },
                 );
 
-                // Kiểm tra xem shop có tồn tại hay không
-                if (updatedShipper === null) {
-                    await transaction.rollback();
-                    throw new Error("Shipper not found");
-                }
+                // // Kiểm tra xem shop có tồn tại hay không
+                // if (updatedShipper[0] === 0) {
+                //   await transaction.rollback();
+                //   throw new Error("Shipper not found");
+                // }
 
-                await ReasonChangeStatus.create(
-                    {
-                        operatorID: 1,
-                        pendingID: id,
-                        role: "Shipper",
-                        changedStatus: status,
-                        reason: reason,
-                    },
-                    {
-                        transaction: transaction,
-                    },
-                );
+                // await ReasonChangeStatus.create(
+                //   {
+                //     operatorID: 1,
+                //     pendingID: id,
+                //     role: "Shipper",
+                //     changedStatus: status,
+                //     reason: reason,
+                //   },
+                //   {
+                //     transaction: transaction,
+                //   }
+                // );
 
-                await transaction.commit();
+                // await transaction.commit();
                 return updatedShipper;
             } catch (error) {
                 await transaction.rollback();
@@ -109,19 +127,9 @@ const ShipperServices = {
             throw new Error(error.message);
         }
     },
-
-    async updateShipperStatus(id, status) {
-        try {
-            const shipper = await Shipper.findByPk(id);
-            if (!shipper) {
-                throw new Error("Shipper not found");
-            }
-            shipper.status = status;
-            await shipper.save();
-            return shipper;
-        } catch (error) {
-            throw new Error(error.message);
-        }
+    async getShipperById(id) {
+        const shipper = await Shipper.findByPk(id);
+        return shipper;
     },
 };
 

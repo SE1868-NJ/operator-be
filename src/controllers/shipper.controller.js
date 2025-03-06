@@ -1,6 +1,6 @@
-import { Op, where } from "sequelize";
-import emergencyContact from "../models/emergencyContact.model.js";
-import { Role } from "../models/role.model.js";
+//./src/controllers/shipper.controller.js
+import { Op } from "sequelize";
+
 import { Shipper } from "../models/shipper.model.js";
 import ShipperServices from "../services/shipper.service.js";
 
@@ -60,10 +60,7 @@ export const getShipperById = async (req, res) => {
 
 export const updateShipperPending = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { status } = req.body;
-        const newStatus = status === "rejected" ? "rejected" : "Active";
-        const shipper = await ShipperServices.updateShipperPending(id, newStatus);
+        const shipper = await ShipperServices.updateShipperPending(req.params.id, req.body);
         return res.status(200).json({
             success: true,
             message: "Update pending shipper successfully",
@@ -78,7 +75,7 @@ export const updateShipperPending = async (req, res) => {
 export const updateShipperStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const shipper = await ShipperService.updateShipperStatus(id, req.body.status);
+        const shipper = await ShipperServices.updateShipperStatus(id, req.body.status);
 
         res.status(200).json(shipper);
     } catch (error) {
