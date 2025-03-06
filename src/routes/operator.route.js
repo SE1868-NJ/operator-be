@@ -6,3 +6,5 @@ operatorRoute.get("/profile", getOperatorinfo);
 operatorRoute.post("/profile/update", updateAccountProfile);
 
 export default operatorRoute;
+
+// merge
