@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
-
+import { Ban } from "./ban.model.js";
 export const Operator = sequelize.define("Operator", {
-    operatorID: {
+    operatorId: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -63,13 +63,17 @@ export const Operator = sequelize.define("Operator", {
     status: {
         type: DataTypes.ENUM("active", "inactive"),
         allowNull: false,
-        defaultValue: "Hoạt động",
+        defaultValue: "active",
     },
     roleCode: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
 });
+
+Operator.associate = (models) => {
+    Operator.hasMany(Ban, { foreignKey: "operatorId", onDelete: "CASCADE" });
+};
 
 export default (sequelize, DataTypes) => {
     return Operator;
