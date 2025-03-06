@@ -33,6 +33,10 @@ export const getAllShippers = async (req, res) => {
             totalCount: count,
             shippers: data,
         });
+
+        //         const { offset = 0, limit = 10 } = req.body;
+        //         const shippers = await ShipperServices.getAllShippers(offset, limit);
+        //         res.json(shippers);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal server error" });

@@ -1,12 +1,19 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Op, Sequelize, literal } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
 import { Address } from "../models/address.model.js";
+import { Feedback } from "../models/feedback.model.js";
+import { Media } from "../models/media.model.js";
+import { MediaItem } from "../models/mediaItem.model.js";
 import { Order } from "../models/order.model.js";
 import { OrderItem } from "../models/orderItem.model.js";
+import { Product } from "../models/product.model.js";
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
+import { ReplyFeedback } from "../models/replyFeedback.model.js";
 import { Shipper } from "../models/shipper.model.js";
 import { Shop } from "../models/shop.model.js";
 import { User } from "../models/user.model.js";
+import { model } from "../utils/gemini.js";
 
 const ShopService = {
     async getAllShops(offset, limit, filterData = {}) {
@@ -27,7 +34,6 @@ const ShopService = {
                     [Op.like]: `%${filterData.shopEmail}%`,
                 };
             }
-
             if (filterData?.shopPhone) {
                 whereClause.shopPhone = {
                     [Op.like]: `%${filterData.shopPhone}%`,
@@ -40,6 +46,7 @@ const ShopService = {
                     [Op.or]: ["active", "suspended"],
                 };
             }
+
             const includeClause = [
                 {
                     model: User,
@@ -72,6 +79,112 @@ const ShopService = {
             return { shops, totalShops };
         } catch (error) {
             console.log("Error fetching shops: ", error);
+            throw new Error(error.message);
+        }
+    },
+    async getOrderByShopId(id, offset, limit) {
+        const o = Number.parseInt(offset) || 0;
+        const l = Number.parseInt(limit) || 5;
+        try {
+            const { count, rows: orders } = await Order.findAndCountAll({
+                where: {
+                    shop_id: id,
+                },
+                include: [
+                    {
+                        model: User,
+                        as: "Customer",
+                    },
+                ],
+                offset: o,
+                limit: l,
+                order: [["id", "DESC"]],
+            });
+
+            if (!orders || orders.length === 0) {
+                throw new Error("No orders found for this shop");
+            }
+
+            // Tính tổng số trang
+            const totalPages = Math.ceil(count / l);
+
+            return {
+                orders,
+                totalOrders: count,
+                totalPages,
+                currentPage: Math.floor(o / l) + 1,
+            };
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+    async getProductByShopId(id, offset, limit, filterData = {}) {
+        const o = Number.parseInt(offset) || 0;
+        const l = Number.parseInt(limit) || 5;
+        const minPrice = Number(filterData.minPrice) || undefined;
+        const maxPrice = Number(filterData.maxPrice) || undefined;
+        try {
+            const whereClause = { shop_id: id }; // Mặc định lọc theo shop_id
+
+            // Lọc theo tên sản phẩm (tìm kiếm gần đúng)
+            if (filterData?.productName) {
+                whereClause.product_name = {
+                    [Op.like]: `%${filterData.productName}%`,
+                };
+            }
+
+            // Lọc theo khoảng giá (min - max)
+            if (filterData?.minPrice && filterData?.maxPrice) {
+                whereClause.price = {
+                    [Op.between]: [minPrice, maxPrice],
+                };
+            } else if (filterData?.minPrice) {
+                whereClause.price = {
+                    [Op.gte]: minPrice, // Lọc sản phẩm có giá >= minPrice
+                };
+            } else if (filterData?.maxPrice) {
+                whereClause.price = {
+                    [Op.lte]: maxPrice, // Lọc sản phẩm có giá <= maxPrice
+                };
+            }
+
+            // Dùng `findAndCountAll()` để lấy tổng số sản phẩm và danh sách sản phẩm cùng lúc
+            const { count, rows: products } = await Product.findAndCountAll({
+                where: whereClause, // Áp dụng bộ lọc vào truy vấn
+                distinct: true,
+                include: [
+                    {
+                        model: OrderItem,
+                        as: "OrderItems",
+                        required: false,
+                        include: [
+                            {
+                                model: Feedback,
+                                as: "Feedbacks",
+                                required: false,
+                            },
+                        ],
+                    },
+                ],
+                offset: o,
+                limit: l,
+                order: [["product_id", "ASC"]],
+            });
+
+            if (!products || products.length === 0) {
+                throw new Error("No products found for this shop");
+            }
+
+            // Tính tổng số trang
+            const totalPages = Math.ceil(count / l);
+
+            return {
+                products,
+                totalProducts: count,
+                totalPages,
+                currentPage: Math.floor(o / l) + 1, // Xác định trang hiện tại
+            };
+        } catch (error) {
             throw new Error(error.message);
         }
     },
@@ -218,16 +331,108 @@ const ShopService = {
             throw new Error(error.message);
         }
     },
+    async getFeedbacksByShopId(id) {
+        try {
+            // 1️⃣ Lấy danh sách feedbacks của cửa hàng
+            const feedbacks = await Feedback.findAll({
+                include: [
+                    {
+                        model: User,
+                        as: "Customer", // ✅ Người mua feedback
+                    },
+                    {
+                        model: ReplyFeedback,
+                        as: "Reply",
+                        include: [
+                            {
+                                model: User,
+                                as: "ReplyUser", // ✅ Người phản hồi
+                            },
+                        ],
+                    },
+                    {
+                        model: Media,
+                        as: "Media",
+                        include: [
+                            {
+                                model: MediaItem,
+                                as: "MediaItems",
+                            },
+                        ],
+                    },
+                    {
+                        model: OrderItem,
+                        as: "OrderItem", // ✅ Alias đúng vì Feedback belongsTo OrderItem
+                        required: true, // ✅ Chỉ lấy Feedback có OrderItem
+                        include: [
+                            {
+                                model: Order,
+                                as: "Order",
+                                where: {
+                                    shop_id: id, // ✅ Lọc theo shopID
+                                },
+                                required: true, // ✅ Chỉ lấy Order có shop_id phù hợp
+                            },
+                            {
+                                model: Product,
+                                as: "ProductIT",
+                            },
+                        ],
+                    },
+                ],
+                order: [["ID", "DESC"]],
+            });
+            if (!feedbacks) {
+                throw new Error("Feedback not found");
+            }
+
+            // 2️⃣ Kiểm tra nếu không có feedback nào
+            if (!feedbacks.length) {
+                return "Chưa có đánh giá nào về cửa hàng này";
+            }
+
+            // 3️⃣ Chuyển feedbacks thành đoạn văn bản để gửi cho AI
+            const feedbackText = feedbacks
+                .map(
+                    (fb, index) =>
+                        `${index + 1}. **Khách hàng**: ${fb.Customer.fullName} | **Sản phẩm**: ${
+                            fb.OrderItems?.ProductIT?.product_name || "Không xác định"
+                        } | **Số sao**: ${fb.star}/5\n**Nội dung**: ${fb.content}\n`,
+                )
+                .join("\n");
+
+            // 4️⃣ Tạo prompt gửi đến AI
+            const prompt = `
+                Bạn là một trợ lý AI chuyên đánh giá mức độ hài lòng của khách hàng về các cửa hàng thương mại điện tử.
+                Dưới đây là danh sách các phản hồi từ khách hàng về cửa hàng này:
+
+                ${feedbackText}
+
+                Dựa trên những phản hồi trên, hãy đưa ra nhận xét tổng quan về cửa hàng. Đánh giá chất lượng dịch vụ và sản phẩm. 
+                Trả lời bằng một đoạn văn ngắn từ 3-5 câu.
+            `;
+
+            // 5️⃣ Gửi dữ liệu đến AI và nhận phản hồi
+            const result = await model.generateContent(prompt);
+            const aiReview = result.response.text();
+
+            return { feedbacks, aiReview };
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
     async getShopById(id) {
+        console.log("B1");
         try {
             const shop = await Shop.findByPk(id, {
                 include: [
                     {
                         model: User,
-                        as: "Owner",
+                        as: "Owner", // Chủ shop
                     },
                 ],
             });
+
             if (!shop) {
                 throw new Error("Shop not found");
             }
@@ -236,11 +441,11 @@ const ShopService = {
             throw new Error(error.message);
         }
     },
-    async updateShopDetailStatus(id, updatedStatus) {
+    async updateShopStatus(id, updatedStatus) {
         const transaction = await sequelize.transaction();
         try {
             const { status, description } = updatedStatus;
-            const newStatus = status === "active" ? "suspended" : "active";
+            const newStatus = status === "accepted" ? "active" : "rejected";
             const reason = description;
 
             try {
@@ -301,73 +506,54 @@ const ShopService = {
             throw new Error(error.message);
         }
     },
-    async updateShopStatus(shopID, updatedStatus) {
-        const transaction = await sequelize.transaction();
-        try {
-            const { status, description } = updatedStatus;
-            const newStatus = status === "accepted" ? "active" : "rejected";
-            const joinedDate = new Date();
-            const reason = description;
+    async getNewOrderCount(id, timeRange) {
+        const now = new Date();
+        let startTime;
+        let dateGroupFormat;
 
-            try {
-                const updatedShop = await Shop.update(
-                    {
-                        shopStatus: newStatus,
-                        shopJoinedDate: joinedDate,
-                    },
-                    {
-                        where: {
-                            shopID: shopID,
-                        },
-                        transaction: transaction,
-                    },
-                );
-
-                // Kiểm tra xem shop có tồn tại hay không
-                if (updatedShop === null) {
-                    await transaction.rollback();
-                    throw new Error("Shop not found");
-                }
-
-                await ReasonChangeStatus.create(
-                    {
-                        operatorID: 1,
-                        pendingID: shopID,
-                        role: "Shop",
-                        changedStatus: status,
-                        reason: reason,
-                    },
-                    {
-                        transaction: transaction,
-                    },
-                );
-
-                await transaction.commit();
-                return newStatus;
-            } catch (error) {
-                await transaction.rollback();
-                console.error(
-                    "Error during updateShopStatus (inner try) - Shop ID:",
-                    id,
-                    "Error:",
-                    error,
-                    "Request Body:",
-                    req.body,
-                );
-                throw new Error(error.message);
-            }
-        } catch (error) {
-            await transaction.rollback();
-            console.error(
-                "Error during updateShopStatus (outer try) - Shop ID:",
-                id,
-                "Error:",
-                error,
-                "Request Body:",
-                req.body,
-            );
-            throw new Error(error.message);
+        switch (timeRange) {
+            case "24h":
+                startTime = new Date(now - 24 * 60 * 60 * 1000);
+                dateGroupFormat = "%Y-%m-%d %H:00:00"; // Group by hour
+                break;
+            case "7d":
+                startTime = new Date(now - 7 * 24 * 60 * 60 * 1000);
+                dateGroupFormat = "%Y-%m-%d"; // Group by day
+                break;
+            case "1m":
+                startTime = new Date(now.setMonth(now.getMonth() - 1));
+                dateGroupFormat = "%Y-%m-%d"; // Group by day
+                break;
+            case "1y":
+                startTime = new Date(now.setFullYear(now.getFullYear() - 1));
+                dateGroupFormat = "%Y-%m"; // Group by month
+                break;
+            case "all":
+                startTime = null;
+                dateGroupFormat = "%Y-%m"; // Group by month
+                break;
+            default:
+                throw new Error("Invalid time range");
         }
+
+        const whereCondition = startTime
+            ? { created_at: { [Op.gte]: startTime }, shop_id: id }
+            : {};
+
+        const orders = await Order.findAll({
+            attributes: [
+                [sequelize.fn("DATE_FORMAT", sequelize.col("created_at"), dateGroupFormat), "date"],
+                [sequelize.fn("COUNT", sequelize.col("id")), "count"],
+            ],
+            where: whereCondition,
+            group: ["date"],
+            order: [["date", "ASC"]],
+        });
+
+        return orders.map((order) => ({
+            date: order.dataValues.date,
+            count: order.dataValues.count,
+        }));
     },
 
     // hàm này là để hiển thị ở bảng thống kê 7 ngày, 1 tháng, 1 năm, 5 năm
@@ -492,8 +678,20 @@ const ShopService = {
         } else if (distanceTime.toUpperCase().includes("WEEK")) {
             attributes = [
                 [Sequelize.fn("SUM", Sequelize.col("total")), "totalRevenue"],
-                [Sequelize.fn("DAYOFWEEK", Sequelize.col("createdAt")), "DayOfWeek"],
-                [Sequelize.fn("DATE", Sequelize.col("createdAt")), "time"],
+                [
+                    Sequelize.fn(
+                        "DAYOFWEEK",
+                        Sequelize.literal("(ADDDATE(`createdAt`, INTERVAL 7 HOUR))"),
+                    ),
+                    "DayOfWeek",
+                ],
+                [
+                    Sequelize.fn(
+                        "DATE",
+                        Sequelize.literal("(ADDDATE(`createdAt`, INTERVAL 7 HOUR))"),
+                    ),
+                    "time",
+                ],
             ];
             group = ["DayOfWeek", "time"];
         } else if (distanceTime.toUpperCase().includes("MONTH")) {
@@ -539,8 +737,20 @@ const ShopService = {
         } else if (distanceTime.toUpperCase().includes("WEEK")) {
             attributes = [
                 [Sequelize.fn("SUM", Sequelize.col("total")), "totalRevenue"],
-                [Sequelize.fn("DAYOFWEEK", Sequelize.col("createdAt")), "DayOfWeek"],
-                [Sequelize.fn("DATE", Sequelize.col("createdAt")), "created_at"],
+                [
+                    Sequelize.fn(
+                        "DAYOFWEEK",
+                        Sequelize.literal("(ADDDATE(`createdAt`, INTERVAL 7 HOUR))"),
+                    ),
+                    "DayOfWeek",
+                ],
+                [
+                    Sequelize.fn(
+                        "DATE",
+                        Sequelize.literal("(ADDDATE(`createdAt`, INTERVAL 7 HOUR))"),
+                    ),
+                    "created_at",
+                ],
             ];
             group = ["DayOfWeek", "created_at"];
         } else if (distanceTime.toUpperCase().includes("MONTH")) {
@@ -930,6 +1140,11 @@ const ShopService = {
                     {
                         model: Shop,
                         as: "Shop",
+                        where: {
+                            shopStatus: {
+                                [Op.like]: "tax_warning",
+                            },
+                        },
                     },
                 ],
                 where: {
@@ -939,9 +1154,6 @@ const ShopService = {
                         ),
                         [Op.lte]: literal("NOW() + INTERVAL 7 HOUR - INTERVAL 5 DAY"),
                     },
-                    status: {
-                        [Op.or]: [OrderStatus.DONE, OrderStatus.WAITING, OrderStatus.DELIVERING],
-                    },
                 },
                 group: ["shop_id"],
             });
@@ -950,6 +1162,135 @@ const ShopService = {
         } catch (error) {
             console.error("Lỗi khi lấy tổng doanh thu tất cả các shops theo tháng:", error);
             throw error;
+        }
+    },
+    async banShopLateTax(shopID) {
+        const transaction = await sequelize.transaction();
+        try {
+            const newStatus = "suspended";
+
+            try {
+                const updatedShop = await Shop.update(
+                    {
+                        shopStatus: newStatus,
+                    },
+                    {
+                        where: {
+                            shopStatus: "tax_warning",
+                        },
+                        transaction: transaction,
+                    },
+                );
+
+                // Kiểm tra xem shop có tồn tại hay không
+                if (updatedShop === null) {
+                    await transaction.rollback();
+                    throw new Error("Shop not found");
+                }
+
+                await ReasonChangeStatus.create(
+                    {
+                        operatorID: 1,
+                        pendingID: shopID,
+                        role: "Shop",
+                        changedStatus: "rejected",
+                        reason: "Late tax payment",
+                    },
+                    {
+                        transaction: transaction,
+                    },
+                );
+
+                await transaction.commit();
+                return newStatus;
+            } catch (error) {
+                await transaction.rollback();
+                console.error(
+                    "Error during updateShopStatus (inner try) - Shop ID:",
+                    id,
+                    "Error:",
+                    error,
+                    "Request Body:",
+                    req.body,
+                );
+                throw new Error(error.message);
+            }
+        } catch (error) {
+            await transaction.rollback();
+            console.error(
+                "Error during updateShopStatus (outer try) - Shop ID:",
+                id,
+                "Error:",
+                error,
+                "Request Body:",
+                req.body,
+            );
+            throw new Error(error.message);
+        }
+    },
+    async unBanShopDelayTax(shopID) {
+        const transaction = await sequelize.transaction();
+        try {
+            const newStatus = "active";
+
+            try {
+                const updatedShop = await Shop.update(
+                    {
+                        shopStatus: newStatus,
+                    },
+                    {
+                        where: {
+                            shopStatus: "tax_warning",
+                            shopID: shopID,
+                        },
+                        transaction: transaction,
+                    },
+                );
+
+                // Kiểm tra xem shop có tồn tại hay không
+                if (updatedShop === null) {
+                    await transaction.rollback();
+                    throw new Error("Shop not found");
+                }
+
+                await ReasonChangeStatus.create(
+                    {
+                        operatorID: 1,
+                        pendingID: shopID,
+                        role: "Shop",
+                        changedStatus: "accepted",
+                        reason: "This shop paid tax on time",
+                    },
+                    {
+                        transaction: transaction,
+                    },
+                );
+
+                await transaction.commit();
+                return newStatus;
+            } catch (error) {
+                await transaction.rollback();
+                console.error(
+                    "Error during updateShopStatus (inner try) - Shop ID:",
+                    id,
+                    "Error:",
+                    error,
+                    "Request Body:",
+                    req.body,
+                );
+                throw new Error(error.message);
+            }
+        } catch (error) {
+            await transaction.rollback();
+            console.error(
+                "Error during updateShopStatus (outer try) - Shop ID:",
+                id,
+                "Error:",
+                error,
+                "Request Body:",
+                req.body,
+            );
+            throw new Error(error.message);
         }
     },
 };

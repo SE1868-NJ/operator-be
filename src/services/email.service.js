@@ -6,6 +6,7 @@ import ShopService from "./shop.service.js";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
 dotenv.config();
+import e from "express";
 import { EMAIL_NAME, EMAIL_PASSWORD } from "../config/config.js";
 
 // Cấu hình SMTP
@@ -18,9 +19,9 @@ const transporter = nodemailer.createTransport({
 });
 
 const EmailService = {
-    async sendTaxReminderEmailToOneShop(id) {
+    async sendTaxReminderEmailToOneShop(shop_id, email, subject, content) {
         try {
-            const shop = await Shop.findByPk(id);
+            const shop = await Shop.findByPk(shop_id);
             if (!shop) {
                 throw new Error("Shop not found");
             }
@@ -28,11 +29,8 @@ const EmailService = {
             if (!owner) {
                 throw new Error("Owner not found");
             }
-            const email = shop.shopEmail || owner.userEmail;
-            const subject = "Thông Báo Nhắc Nhở Nộp Thuế ";
-            const content =
-                "Đã đến hạn nộp thuế tháng này. Vui lòng đóng thuế trước ngày ... tháng này để tiếp tục kinh doanh trên hệ thống.";
-            await sendEmail(email, subject, content);
+            const emailToSend = email || owner.email;
+            await sendEmail(emailToSend, subject, content);
         } catch (error) {
             console.error("Error sending tax reminder email:", error);
             throw error;
@@ -49,12 +47,13 @@ const EmailService = {
                     to: revenue.Shop.shopEmail,
                     subject: "Thông báo nộp thuế tháng này",
                     html: `
-            <p>Xin chào <strong>Nguyễn Xuân Thành</strong>,</p>
-            <p>Đây là thông báo nhắc nhở nộp thuế tháng này.</p>
-            <p><strong>Thuế áp dụng cho  bạn: 50.000 VNĐ</strong></p>
-            <p>Tài khoản nhận tiền: <strong>1018580214 - NGUYEN THANH VIET</strong>. Ngân hàng VIETCOMBANK.</p>
-            <p>Nội dung chuyển khoản: <strong>Tặng anh Việt bồi bổ cơ thể.</strong></p>
-            <p>Vui lòng kiểm tra và hoàn thành nghĩa vụ thuế trước 10h cùng ngày.</p>
+            <p>Xin chào <strong>${revenue.Shop.shopName}</strong>,</p>
+            <p>Đây là thông báo nhắc nhở lần 2 về việc nộp thuế tháng này.</p>
+            <p><strong>Thuế áp dụng cho  bạn: ${revenue.totalRevenue || 0} VNĐ</strong></p>
+            <p>Tài khoản nhận tiền: <strong>(Số tài khoản của sàn)</strong>. Ngân hàng nhận tiền: (Bank).</p>
+            <p>Nội dung chuyển khoản: <strong>Đóng thuế tháng ${date}.</strong></p>
+            <p>Vui lòng kiểm tra và hoàn thành nghĩa vụ thuế <strong>trước ngày 15</strong> của tháng.</p>
+            <p>Nếu đến hạn mà không hoàn thành nghĩa vụ thuế, chúng tôi sẽ tạm ngưng việc kinh doanh của cửa hàng trên hệ thống.</p>
             <p>Trân trọng,</p>
             <p>Hệ thống quản lý thuế</p>
           `,
@@ -87,10 +86,10 @@ const EmailService = {
                     html: `
             <p>Xin chào <strong>${revenue.Shop.shopName}</strong>,</p>
             <p>Đây là thông báo nhắc nhở lần 2 về việc nộp thuế tháng này.</p>
-            <p><strong>Thuế áp dụng cho  bạn: ${revenue.totalRevenue} VNĐ</strong></p>
+            <p><strong>Thuế áp dụng cho  bạn: ${revenue.totalRevenue || 0} VNĐ</strong></p>
             <p>Tài khoản nhận tiền: <strong>(Số tài khoản của sàn)</strong>. Ngân hàng nhận tiền: (Bank).</p>
             <p>Nội dung chuyển khoản: <strong>Đóng thuế tháng ${date}.</strong></p>
-            <p>Vui lòng kiểm tra và hoàn thành nghĩa vụ thuế <strong>trước ngày 15</strong> của tháng.</p>
+            <p>Vui lòng kiểm tra và hoàn thành nghĩa vụ thuế <strong>trước ngày 18</strong> của tháng.</p>
             <p>Nếu đến hạn mà không hoàn thành nghĩa vụ thuế, chúng tôi sẽ tạm ngưng việc kinh doanh của cửa hàng trên hệ thống.</p>
             <p>Trân trọng,</p>
             <p>Hệ thống quản lý thuế</p>
@@ -118,6 +117,11 @@ cron.schedule("0 0 10 * *", async () => {
 cron.schedule("0 0 15 * *", async () => {
     console.log("📢 Đang gửi email nhắc nộp thuế đến các shop chưa đóng thuế...");
     await EmailService.resendTaxReminderEmailToAllShops();
+});
+
+cron.schedule("0 0 18 * *", async () => {
+    console.log("📢 Bắt đầu cấm các shop chưa đóng thuế...");
+    await ShopService.banShopLateTax();
 });
 
 export default EmailService;

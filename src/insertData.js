@@ -1,6 +1,6 @@
 import sequelize from "./config/sequelize.config.js";
 import { Address } from "./models/address.model.js";
-import { EmergencyContact } from "./models/emergencyContact.model.js";
+// import { EmergencyContact } from "./models/emergencyContact.model.js";
 import { Operator } from "./models/operator.model.js";
 import { Order } from "./models/order.model.js";
 import { OrderItem } from "./models/orderItem.model.js";
@@ -13,9 +13,39 @@ import { User } from "./models/user.model.js";
 const insertOperators = async () => {
     try {
         const operators = [
-            { operatorName: "Nguyễn Văn A" },
-            { operatorName: "Trần Văn B" },
-            { operatorName: "Nguyễn Thanh C" },
+            {
+                firstName: "Nguyễn",
+                lastName: "Văn A",
+                email: "nguyenvana@example.com",
+                password: "hashedpassword1",
+                phoneNumber: "0987654321",
+                dateOfBirth: "1990-05-20",
+                gender: "male",
+                status: "active",
+                roleCode: 1,
+            },
+            {
+                firstName: "Trần",
+                lastName: "Thị B",
+                email: "tranthib@example.com",
+                password: "hashedpassword2",
+                phoneNumber: "0976543210",
+                dateOfBirth: "1995-09-15",
+                gender: "female",
+                status: "active",
+                roleCode: 2,
+            },
+            {
+                firstName: "Lê",
+                lastName: "Minh C",
+                email: "leminhc@example.com",
+                password: "hashedpassword3",
+                phoneNumber: "0965432109",
+                dateOfBirth: "1988-12-10",
+                gender: "other",
+                status: "inactive",
+                roleCode: 3,
+            },
         ];
 
         await Operator.bulkCreate(operators);
@@ -24,7 +54,6 @@ const insertOperators = async () => {
         console.error("Error inserting operators:", error);
     }
 };
-
 // 40 user
 const insertUsers = async () => {
     try {
@@ -1709,491 +1738,579 @@ const insertProducts = async () => {
         const products = [
             {
                 shop_id: 1,
-                product_name: "Áo sơ mi nam",
-                description: "Áo sơ mi nam cao cấp",
+                product_name: "Áo sơ mi nam Oxford",
+                description:
+                    "Áo sơ mi nam Oxford cotton, kiểu dáng slimfit, màu trắng, phù hợp công sở và đi chơi.",
                 status: "active",
-                price: 500000,
+                price: 550000,
                 quantity: 10,
+                main_image: "https://example.com/images/aosomi1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 1,
-                product_name: "Quần jeans nam",
-                description: "Quần jeans phong cách",
-                status: "active",
-                price: 700000,
-                quantity: 15,
-            },
-            {
-                shop_id: 2,
-                product_name: "Giày thể thao",
-                description: "Giày thể thao thoáng khí",
-                status: "active",
-                price: 1200000,
-                quantity: 20,
-            },
-            {
-                shop_id: 2,
-                product_name: "Balo du lịch",
-                description: "Balo thời trang",
-                status: "active",
-                price: 850000,
-                quantity: 12,
-            },
-            {
-                shop_id: 3,
-                product_name: "Nước hoa nam",
-                description: "Hương thơm nam tính",
-                status: "active",
-                price: 1500000,
-                quantity: 8,
-            },
-            {
-                shop_id: 3,
-                product_name: "Đồng hồ thông minh",
-                description: "Đồng hồ đa chức năng",
-                status: "active",
-                price: 2500000,
-                quantity: 5,
-            },
-            {
-                shop_id: 4,
-                product_name: "Bút ký cao cấp",
-                description: "Bút ký sang trọng",
-                status: "active",
-                price: 300000,
-                quantity: 25,
-            },
-            {
-                shop_id: 4,
-                product_name: "Sổ tay da",
-                description: "Sổ tay doanh nhân",
-                status: "active",
-                price: 400000,
-                quantity: 18,
-            },
-            {
-                shop_id: 5,
-                product_name: "Laptop gaming",
-                description: "Laptop cấu hình cao",
-                status: "active",
-                price: 25000000,
-                quantity: 3,
-            },
-            {
-                shop_id: 5,
-                product_name: "Chuột không dây",
-                description: "Chuột gaming",
-                status: "active",
-                price: 600000,
-                quantity: 30,
-            },
-            {
-                shop_id: 6,
-                product_name: "Loa Bluetooth",
-                description: "Loa âm thanh sống động",
-                status: "active",
-                price: 900000,
-                quantity: 22,
-            },
-            {
-                shop_id: 6,
-                product_name: "Tai nghe chống ồn",
-                description: "Tai nghe chất lượng cao",
-                status: "active",
-                price: 2000000,
-                quantity: 10,
-            },
-            {
-                shop_id: 7,
-                product_name: "Bình giữ nhiệt",
-                description: "Bình giữ nhiệt inox",
-                status: "active",
-                price: 350000,
-                quantity: 40,
-            },
-            {
-                shop_id: 7,
-                product_name: "Bộ dao nhà bếp",
-                description: "Bộ dao inox cao cấp",
+                product_name: "Quần jeans nam Slimfit",
+                description:
+                    "Quần jeans nam Slimfit, chất liệu denim cao cấp, màu xanh đen, size 28-34.",
                 status: "active",
                 price: 750000,
                 quantity: 15,
+                main_image: "https://example.com/images/quan1.jpg", // Thêm ảnh
             },
             {
-                shop_id: 8,
-                product_name: "Bàn phím cơ",
-                description: "Bàn phím cơ RGB",
+                shop_id: 2,
+                product_name: "Giày thể thao Adidas Ultraboost",
+                description:
+                    "Giày thể thao Adidas Ultraboost, công nghệ Boost, êm ái và thoáng khí, màu đen.",
                 status: "active",
-                price: 1800000,
-                quantity: 7,
+                price: 3500000,
+                quantity: 20,
+                main_image: "https://example.com/images/giay1.jpg", // Thêm ảnh
             },
             {
-                shop_id: 8,
-                product_name: "Máy pha cà phê",
-                description: "Máy pha cà phê tự động",
+                shop_id: 2,
+                product_name: "Balo du lịch 50L",
+                description: "Balo du lịch 50L, chống thấm nước, nhiều ngăn tiện lợi, màu xám.",
                 status: "active",
-                price: 3200000,
-                quantity: 4,
+                price: 950000,
+                quantity: 12,
+                main_image: "https://example.com/images/balo1.jpg", // Thêm ảnh
             },
             {
-                shop_id: 9,
-                product_name: "Sạc dự phòng",
-                description: "Sạc nhanh 10000mAh",
+                shop_id: 3,
+                product_name: "Nước hoa nam Dior Sauvage",
+                description: "Nước hoa nam Dior Sauvage EDT, hương thơm nam tính, lịch lãm, 100ml.",
+                status: "active",
+                price: 2800000,
+                quantity: 8,
+                main_image: "https://example.com/images/nuochoa1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 3,
+                product_name: "Đồng hồ thông minh Apple Watch Series 8",
+                description:
+                    "Đồng hồ thông minh Apple Watch Series 8, GPS, theo dõi sức khỏe, màu đen.",
+                status: "active",
+                price: 11000000,
+                quantity: 5,
+                main_image: "https://example.com/images/dongho1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 4,
+                product_name: "Bút ký Parker Jotter",
+                description:
+                    "Bút ký Parker Jotter, ngòi bi, thân kim loại, sang trọng, phù hợp làm quà tặng.",
                 status: "active",
                 price: 450000,
                 quantity: 25,
+                main_image: "https://example.com/images/but1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 4,
+                product_name: "Sổ tay da Moleskine",
+                description:
+                    "Sổ tay da Moleskine, gáy may, giấy cao cấp, kích thước A5, phù hợp cho doanh nhân.",
+                status: "active",
+                price: 600000,
+                quantity: 18,
+                main_image: "https://example.com/images/so1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 5,
+                product_name: "Laptop gaming ASUS ROG Strix G15",
+                description:
+                    "Laptop gaming ASUS ROG Strix G15, Ryzen 9, RTX 3070, 15.6 inch, màn 144Hz.",
+                status: "active",
+                price: 35000000,
+                quantity: 3,
+                main_image: "https://example.com/images/laptop1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 5,
+                product_name: "Chuột không dây Logitech G Pro X Superlight",
+                description:
+                    "Chuột gaming không dây Logitech G Pro X Superlight, siêu nhẹ, cảm biến HERO 25K.",
+                status: "active",
+                price: 1800000,
+                quantity: 30,
+                main_image: "https://example.com/images/chuot1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 6,
+                product_name: "Loa Bluetooth JBL Charge 5",
+                description:
+                    "Loa Bluetooth JBL Charge 5, chống nước IP67, pin 20 giờ, âm thanh sống động.",
+                status: "active",
+                price: 3500000,
+                quantity: 22,
+                main_image: "https://example.com/images/loa1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 6,
+                product_name: "Tai nghe chống ồn Sony WH-1000XM5",
+                description:
+                    "Tai nghe chống ồn Sony WH-1000XM5, Bluetooth, Hi-Res Audio, chống ồn chủ động.",
+                status: "active",
+                price: 8500000,
+                quantity: 10,
+                main_image: "https://example.com/images/tainghe1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 7,
+                product_name: "Bình giữ nhiệt Lock&Lock LHC618",
+                description:
+                    "Bình giữ nhiệt Lock&Lock LHC618, inox 304, giữ nóng/lạnh 24 giờ, 500ml.",
+                status: "active",
+                price: 450000,
+                quantity: 40,
+                main_image: "https://example.com/images/binh1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 7,
+                product_name: "Bộ dao nhà bếp Zwilling J.A. Henckels",
+                description:
+                    "Bộ dao nhà bếp Zwilling J.A. Henckels, 5 món, thép không gỉ, sắc bén.",
+                status: "active",
+                price: 4500000,
+                quantity: 15,
+                main_image: "https://example.com/images/dao1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 8,
+                product_name: "Bàn phím cơ Keychron K2",
+                description:
+                    "Bàn phím cơ Keychron K2, layout 75%, Bluetooth, keycap PBT, switch Gateron Brown.",
+                status: "active",
+                price: 3200000,
+                quantity: 7,
+                main_image: "https://example.com/images/banphim1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 8,
+                product_name: "Máy pha cà phê Breville Barista Express",
+                description:
+                    "Máy pha cà phê Breville Barista Express, xay cà phê, tạo bọt sữa, espresso, cappuccino.",
+                status: "active",
+                price: 22000000,
+                quantity: 4,
+                main_image: "https://example.com/images/maycafe1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 9,
-                product_name: "Cáp sạc USB-C",
-                description: "Cáp sạc nhanh",
+                product_name: "Sạc dự phòng Anker PowerCore 10000mAh",
+                description: "Sạc dự phòng Anker PowerCore 10000mAh, sạc nhanh PowerIQ, nhỏ gọn.",
                 status: "active",
-                price: 200000,
+                price: 650000,
+                quantity: 25,
+                main_image: "https://example.com/images/sac1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 9,
+                product_name: "Cáp sạc USB-C Anker PowerLine III",
+                description: "Cáp sạc USB-C Anker PowerLine III, sạc nhanh, bền bỉ, 1.8m.",
+                status: "active",
+                price: 300000,
                 quantity: 50,
+                main_image: "https://example.com/images/capsac1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 10,
-                product_name: "Nồi chiên không dầu",
-                description: "Nồi chiên công nghệ mới",
+                product_name: "Nồi chiên không dầu Philips HD9252/90",
+                description:
+                    "Nồi chiên không dầu Philips HD9252/90, công nghệ Rapid Air, dung tích 4.1L.",
                 status: "active",
-                price: 2200000,
+                price: 4800000,
                 quantity: 6,
+                main_image: "https://example.com/images/noichien1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 10,
-                product_name: "Lò vi sóng",
-                description: "Lò vi sóng điện tử",
+                product_name: "Lò vi sóng Sharp R-20A1(S)",
+                description:
+                    "Lò vi sóng Sharp R-20A1(S), 20 lít, chức năng hâm nóng, nấu, rã đông.",
                 status: "active",
-                price: 2800000,
+                price: 1900000,
                 quantity: 3,
+                main_image: "https://example.com/images/loviba1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 11,
-                product_name: "Máy giặt",
-                description: "Máy giặt 9kg",
-                status: "active",
-                price: 8000000,
-                quantity: 2,
-            },
-            {
-                shop_id: 11,
-                product_name: "Tủ lạnh",
-                description: "Tủ lạnh inverter 300L",
+                product_name: "Máy giặt LG Inverter FV1409S2W",
+                description: "Máy giặt LG Inverter FV1409S2W, 9kg, AI DD, Steam, tiết kiệm điện.",
                 status: "active",
                 price: 12000000,
                 quantity: 2,
+                main_image: "https://example.com/images/maygiat1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 11,
+                product_name: "Tủ lạnh Samsung Inverter RT32K5982SL/SV",
+                description:
+                    "Tủ lạnh Samsung Inverter RT32K5982SL/SV, 320L, 2 dàn lạnh độc lập, tiết kiệm điện.",
+                status: "active",
+                price: 9000000,
+                quantity: 2,
+                main_image: "https://example.com/images/tulanh1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 12,
-                product_name: "Bộ bàn ghế gỗ",
-                description: "Bàn ghế gỗ cao cấp",
+                product_name: "Bộ bàn ghế ăn gỗ sồi tự nhiên",
+                description:
+                    "Bộ bàn ghế ăn gỗ sồi tự nhiên, 6 ghế, kiểu dáng hiện đại, phù hợp phòng ăn.",
+                status: "active",
+                price: 8500000,
+                quantity: 4,
+                main_image: "https://example.com/images/bàn_ghế1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 12,
+                product_name: "Đèn LED để bàn Xiaomi Mijia",
+                description:
+                    "Đèn LED để bàn Xiaomi Mijia, chống cận, điều chỉnh độ sáng, kết nối app.",
+                status: "active",
+                price: 750000,
+                quantity: 30,
+                main_image: "https://example.com/images/đèn1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 13,
+                product_name: "Tranh treo tường Canvas phong cảnh",
+                description:
+                    "Tranh treo tường Canvas phong cảnh, kích thước 60x90cm, chất liệu canvas cao cấp.",
+                status: "active",
+                price: 1200000,
+                quantity: 12,
+                main_image: "https://example.com/images/tranh1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 13,
+                product_name: "Bộ chăn ga gối đệm cotton lụa",
+                description:
+                    "Bộ chăn ga gối đệm cotton lụa, mềm mại, thoáng mát, kích thước King Size.",
                 status: "active",
                 price: 5500000,
-                quantity: 4,
-            },
-            {
-                shop_id: 12,
-                product_name: "Đèn LED để bàn",
-                description: "Đèn học chống cận",
-                status: "active",
-                price: 500000,
-                quantity: 30,
-            },
-            {
-                shop_id: 13,
-                product_name: "Tranh treo tường",
-                description: "Tranh trang trí nghệ thuật",
-                status: "active",
-                price: 900000,
-                quantity: 12,
-            },
-            {
-                shop_id: 13,
-                product_name: "Chăn ga gối đệm",
-                description: "Bộ chăn ga cao cấp",
-                status: "active",
-                price: 3500000,
                 quantity: 5,
+                main_image: "https://example.com/images/chăn_ga1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 14,
-                product_name: "Bộ dụng cụ làm vườn",
-                description: "Bộ dụng cụ cầm tay",
+                product_name: "Bộ dụng cụ làm vườn Gardena",
+                description: "Bộ dụng cụ làm vườn Gardena, 3 món, chất liệu thép không gỉ, bền bỉ.",
                 status: "active",
-                price: 700000,
+                price: 950000,
                 quantity: 20,
+                main_image: "https://example.com/images/dụng_cụ_vườn1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 14,
-                product_name: "Hạt giống rau sạch",
-                description: "Hạt giống hữu cơ",
-                status: "active",
-                price: 150000,
-                quantity: 100,
-            },
-            {
-                shop_id: 15,
-                product_name: "Bàn trà",
-                description: "Bàn trà gỗ",
-                status: "active",
-                price: 1500000,
-                quantity: 20,
-            },
-            {
-                shop_id: 15,
-                product_name: "Ghế sofa",
-                description: "Ghế sofa da",
-                status: "active",
-                price: 3000000,
-                quantity: 40,
-            },
-            {
-                shop_id: 1,
-                product_name: "Áo phông nam",
-                description: "Áo phông nam",
-                status: "active",
-                price: 300000,
-                quantity: 25,
-            },
-            {
-                shop_id: 1,
-                product_name: "Áo khoác nam",
-                description: "Áo khoác nam",
-                status: "active",
-                price: 800000,
-                quantity: 20,
-            },
-            {
-                shop_id: 2,
-                product_name: "Túi xách nữ",
-                description: "Túi xách thời trang",
-                status: "active",
-                price: 1500000,
-                quantity: 15,
-            },
-            {
-                shop_id: 2,
-                product_name: "Ví da nữ",
-                description: "Ví da",
-                status: "active",
-                price: 1000000,
-                quantity: 10,
-            },
-            {
-                shop_id: 3,
-                product_name: "Sữa rửa mặt",
-                description: "Sữa rửa mặt",
+                product_name: "Hạt giống rau sạch F1",
+                description: "Hạt giống rau sạch F1, dễ trồng, năng suất cao, nhiều loại rau.",
                 status: "active",
                 price: 250000,
-                quantity: 50,
-            },
-            {
-                shop_id: 3,
-                product_name: "Kem chống nắng",
-                description: "Kem chống nắng",
-                status: "active",
-                price: 400000,
-                quantity: 40,
-            },
-            {
-                shop_id: 4,
-                product_name: "Bút bi",
-                description: "Bút bi",
-                status: "active",
-                price: 20000,
                 quantity: 100,
-            },
-            {
-                shop_id: 4,
-                product_name: "Giấy note",
-                description: "Giấy note",
-                status: "active",
-                price: 30000,
-                quantity: 80,
-            },
-            {
-                shop_id: 5,
-                product_name: "Bàn phím",
-                description: "Bàn phím máy tính",
-                status: "active",
-                price: 500000,
-                quantity: 20,
-            },
-            {
-                shop_id: 5,
-                product_name: "Màn hình",
-                description: "Màn hình máy tính",
-                status: "active",
-                price: 3000000,
-                quantity: 10,
-            },
-            {
-                shop_id: 6,
-                product_name: "Máy nghe nhạc",
-                description: "Máy nghe nhạc",
-                status: "active",
-                price: 1200000,
-                quantity: 15,
-            },
-            {
-                shop_id: 6,
-                product_name: "Đĩa than",
-                description: "Đĩa than",
-                status: "active",
-                price: 800000,
-                quantity: 12,
-            },
-            {
-                shop_id: 7,
-                product_name: "Ly sứ",
-                description: "Ly sứ",
-                status: "active",
-                price: 100000,
-                quantity: 60,
-            },
-            {
-                shop_id: 7,
-                product_name: "Bát ăn cơm",
-                description: "Bát ăn cơm",
-                status: "active",
-                price: 80000,
-                quantity: 50,
-            },
-            {
-                shop_id: 8,
-                product_name: "Máy xay sinh tố",
-                description: "Máy xay sinh tố",
-                status: "active",
-                price: 1500000,
-                quantity: 8,
-            },
-            {
-                shop_id: 8,
-                product_name: "Bếp từ",
-                description: "Bếp từ",
-                status: "active",
-                price: 2500000,
-                quantity: 5,
-            },
-            {
-                shop_id: 9,
-                product_name: "Ốp lưng điện thoại",
-                description: "Ốp lưng",
-                status: "active",
-                price: 150000,
-                quantity: 70,
-            },
-            {
-                shop_id: 9,
-                product_name: "Tai nghe",
-                description: "Tai nghe",
-                status: "active",
-                price: 600000,
-                quantity: 30,
-            },
-            {
-                shop_id: 10,
-                product_name: "Tủ lạnh mini",
-                description: "Tủ lạnh mini",
-                status: "active",
-                price: 3500000,
-                quantity: 3,
-            },
-            {
-                shop_id: 10,
-                product_name: "Máy lọc không khí",
-                description: "Máy lọc không khí",
-                status: "active",
-                price: 4500000,
-                quantity: 2,
-            },
-            {
-                shop_id: 11,
-                product_name: "Giường",
-                description: "Giường ngủ",
-                status: "active",
-                price: 6000000,
-                quantity: 2,
-            },
-            {
-                shop_id: 11,
-                product_name: "Tủ quần áo",
-                description: "Tủ quần áo",
-                status: "active",
-                price: 7500000,
-                quantity: 1,
-            },
-            {
-                shop_id: 12,
-                product_name: "Bàn học",
-                description: "Bàn học sinh",
-                status: "active",
-                price: 1200000,
-                quantity: 2,
-            },
-            {
-                shop_id: 12,
-                product_name: "Ghế văn phòng",
-                description: "Ghế",
-                status: "active",
-                price: 1000000,
-                quantity: 4,
-            },
-            {
-                shop_id: 13,
-                product_name: "Rèm cửa",
-                description: "Rèm",
-                status: "active",
-                price: 400000,
-                quantity: 20,
-            },
-            {
-                shop_id: 13,
-                product_name: "Gương",
-                description: "Gương",
-                status: "active",
-                price: 300000,
-                quantity: 10,
-            },
-            {
-                shop_id: 14,
-                product_name: "Phân bón",
-                description: "Phân bón",
-                status: "active",
-                price: 100000,
-                quantity: 100,
-            },
-            {
-                shop_id: 14,
-                product_name: "Chậu",
-                description: "Chậu",
-                status: "active",
-                price: 60000,
-                quantity: 40,
+                main_image: "https://example.com/images/hạt_giống1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 15,
-                product_name: "Kệ TV",
-                description: "Kệ TV",
+                product_name: "Bàn trà mặt kính cường lực",
+                description:
+                    "Bàn trà mặt kính cường lực, chân gỗ, kiểu dáng hiện đại, phù hợp phòng khách.",
                 status: "active",
-                price: 900000,
-                quantity: 5,
+                price: 2800000,
+                quantity: 20,
+                main_image: "https://example.com/images/bàn_trà1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 15,
-                product_name: "Đèn trang trí",
-                description: "Đèn trang trí",
+                product_name: "Ghế sofa da thật góc L",
+                description: "Ghế sofa da thật góc L, kiểu dáng sang trọng, chất liệu da cao cấp.",
                 status: "active",
-                price: 400000,
-                quantity: 5,
+                price: 12000000,
+                quantity: 40,
+                main_image: "https://example.com/images/ghế_sofa1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 1,
-                product_name: "Thắt lưng nam",
-                description: "Thắt lưng",
+                product_name: "Áo phông nam Cotton Basic",
+                description:
+                    "Áo phông nam Cotton Basic, chất liệu cotton 100%, thoáng mát, nhiều màu.",
+                status: "active",
+                price: 350000,
+                quantity: 25,
+                main_image: "https://example.com/images/ao_phong1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 1,
+                product_name: "Áo khoác nam Bomber",
+                description: "Áo khoác nam Bomber, chất liệu kaki, lót dù, kiểu dáng trẻ trung.",
+                status: "active",
+                price: 900000,
+                quantity: 20,
+                main_image: "https://example.com/images/ao_khoac1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 2,
+                product_name: "Túi xách nữ Michael Kors",
+                description: "Túi xách nữ Michael Kors, da thật, kiểu dáng thời trang, nhiều màu.",
+                status: "active",
+                price: 5800000,
+                quantity: 15,
+                main_image: "https://example.com/images/túi_xách1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 2,
+                product_name: "Ví da nữ cầm tay Gucci",
+                description: "Ví da nữ cầm tay Gucci, da thật, logo Gucci, sang trọng.",
+                status: "active",
+                price: 8500000,
+                quantity: 10,
+                main_image: "https://example.com/images/ví1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 3,
+                product_name: "Sữa rửa mặt Cerave",
+                description: "Sữa rửa mặt Cerave, dịu nhẹ, không tạo bọt, cho da nhạy cảm.",
+                status: "active",
+                price: 300000,
+                quantity: 50,
+                main_image: "https://example.com/images/sữa_rửa_mặt1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 3,
+                product_name: "Kem chống nắng La Roche-Posay",
+                description: "Kem chống nắng La Roche-Posay, SPF 50+, kiềm dầu, cho da dầu.",
+                status: "active",
+                price: 550000,
+                quantity: 40,
+                main_image: "https://example.com/images/kem_chống_nắng1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 4,
+                product_name: "Bút bi Thiên Long",
+                description: "Bút bi Thiên Long, mực xanh, viết êm, giá rẻ.",
+                status: "active",
+                price: 5000,
+                quantity: 100,
+                main_image: "https://example.com/images/bút_bi1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 4,
+                product_name: "Giấy note Post-it",
+                description: "Giấy note Post-it, nhiều màu, dính chắc, tiện lợi.",
+                status: "active",
+                price: 45000,
+                quantity: 80,
+                main_image: "https://example.com/images/giấy_note1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 5,
+                product_name: "Bàn phím cơ Akko",
+                description: "Bàn phím Akko, Blue switch, Keycap PBT, RGB.",
+                status: "active",
+                price: 1500000,
+                quantity: 20,
+                main_image: "https://example.com/images/bàn_phím_máy_tính1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 5,
+                product_name: "Màn hình máy tính LG UltraGear 27 inch",
+                description: "Màn hình máy tính LG UltraGear 27 inch, 144Hz, 1ms, IPS.",
+                status: "active",
+                price: 5500000,
+                quantity: 10,
+                main_image: "https://example.com/images/màn_hình_máy_tính1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 6,
+                product_name: "Máy nghe nhạc Sony Walkman NW-A306",
+                description: "Máy nghe nhạc Sony Walkman NW-A306, Hires audio, bluetooth, wifi.",
+                status: "active",
+                price: 7500000,
+                quantity: 15,
+                main_image: "https://example.com/images/máy_nghe_nhạc1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 6,
+                product_name: "Đĩa than LP",
+                description: "Đĩa than LP, các thể loại rock, pop, jazz.",
+                status: "active",
+                price: 1200000,
+                quantity: 12,
+                main_image: "https://example.com/images/đĩa_than1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 7,
+                product_name: "Ly sứ Bát Tràng",
+                description: "Ly sứ Bát Tràng, vẽ tay, nhiều hình dáng, họa tiết.",
+                status: "active",
+                price: 150000,
+                quantity: 60,
+                main_image: "https://example.com/images/ly_sứ1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 7,
+                product_name: "Bát ăn cơm Minh Long",
+                description: "Bát ăn cơm Minh Long, sứ trắng, cao cấp, bền đẹp.",
+                status: "active",
+                price: 120000,
+                quantity: 50,
+                main_image: "https://example.com/images/bát_ăn_cơm1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 8,
+                product_name: "Máy xay sinh tố Philips",
+                description: "Máy xay sinh tố Philips, công suất 500W, nhiều tốc độ xay.",
+                status: "active",
+                price: 2200000,
+                quantity: 8,
+                main_image: "https://example.com/images/máy_xay_sinh_tố1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 8,
+                product_name: "Bếp từ đơn Xiaomi",
+                description:
+                    "Bếp từ đơn Xiaomi, công suất 2100W, điều khiển cảm ứng, dễ dàng vệ sinh.",
+                status: "active",
+                price: 3500000,
+                quantity: 5,
+                main_image: "https://example.com/images/bếp_từ1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 9,
+                product_name: "Ốp lưng điện thoại iPhone",
+                description: "Ốp lưng điện thoại iPhone, nhiều mẫu, silicon, nhựa cứng.",
+                status: "active",
+                price: 200000,
+                quantity: 70,
+                main_image: "https://example.com/images/ốp_lưng1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 9,
+                product_name: "Tai nghe Bluetooth AirPods",
+                description: "Tai nghe Bluetooth AirPods, kết nối nhanh, âm thanh chất lượng.",
+                status: "active",
+                price: 4500000,
+                quantity: 30,
+                main_image: "https://example.com/images/tai_nghe1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 10,
+                product_name: "Tủ lạnh mini Aqua",
+                description: "Tủ lạnh mini Aqua, nhỏ gọn, phù hợp sinh viên, văn phòng.",
+                status: "active",
+                price: 4200000,
+                quantity: 3,
+                main_image: "https://example.com/images/tủ_lạnh_mini1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 10,
+                product_name: "Máy lọc không khí Sharp",
+                description:
+                    "Máy lọc không khí Sharp, công nghệ Plasmacluster, khử mùi, diệt khuẩn.",
+                status: "active",
+                price: 6500000,
+                quantity: 2,
+                main_image: "https://example.com/images/máy_lọc_không_khí1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 11,
+                product_name: "Giường gỗ sồi",
+                description: "Giường ngủ gỗ sồi, kích thước 1m6x2m, kiểu dáng hiện đại.",
+                status: "active",
+                price: 8000000,
+                quantity: 2,
+                main_image: "https://example.com/images/giường1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 11,
+                product_name: "Tủ quần áo gỗ công nghiệp",
+                description:
+                    "Tủ quần áo gỗ công nghiệp, nhiều ngăn, cánh lùa, tiết kiệm diện tích.",
+                status: "active",
+                price: 9500000,
+                quantity: 1,
+                main_image: "https://example.com/images/tủ_quần_áo1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 12,
+                product_name: "Bàn học sinh Hòa Phát",
+                description: "Bàn học sinh Hòa Phát, gỗ công nghiệp, chống cong vênh, nhiều màu.",
+                status: "active",
+                price: 1800000,
+                quantity: 2,
+                main_image: "https://example.com/images/bàn_học1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 12,
+                product_name: "Ghế văn phòng Ergonomic",
+                description:
+                    "Ghế văn phòng Ergonomic, lưới thoáng khí, điều chỉnh độ cao, tựa lưng.",
+                status: "active",
+                price: 2200000,
+                quantity: 4,
+                main_image: "https://example.com/images/ghế1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 13,
+                product_name: "Rèm cửa chống nắng",
+                description: "Rèm cửa chống nắng, vải dày, cản sáng 100%, nhiều màu sắc.",
                 status: "active",
                 price: 600000,
+                quantity: 20,
+                main_image: "https://example.com/images/rèm_cửa1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 13,
+                product_name: "Gương treo tường Decor",
+                description: "Gương treo tường Decor, khung gỗ, nhiều hình dáng, trang trí phòng.",
+                status: "active",
+                price: 500000,
+                quantity: 10,
+                main_image: "https://example.com/images/gương1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 14,
+                product_name: "Phân bón NPK",
+                description: "Phân bón NPK, kích thích sinh trưởng, ra hoa, đậu quả.",
+                status: "active",
+                price: 150000,
+                quantity: 100,
+                main_image: "https://example.com/images/phân_bón1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 14,
+                product_name: "Chậu nhựa trồng cây",
+                description: "Chậu nhựa trồng cây, nhiều kích cỡ, màu sắc, thoát nước tốt.",
+                status: "active",
+                price: 80000,
+                quantity: 40,
+                main_image: "https://example.com/images/chậu1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 15,
+                product_name: "Kệ TV gỗ công nghiệp",
+                description: "Kệ TV gỗ công nghiệp, kiểu dáng đơn giản, nhiều ngăn chứa đồ.",
+                status: "active",
+                price: 1200000,
                 quantity: 5,
+                main_image: "https://example.com/images/kệ_TV1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 15,
+                product_name: "Đèn trang trí phòng khách",
+                description: "Đèn trang trí phòng khách, đèn chùm, đèn cây, đèn bàn.",
+                status: "active",
+                price: 800000,
+                quantity: 5,
+                main_image: "https://example.com/images/đèn_trang_trí1.jpg", // Thêm ảnh
+            },
+            {
+                shop_id: 1,
+                product_name: "Thắt lưng da nam cao cấp",
+                description: "Thắt lưng da nam cao cấp, da thật, khóa kim loại, sang trọng.",
+                status: "active",
+                price: 800000,
+                quantity: 5,
+                main_image: "https://example.com/images/thắt_lưng1.jpg", // Thêm ảnh
             },
         ];
 

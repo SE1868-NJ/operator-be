@@ -5,14 +5,16 @@ import {
     getLastTimeRevenuesAllShops,
     getOneOrder,
     getOneShopRevenues,
+    getOrderByShopId,
+    getOrderStatistic,
     getPendingShopById,
     getPendingShops,
+    getProductByShopId,
     getRevenueByDate,
     getShopById,
     getTotalRevenueAllShopsByLastTime,
     getTotalRevenueOneShopByLastTime,
     test,
-    updateShopDetailStatus,
     updateShopStatus,
 } from "../controllers/shops.controller.js";
 
@@ -37,8 +39,10 @@ shopRouter.get("/orders/:id", getOneOrder); // cái này lấy của Thành, t�
 
 shopRouter.get("/pendingshop/:id", getPendingShopById);
 shopRouter.patch("/pendingshop/:id", updateShopStatus);
-shopRouter.patch("/:id", updateShopDetailStatus);
+shopRouter.get("/:id/chart", getOrderStatistic);
 shopRouter.get("/:id", getShopById);
+shopRouter.get("/:id/products", getProductByShopId);
+shopRouter.get("/:id/orders", getOrderByShopId);
 shopRouter.get("/", getAllShops);
 
 export default shopRouter;
