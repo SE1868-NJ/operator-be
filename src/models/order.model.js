@@ -89,14 +89,14 @@ export const Order = sequelize.define(
             type: DataTypes.STRING, // Ví dụ: "COD", "Credit Card"
             allowNull: false,
         },
-        created_at: {
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW,
-        },
+        // created_at: {
+        //     type: DataTypes.DATE,
+        //     defaultValue: DataTypes.NOW,
+        // },
     },
     {
         tableName: "Orders",
-        timestamps: false, // Tắt timestamps nếu bạn không muốn createdAt và updatedAt tự động
+        timestamps: true, // Tắt timestamps nếu bạn không muốn createdAt và updatedAt tự động
     },
 );
 
@@ -110,7 +110,7 @@ Order.associate = (models) => {
         foreignKey: "customer_id",
         as: "Customer",
     });
-    Order.belongsTo(models.User, {
+    Order.belongsTo(models.Shipper, {
         foreignKey: "shipper_id",
         as: "Shipper",
     });

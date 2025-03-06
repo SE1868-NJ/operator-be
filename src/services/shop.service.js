@@ -1,7 +1,10 @@
-import { Model, Op, Sequelize } from "sequelize";
+import { Op, Sequelize, literal } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
-import { getApprovedShops } from "../controllers/shops.controller.js";
-import reasonChangeStatusModel, { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
+import { Address } from "../models/address.model.js";
+import { Order } from "../models/order.model.js";
+import { OrderItem } from "../models/orderItem.model.js";
+import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
+import { Shipper } from "../models/shipper.model.js";
 import { Shop } from "../models/shop.model.js";
 import { User } from "../models/user.model.js";
 
@@ -178,7 +181,7 @@ const ShopService = {
                 include: includeClause,
                 offset: offset,
                 limit: limit,
-                order: [["createAt", "DESC"]],
+                order: [["createdAt", "DESC"]],
             });
 
             const totalApprovedShops = await ReasonChangeStatus.count({
@@ -303,12 +306,14 @@ const ShopService = {
         try {
             const { status, description } = updatedStatus;
             const newStatus = status === "accepted" ? "active" : "rejected";
+            const joinedDate = new Date();
             const reason = description;
 
             try {
                 const updatedShop = await Shop.update(
                     {
                         shopStatus: newStatus,
+                        shopJoinedDate: joinedDate,
                     },
                     {
                         where: {
@@ -362,6 +367,589 @@ const ShopService = {
                 req.body,
             );
             throw new Error(error.message);
+        }
+    },
+
+    // hàm này là để hiển thị ở bảng thống kê 7 ngày, 1 tháng, 1 năm, 5 năm
+    async getLastTimesRevenues(id, distanceTime = "1 DAY", offset = 0, limit = 10) {
+        let whereClause = {};
+        const includeClause = [
+            {
+                model: Shop,
+                as: "Shop",
+                include: [
+                    {
+                        model: User,
+                        as: "Owner",
+                    },
+                ],
+            },
+        ];
+        let attributes = [];
+        // nếu có id là lấy thống kê của shop đó
+        if (id) {
+            whereClause = {
+                createdAt: {
+                    [Op.gte]: literal(`NOW() + INTERVAL 7 HOUR - INTERVAL ${distanceTime}`),
+                },
+                shop_id: id,
+            };
+            attributes = [
+                "id",
+                "shop_id",
+                "customer_id",
+                "shipper_id",
+                "address_id",
+                "productFee",
+                "shippingFee",
+                "status",
+                "total",
+                "note",
+                "payment_status",
+                "shipping_status",
+                "payment_method",
+                [Sequelize.literal("DATE_ADD(createdAt, INTERVAL 7 HOUR)"), "created_at"],
+            ];
+        } else {
+            // nếu không có id thì là lấy của toàn sàn
+            whereClause = {
+                createdAt: {
+                    [Op.gte]: literal(`NOW() + INTERVAL 7 HOUR - INTERVAL ${distanceTime}`),
+                },
+            };
+            attributes = ["shop_id", "createdAt"];
+        }
+
+        if (id) {
+            try {
+                const lastTimesRevenueShop = await Order.findAll({
+                    attributes: [
+                        "id",
+                        "shop_id",
+                        "customer_id",
+                        "shipper_id",
+                        "address_id",
+                        "productFee",
+                        "shippingFee",
+                        "status",
+                        "total",
+                        "note",
+                        "payment_status",
+                        "shipping_status",
+                        "payment_method",
+                        [Sequelize.literal("DATE_ADD(createdAt, INTERVAL 7 HOUR)"), "created_at"],
+                        // [Sequelize.fn('SUM', Sequelize.col('total')), 'totalRevenue'],  // Đã sửa tham chiếu cót ở đây
+                    ],
+                    where: whereClause,
+                    include: includeClause,
+                    order: [["created_at", "DESC"]],
+                    offset,
+                    limit,
+                });
+                return lastTimesRevenueShop;
+            } catch (error) {
+                console.error("Lỗi khi lấy doanh thu theo thời gian:", error);
+            }
+        } else {
+            try {
+                const lastTimesRevenueShops = await Order.findAll({
+                    attributes: [
+                        "shop_id",
+                        [Sequelize.fn("SUM", Sequelize.col("total")), "totalRevenue"],
+                        "createdAt",
+                    ],
+                    where: whereClause,
+                    include: includeClause,
+                    order: [["createdAt", "DESC"]],
+                    group: ["shop_id", "createdAt"],
+                    offset,
+                    limit,
+                });
+                return lastTimesRevenueShops;
+            } catch (error) {
+                console.error("Lỗi khi lấy doanh thu theo thời gian:", error);
+            }
+        }
+    },
+
+    // Danh sách các shop cùng với tổng doanh thu trong 1 ngày, 1 tuần, 1 tháng, ....
+    // theo các khung giờ
+    async getRevenueByTimeAllShops(distanceTime = "DAY") {
+        let group = [];
+        let attributes = [];
+        if (distanceTime.toUpperCase().includes("DAY")) {
+            attributes = [
+                [Sequelize.fn("SUM", Sequelize.col("total")), "totalRevenue"],
+                [
+                    Sequelize.literal(
+                        "ADDDATE(DATE_FORMAT(`createdAt`, '%Y-%m-%d %H:00:00'), INTERVAL 7 HOUR)",
+                    ),
+                    "time",
+                ],
+                [Sequelize.literal("HOUR(ADDDATE(`createdAt`, INTERVAL 7 HOUR))"), "atHour"],
+            ];
+            group = ["time"];
+        } else if (distanceTime.toUpperCase().includes("WEEK")) {
+            attributes = [
+                [Sequelize.fn("SUM", Sequelize.col("total")), "totalRevenue"],
+                [Sequelize.fn("DAYOFWEEK", Sequelize.col("createdAt")), "DayOfWeek"],
+                [Sequelize.fn("DATE", Sequelize.col("createdAt")), "time"],
+            ];
+            group = ["DayOfWeek", "time"];
+        } else if (distanceTime.toUpperCase().includes("MONTH")) {
+            attributes = [
+                [Sequelize.fn("SUM", Sequelize.col("total")), "totalRevenue"],
+                [Sequelize.fn("DATE", Sequelize.col("createdAt")), "time"],
+            ];
+            group = ["time"];
+        } else if (distanceTime.toUpperCase().includes("YEAR")) {
+            attributes = [
+                [Sequelize.fn("SUM", Sequelize.col("total")), "totalRevenue"],
+                [Sequelize.literal("DATE_FORMAT(`createdAt`, '%Y-%m')"), "time"],
+            ];
+            group = ["time"];
+        }
+        try {
+            const revenues = await Order.findAll({
+                attributes: attributes,
+                where: {
+                    createdAt: {
+                        [Op.gte]: literal(`NOW() + INTERVAL 7 HOUR - INTERVAL 1 ${distanceTime}`),
+                    },
+                },
+                group: group,
+            });
+
+            return { revenues };
+        } catch (error) {
+            console.error("Lỗi khi lấy doanh thu all shops theo thời gian:", error);
+            throw error;
+        }
+    },
+
+    async getRenenueByTimeOneShop(id, distanceTime = "1 DAY", offset = 0, limit = 10) {
+        let attributes = [];
+        let group = [];
+        if (distanceTime.toUpperCase().includes("DAY")) {
+            attributes = [
+                [Sequelize.fn("SUM", Sequelize.col("total")), "totalRevenue"],
+                [Sequelize.literal("DATE_FORMAT(createdAt, '%Y-%m-%d %H:00:00')"), "created_at"],
+            ];
+            group = ["created_at"];
+        } else if (distanceTime.toUpperCase().includes("WEEK")) {
+            attributes = [
+                [Sequelize.fn("SUM", Sequelize.col("total")), "totalRevenue"],
+                [Sequelize.fn("DAYOFWEEK", Sequelize.col("createdAt")), "DayOfWeek"],
+                [Sequelize.fn("DATE", Sequelize.col("createdAt")), "created_at"],
+            ];
+            group = ["DayOfWeek", "created_at"];
+        } else if (distanceTime.toUpperCase().includes("MONTH")) {
+            attributes = [
+                [Sequelize.fn("SUM", Sequelize.col("total")), "totalRevenue"],
+                [Sequelize.fn("MONTH", Sequelize.col("createdAt")), "created_month"],
+                [Sequelize.fn("YEAR", Sequelize.col("createdAt")), "created_year"],
+            ];
+            group = ["created_month", "created_year"];
+        } else if (distanceTime.toUpperCase().includes("YEAR")) {
+            attributes = [
+                [Sequelize.fn("SUM", Sequelize.col("total")), "totalRevenue"],
+                [Sequelize.fn("YEAR", Sequelize.col("createdAt")), "created_at"],
+            ];
+            group = ["created_at"];
+        }
+        try {
+            const lastTimesRevenues = await Order.findAll({
+                attributes: attributes,
+                where: {
+                    createdAt: {
+                        [Op.gte]: literal(`NOW() + INTERVAL 7 HOUR - INTERVAL ${distanceTime}`),
+                    },
+                    shop_id: id,
+                },
+                include: [
+                    {
+                        model: Shop,
+                        as: "Shop",
+                        include: [
+                            {
+                                model: User,
+                                as: "Owner",
+                            },
+                        ],
+                    },
+                ],
+                group: group,
+                order: [["totalRevenue", "DESC"]],
+                offset,
+                limit,
+            });
+            return lastTimesRevenues;
+        } catch (error) {
+            console.error("Lỗi khi lấy doanh thu 1 shop theo thời gian:", error);
+            throw error;
+        }
+    },
+
+    // danh sách các shop với số orders và tổng doanh thu theo ngày - tháng - năm
+    // hiển thị ở allShopsRevenue
+    async getTotalRevenueShopsByTime(
+        day,
+        month,
+        year = 2025,
+        offset = 0,
+        limit = 10,
+        filterData = {},
+    ) {
+        let monthUp = 12;
+        let monthDown = 1;
+        let dayUp = 31;
+        let dayDown = 1;
+        if (month) {
+            monthUp = month;
+            monthDown = month;
+            if (day) {
+                dayUp = day;
+                dayDown = day;
+            }
+        }
+
+        const whereClause = {};
+        // Lọc Shop
+        if (filterData?.shopName) {
+            whereClause.shopName = { [Op.like]: `%${filterData.shopName}%` };
+        }
+        if (filterData?.shopEmail) {
+            whereClause.shopEmail = { [Op.like]: `%${filterData.shopEmail}%` };
+        }
+        if (filterData?.shopPhone) {
+            whereClause.shopPhone = { [Op.like]: `%${filterData.shopPhone}%` };
+        }
+
+        // Lọc Owner
+        const ownerClause = {};
+        if (filterData?.ownerName) {
+            ownerClause.fullName = { [Op.like]: `%${filterData.ownerName}%` };
+        }
+
+        const startDate = `${year}-${monthDown}-${dayDown} 00:00:00`;
+        const endDate = `${year}-${monthUp}-${dayUp} 23:59:59`;
+
+        const startDateWith7Hours = new Date(startDate);
+        startDateWith7Hours.setHours(startDateWith7Hours.getHours() + 7);
+        const endDateWith7Hours = new Date(endDate);
+        endDateWith7Hours.setHours(endDateWith7Hours.getHours() + 7);
+
+        try {
+            const totalRevenue = await Order.findAll({
+                attributes: [
+                    "shop_id",
+                    [Sequelize.fn("SUM", Sequelize.col("total")), "totalRevenue"],
+                    [Sequelize.fn("COUNT", Sequelize.col("total")), "totalOrder"],
+                ],
+                where: {
+                    createdAt: {
+                        [Op.and]: [
+                            { [Op.gte]: startDateWith7Hours },
+                            { [Op.lt]: endDateWith7Hours },
+                        ],
+                    },
+                },
+                include: [
+                    {
+                        model: Shop,
+                        as: "Shop",
+                        where: whereClause,
+                        include: [
+                            {
+                                model: User,
+                                as: "Owner",
+                                where: ownerClause,
+                            },
+                        ],
+                    },
+                ],
+                group: ["shop_id"],
+                offset,
+                limit,
+            });
+
+            const total = await Shop.count({
+                include: [
+                    {
+                        model: Order,
+                        as: "Orders",
+                        attributes: [],
+                        where: {
+                            createdAt: {
+                                [Op.and]: [
+                                    { [Op.gte]: startDateWith7Hours },
+                                    { [Op.lt]: endDateWith7Hours },
+                                ],
+                            },
+                        },
+                    },
+                    {
+                        model: User,
+                        as: "Owner",
+                        where: ownerClause,
+                    },
+                ],
+                where: whereClause,
+                distinct: true,
+            });
+            return { totalRevenue, total };
+        } catch (error) {
+            console.error("Lỗi khi lấy doanh thu all shops theo thời gian:", error);
+            throw error;
+        }
+    },
+
+    // lấy danh sách các orders của 1 shop theo ngày - tháng - năm
+    // hiển thị bảng ở trang shopRevenueDetail
+    async getRevenueOneShopByTime(
+        id,
+        day,
+        month,
+        year = 2025,
+        offset = 0,
+        limit = 10,
+        filterData = {},
+    ) {
+        let monthUp = 12;
+        let monthDown = 1;
+        let dayUp = 31;
+        let dayDown = 1;
+        if (month) {
+            monthUp = month;
+            monthDown = month;
+            if (day) {
+                dayUp = day;
+                dayDown = day;
+            }
+        }
+
+        const shipperClause = {};
+        const customerClause = {};
+        // Lọc Shipper
+        if (filterData?.shipperName) {
+            shipperClause.name = { [Op.like]: `%${filterData.shipperName}%` };
+        }
+        // Lọc Customer
+        if (filterData?.customerName) {
+            customerClause.fullName = { [Op.like]: `%${filterData.customerName}%` };
+        }
+
+        const startDate = `${year}-${monthDown}-${dayDown} 00:00:00`;
+        const endDate = `${year}-${monthUp}-${dayUp} 23:59:59`;
+
+        const startDateWith7Hours = new Date(startDate);
+        startDateWith7Hours.setHours(startDateWith7Hours.getHours() + 7);
+        const endDateWith7Hours = new Date(endDate);
+        endDateWith7Hours.setHours(endDateWith7Hours.getHours() + 7);
+
+        try {
+            const orders = await Order.findAll({
+                where: {
+                    createdAt: {
+                        [Op.and]: [
+                            { [Op.gte]: startDateWith7Hours },
+                            { [Op.lt]: endDateWith7Hours },
+                        ],
+                    },
+                    shop_id: id,
+                },
+                include: [
+                    {
+                        model: Shop,
+                        as: "Shop",
+                        include: [
+                            {
+                                model: User,
+                                as: "Owner",
+                            },
+                        ],
+                    },
+                    {
+                        model: Shipper,
+                        as: "Shipper",
+                        where: shipperClause,
+                    },
+                    {
+                        model: User,
+                        as: "Customer",
+                        where: customerClause,
+                    },
+                    {
+                        model: Address,
+                        as: "Address",
+                    },
+                ],
+                offset,
+                limit,
+            });
+
+            const total = await Order.count({
+                where: {
+                    createdAt: {
+                        [Op.and]: [
+                            { [Op.gte]: startDateWith7Hours },
+                            { [Op.lt]: endDateWith7Hours },
+                        ],
+                    },
+                    shop_id: id,
+                },
+                include: [
+                    {
+                        model: Shop,
+                        as: "Shop",
+                        include: [
+                            {
+                                model: User,
+                                as: "Owner",
+                            },
+                        ],
+                    },
+                    {
+                        model: Shipper,
+                        as: "Shipper",
+                        where: shipperClause,
+                    },
+                    {
+                        model: User,
+                        as: "Customer",
+                        where: customerClause,
+                    },
+                ],
+            });
+            return { orders, total };
+        } catch (error) {
+            console.error("Lỗi khi lấy danh sách đơn hàng của 1 shop theo thời gian:", error);
+            throw error;
+        }
+    },
+
+    // lấy ra tổng doanh thu và số đơn hàng của toàn sàn theo khoảng thời gian gần nhất
+    // hiển thị thống kê trên cùng của trang thống kê hệ thống
+    async getTotalRevenueAllShopsByLastTime(distanceTime = "DAY") {
+        try {
+            const totalRevenues = await Order.sum("total", {
+                where: {
+                    createdAt: {
+                        [Op.gte]: literal(`NOW() + INTERVAL 7 HOUR - INTERVAL 1 ${distanceTime}`),
+                    },
+                },
+            });
+
+            const totalOrders = await Order.count({
+                where: {
+                    createdAt: {
+                        [Op.gte]: literal(`NOW() + INTERVAL 7 HOUR - INTERVAL 1 ${distanceTime}`),
+                    },
+                },
+            });
+
+            if (totalRevenues === null) {
+                return { totalRevenues: 0, totalOrders: 0 };
+            }
+            return { totalRevenues, totalOrders };
+        } catch (error) {
+            console.error("Lỗi khi lấy tổng doanh thu tất cả các shops theo thời gian:", error);
+            throw error;
+        }
+    },
+
+    // lấy ra tổng doanh thu và số đơn hàng của 1 shop theo khoảng thời gian gần nhất
+    // hiển thị thống kê trên cùng ở trang detail shop revenue
+    async getTotalRevenueOneShopByLastTime(id, distanceTime = "DAY") {
+        try {
+            const totalRevenues = await Order.sum("total", {
+                where: {
+                    createdAt: {
+                        [Op.gte]: literal(`NOW() + INTERVAL 7 HOUR - INTERVAL 1 ${distanceTime}`),
+                    },
+                    shop_id: id,
+                },
+            });
+
+            const totalOrders = await Order.count({
+                where: {
+                    createdAt: {
+                        [Op.gte]: literal(`NOW() + INTERVAL 7 HOUR - INTERVAL 1 ${distanceTime}`),
+                    },
+                    shop_id: id,
+                },
+            });
+
+            if (totalRevenues === null) {
+                return { totalRevenues: 0, totalOrders: 0 };
+            }
+
+            return { totalRevenues, totalOrders };
+        } catch (error) {
+            console.error("Lỗi khi lấy tổng doanh thu 1 shop theo thời gian:", error);
+            throw error;
+        }
+    },
+
+    async getRevenueLastMonthAllShops() {
+        try {
+            const revenues = await Order.findAll({
+                attributes: [
+                    "shop_id",
+                    [Sequelize.fn("SUM", Sequelize.col("total")), "totalRevenue"],
+                ],
+                include: [
+                    {
+                        model: Shop,
+                        as: "Shop",
+                    },
+                ],
+                where: {
+                    createdAt: {
+                        [Op.gte]: literal("NOW() + INTERVAL 7 HOUR - INTERVAL 1 MONTH"),
+                    },
+                },
+                group: ["shop_id"],
+            });
+
+            return revenues;
+        } catch (error) {
+            console.error("Lỗi khi lấy tổng doanh thu tất cả các shops theo tháng:", error);
+            throw error;
+        }
+    },
+
+    async getResendEmailShops() {
+        try {
+            const revenues = await Order.findAll({
+                attributes: [
+                    "shop_id",
+                    [Sequelize.fn("SUM", Sequelize.col("total")), "totalRevenue"],
+                ],
+                include: [
+                    {
+                        model: Shop,
+                        as: "Shop",
+                    },
+                ],
+                where: {
+                    createdAt: {
+                        [Op.gte]: literal(
+                            "NOW() + INTERVAL 7 HOUR - INTERVAL 5 DAY - INTERVAL 1 MONTH",
+                        ),
+                        [Op.lte]: literal("NOW() + INTERVAL 7 HOUR - INTERVAL 5 DAY"),
+                    },
+                    status: {
+                        [Op.or]: [OrderStatus.DONE, OrderStatus.WAITING, OrderStatus.DELIVERING],
+                    },
+                },
+                group: ["shop_id"],
+            });
+
+            return revenues;
+        } catch (error) {
+            console.error("Lỗi khi lấy tổng doanh thu tất cả các shops theo tháng:", error);
+            throw error;
         }
     },
 };

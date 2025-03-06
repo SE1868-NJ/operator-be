@@ -61,7 +61,14 @@ export const Shop = sequelize.define(
             },
         },
         shopStatus: {
-            type: DataTypes.ENUM("pending", "active", "rejected", "suspended"),
+            type: DataTypes.ENUM(
+                "pending",
+                "active",
+                "rejected",
+                "suspended",
+                "quality_warning",
+                "tax_warning",
+            ),
             allowNull: false,
             defaultValue: "pending",
         },
@@ -114,7 +121,7 @@ export const Shop = sequelize.define(
     },
     {
         tableName: "Shops",
-        timestamps: false, // Tắt tự động thêm createdAt và updatedAt nếu không cần
+        timestamps: true, // bật tự động thêm createdAt và updatedAt
     },
 );
 
@@ -123,6 +130,10 @@ Shop.associate = (models) => {
     Shop.belongsTo(models.User, {
         foreignKey: "ownerID",
         as: "Owner", // Tùy chọn, để dễ truy vấn sau này
+    });
+    Shop.hasMany(models.Order, {
+        foreignKey: "shop_id",
+        as: "Orders", // Thường dùng số nhiều vì một Shop có nhiều Order
     });
 };
 

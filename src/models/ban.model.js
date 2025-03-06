@@ -47,7 +47,7 @@ export const Ban = sequelize.define(
     },
     {
         tableName: "Bans",
-        timestamps: false,
+        timestamps: true,
     },
 );
 
