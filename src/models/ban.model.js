@@ -23,7 +23,7 @@ export const Ban = sequelize.define(
             allowNull: false,
             references: {
                 model: Operator, // Liên kết với bảng Operator
-                key: "operatorID",
+                key: "operatorId",
             },
             onDelete: "CASCADE", // Nếu operator bị xóa, các bản ghi trong Ban cũng bị xóa
         },
@@ -50,6 +50,12 @@ export const Ban = sequelize.define(
         timestamps: false,
     },
 );
+Ban.associate = (models) => {
+    Ban.belongsTo(models.Operator, {
+        foreignKey: "operatorId",
+        as: "operator",
+    });
+};
 
 export default (sequelize, DataTypes) => {
     return Ban;
