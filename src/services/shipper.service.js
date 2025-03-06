@@ -1,7 +1,8 @@
-import { Op, where } from "sequelize";
+import { Op, Sequelize, where } from "sequelize";
 // import { generateCSVReport } from '../utils/csvUtils';
 import sequelize from "../config/sequelize.config.js";
-import { updateShipperPending } from "../controllers/shipper.controller.js";
+import { getShipperById, updateShipperPending } from "../controllers/shipper.controller.js";
+// import { updateShipperPending } from "../controllers/shipper.controller.js";
 import { Order } from "../models/order.model.js";
 import { OrderItem } from "../models/orderItem.model.js"; // { OrderItem }
 import { Shipper } from "../models/shipper.model.js";
@@ -128,6 +129,10 @@ const ShipperServices = {
             throw new Error(error.message);
         }
     },
+    async getShipperById(id) {
+        const shipper = await Shipper.findByPk(id);
+        return shipper;
+    },
 
     async getSumShippingFeeAllShippers(offset = 0, limit = 10) {
         const sumShippingFee = await Order.findAll({
@@ -177,6 +182,100 @@ const ShipperServices = {
             return shipper;
         } catch (error) {
             throw new Error("Error fetching shipper orders: ");
+        }
+    },
+
+    async getTopShippers() {
+        try {
+            const shippers = await Shipper.findAll({
+                attributes: [
+                    "id",
+                    "name",
+                    [
+                        Sequelize.fn(
+                            "COALESCE",
+                            Sequelize.fn("SUM", Sequelize.col("Orders.shippingFee")),
+                            0,
+                        ),
+                        "total_revenue",
+                    ],
+                    [
+                        Sequelize.fn(
+                            "COALESCE",
+                            Sequelize.fn(
+                                "SUM",
+                                Sequelize.literal(
+                                    `CASE WHEN Orders.status = 'completed' THEN 1 ELSE 0 END`,
+                                ),
+                            ),
+                            0,
+                        ),
+                        "completed_orders",
+                    ],
+                ],
+                include: [
+                    {
+                        model: Order,
+                        as: "Orders", // Kiểm tra alias này có đúng trong model Order không!
+                        attributes: [],
+                    },
+                ],
+                group: ["Shipper.id", "Shipper.name"],
+                order: [
+                    [Sequelize.literal("total_revenue"), "DESC"],
+                    [Sequelize.literal("completed_orders"), "DESC"],
+                ],
+                limit: 5,
+                subQuery: false,
+            });
+
+            return shippers;
+        } catch (error) {
+            throw new Error(`Error fetching top shippers: ${error.message}`);
+        }
+    },
+
+    async getShippingStatusSummary() {
+        try {
+            const result = await Shipper.findAll({
+                attributes: [
+                    "id",
+                    "name",
+                    [
+                        Sequelize.literal(
+                            `COUNT(CASE WHEN orders.shipping_status = 'not_yet_shipped' THEN 1 ELSE NULL END)`,
+                        ),
+                        "not_yet_shipped",
+                    ],
+                    [
+                        Sequelize.literal(
+                            `COUNT(CASE WHEN orders.shipping_status = 'shipping' THEN 1 ELSE NULL END)`,
+                        ),
+                        "shipping",
+                    ],
+                    [
+                        Sequelize.literal(
+                            `COUNT(CASE WHEN orders.shipping_status = 'shipped' THEN 1 ELSE NULL END)`,
+                        ),
+                        "shipped",
+                    ],
+                ],
+                include: [
+                    {
+                        model: Order,
+                        as: "Orders",
+                        attributes: [],
+                    },
+                ],
+                group: ["Shipper.id", "Shipper.name"],
+                order: [["id", "ASC"]],
+                raw: true,
+            });
+
+            return result;
+        } catch (error) {
+            console.error("Error fetching shipping status summary:", error);
+            throw new Error("Failed to fetch shipping status summary");
         }
     },
 };

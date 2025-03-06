@@ -71,7 +71,7 @@ export const Shipper = sequelize.define("Shipper", {
         },
     },
     status: {
-        type: DataTypes.ENUM("pending", "active", "deactive"),
+        type: DataTypes.ENUM("pending", "active", "inactive", "suspended"),
 
         allowNull: false,
         defaultValue: "pending",
