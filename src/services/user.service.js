@@ -103,7 +103,8 @@ const userService = {
             const orderStats = {};
             for (const order of orders) {
                 const month = order.created_at.getMonth() + 1; // Lấy tháng (1-12)
-                const key = `${order.year}-${month}`;
+
+                const key = `${order.created_at.getFullYear()}-${month}`;
 
                 if (!orderStats[key]) {
                     orderStats[key] = 0;
