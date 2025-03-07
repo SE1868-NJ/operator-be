@@ -8,6 +8,7 @@ import { Server } from "socket.io";
 import db from "./models/index.js";
 import route from "./routes/index.js";
 import "./services/ban.service.js";
+import "./services/email.service.js";
 
 const app = express();
 const corsOptions = {

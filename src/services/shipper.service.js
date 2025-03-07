@@ -1,3 +1,4 @@
+import { join } from "path";
 import { Op, Sequelize, where } from "sequelize";
 // import { generateCSVReport } from '../utils/csvUtils';
 import sequelize from "../config/sequelize.config.js";
@@ -22,7 +23,7 @@ const ShipperServices = {
     async getAllShippersPending(offset = 0, limit = 10) {
         const shippers = await Shipper.findAll({
             where: {
-                status: "Pending",
+                status: "pending",
             },
             offset,
             limit,
@@ -34,7 +35,7 @@ const ShipperServices = {
 
         const total = await Shipper.count({
             where: {
-                status: "Pending",
+                status: "pending",
             },
         });
         return { shippers, total };
@@ -53,13 +54,14 @@ const ShipperServices = {
         const transaction = await sequelize.transaction();
         try {
             const { status, description } = updatedStatus;
-            const newStatus = status === "rejected" ? "Rejected" : "Active";
+            const newStatus = status === "rejected" ? "inactive" : "active";
             const reason = description;
 
             try {
                 const updatedShipper = await Shipper.update(
                     {
                         status: newStatus,
+                        joinedDate: new Date(),
                     },
                     {
                         where: {
