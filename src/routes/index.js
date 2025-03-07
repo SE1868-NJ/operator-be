@@ -22,6 +22,7 @@ const route = (app) => {
     app.use("/ban", banRouter);
     app.use("/operator", operatorRoute);
     app.use("/orders", orderRouter);
+    app.use("/operator", operatorRoute);
 };
 
 export default route;

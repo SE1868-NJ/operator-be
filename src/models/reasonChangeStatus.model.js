@@ -49,7 +49,7 @@ export const ReasonChangeStatus = sequelize.define(
     },
     {
         tableName: "ReasonChangeStatus",
-        timestamps: false,
+        timestamps: true,
     },
 );
 

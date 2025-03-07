@@ -200,21 +200,7 @@ export const getShopById = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Get shop by id successfully",
-            shop,
-            feedbacks,
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-export const getOrderStatistic = async (req, res) => {
-    const { id } = req.params;
-    const { timeRange, interval } = req.query;
-    try {
-        const data = await ShopService.getNewOrderCount(id, timeRange, interval);
-        res.status(200).json({
-            data,
+            shop: shop,
         });
     } catch (error) {
         res.status(500).json({

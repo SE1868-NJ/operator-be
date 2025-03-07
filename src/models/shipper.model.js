@@ -73,6 +73,10 @@ export const Shipper = sequelize.define(
                 },
             },
         },
+        joinedDate: {
+            type: DataTypes.DATE,
+            allowNull: false,
+        },
         status: {
             type: DataTypes.ENUM("pending", "active", "inactive", "suspended"),
 
@@ -89,7 +93,8 @@ export const Shipper = sequelize.define(
         },
     },
     {
-        timestamps: false,
+        tableName: "Shippers",
+        timestamps: true,
     },
 );
 

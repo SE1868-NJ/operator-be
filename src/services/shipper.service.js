@@ -1,6 +1,8 @@
+import { join } from "path";
 //.src/service/shipper.servi
 import sequelize from "../config/sequelize.config.js";
-import { getShipperById, updateShipperPending } from "../controllers/shipper.controller.js";
+import { getShipperById } from "../controllers/shipper.controller.js";
+import { updateShipperPending } from "../controllers/shipper.controller.js";
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shipper } from "../models/shipper.model.js";
 
@@ -19,7 +21,7 @@ const ShipperServices = {
     async getAllShippersPending(offset = 0, limit = 10) {
         const shippers = await Shipper.findAll({
             where: {
-                status: "Pending",
+                status: "pending",
             },
             offset,
             limit,
@@ -31,7 +33,7 @@ const ShipperServices = {
 
         const total = await Shipper.count({
             where: {
-                status: "Pending",
+                status: "pending",
             },
         });
         return { shippers, total };
@@ -46,32 +48,18 @@ const ShipperServices = {
         return shipper;
     },
 
-    async updateShipperStatus(id, status) {
-        try {
-            const shipper = await Shipper.findByPk(id);
-            if (!shipper) {
-                throw new Error("Shipper not found");
-            }
-            shipper.status = status;
-            await shipper.save();
-            return shipper;
-        } catch (error) {
-            throw new Error(error.message);
-        }
-    },
     async updateShipperPending(id, updatedStatus) {
         // const transaction = await sequelize.transaction();
         try {
             const { status, description } = updatedStatus;
-            const newStatus = status === "rejected" ? "inactive" : "active";
-            const reason = description || "được chấp nhận";
+            const newStatus = status === "rejected" ? "Rejected" : "Active";
+            const reason = description;
 
             console.log("--------------", id, newStatus, "------------");
             try {
                 const updatedShipper = await Shipper.update(
                     {
                         status: newStatus,
-                        // joinedDate: new Date(),
                     },
                     {
                         where: {
@@ -100,7 +88,7 @@ const ShipperServices = {
                 //   }
                 // );
 
-                // await transaction.commit();
+                await transaction.commit();
                 return updatedShipper;
             } catch (error) {
                 await transaction.rollback();
@@ -124,6 +112,20 @@ const ShipperServices = {
                 "Request Body:",
                 req.body,
             );
+            throw new Error(error.message);
+        }
+    },
+
+    async updateShipperStatus(id, status) {
+        try {
+            const shipper = await Shipper.findByPk(id);
+            if (!shipper) {
+                throw new Error("Shipper not found");
+            }
+            shipper.status = status;
+            await shipper.save();
+            return shipper;
+        } catch (error) {
             throw new Error(error.message);
         }
     },
