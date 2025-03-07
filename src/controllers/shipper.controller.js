@@ -118,3 +118,78 @@ export const getAllPendingShippers = async (req, res) => {
         res.status(500).json({ error: "Internal server error: " });
     }
 };
+
+export const getSumShippingFeeAllShippers = async (req, res) => {
+    try {
+        const { offset = 0, limit = 10 } = req.query;
+        const { sumShippingFee, totalRevenue, totalOrders } =
+            await ShipperServices.getSumShippingFeeAllShippers();
+        return res.json({
+            success: true,
+            message: "get sum shipping fee successfully",
+            data: {
+                sumShippingFee,
+                totalRevenue,
+                totalOrders,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error: " });
+    }
+};
+
+export const getOrdersOfShipper = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Shipper ID is required",
+            });
+        }
+
+        const shipper = await ShipperServices.getOrdersOfShipper(id);
+
+        if (!shipper) {
+            return res.status(404).json({
+                success: false,
+                message: "Shipper not found or no orders available",
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: "Get all orders successfully",
+            data: shipper,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error: " });
+    }
+};
+
+export const getTopShippers = async (req, res) => {
+    try {
+        const topShippers = await ShipperServices.getTopShippers();
+        res.status(200).json({ success: true, data: topShippers });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const getShippingStatus = async (req, res) => {
+    try {
+        const data = await ShipperServices.getShippingStatusSummary();
+        res.status(200).json({
+            success: true,
+            data,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
