@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
+import { Ban } from "./ban.model.js";
 
 export const Operator = sequelize.define("Operator", {
     operatorID: {
