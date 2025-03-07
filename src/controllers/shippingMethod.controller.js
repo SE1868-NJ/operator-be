@@ -21,9 +21,10 @@ export async function getAllShippingMethod(req, res) {
 
 // Get a shipping method by ID
 export async function getByIdShippingMethod(req, res) {
+    const { city } = req.query;
     try {
         const { id } = req.params;
-        const shippingMethod = await ShippingMethodService.getShippingMethodById(id);
+        const shippingMethod = await ShippingMethodService.getShippingMethodById(id, city);
         res.status(200).json({ success: true, data: shippingMethod });
     } catch (error) {
         res.status(404).json({ success: false, message: error.message });

@@ -1,3 +1,4 @@
+import axios from "axios";
 import { ShippingMethod } from "../models/shippingMethod.model.js";
 
 const ShippingMethodService = {
@@ -22,18 +23,75 @@ const ShippingMethodService = {
         }
     },
 
-    // Get a single shipping method by ID
-    async getShippingMethodById(id) {
-        try {
-            const shippingMethod = await ShippingMethod.findByPk(id);
-            if (!shippingMethod) {
-                throw new Error("Shipping method not found");
-            }
-            return shippingMethod;
-        } catch (error) {
-            console.error("Error fetching shipping method:", error);
-            throw new Error("Failed to fetch shipping method");
+    async getShippingMethodById(id, city) {
+        // Fetch shipping method from DB
+        const shippingMethod = await ShippingMethod.findByPk(id);
+        if (!shippingMethod) {
+            throw new Error("Shipping method not found");
         }
+
+        // Parse `externalFactors` if it's stored as a string
+        let externalFactors;
+        try {
+            externalFactors =
+                typeof shippingMethod.externalFactors === "string"
+                    ? JSON.parse(shippingMethod.externalFactors)
+                    : shippingMethod.externalFactors;
+        } catch (error) {
+            console.error("Error parsing externalFactors:", error);
+            externalFactors = {}; // Default to empty object if parsing fails
+        }
+
+        // Default fee if not set
+        let adjustedFee = shippingMethod.shippingFee;
+
+        // Check if weather adjustments are enabled
+        if (city && externalFactors?.weather?.enabled) {
+            try {
+                // Step 1: Get real-time weather data
+                const weatherResponse = await axios.get(
+                    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=545e9b4a434a53f40c19ffe791ae4e5a&units=metric`,
+                );
+                const weather = weatherResponse.data;
+                const temperature = weather.main.temp;
+                const weatherCondition = weather.weather[0].main;
+
+                // Step 2: Determine weather level
+                let weatherLevel = "LOW";
+                if (weatherCondition === "Rain" || weatherCondition === "Snow" || temperature < 5) {
+                    weatherLevel = "HIGH";
+                } else if (weatherCondition === "Clouds" || temperature < 15) {
+                    weatherLevel = "MEDIUM";
+                }
+
+                // Step 3: Apply the appropriate multiplier
+                const multipliers = externalFactors.weather.multipliers || {};
+                const multiplier = multipliers[weatherLevel] || 1.0;
+
+                adjustedFee *= multiplier;
+
+                return {
+                    ...shippingMethod.toJSON(),
+                    externalFactors, // Return parsed external factors
+                    weather: {
+                        temperature,
+                        condition: weatherCondition,
+                        level: weatherLevel,
+                    },
+                    adjustedFee: adjustedFee,
+                };
+            } catch (error) {
+                console.error("Error fetching weather data:", error);
+                throw new Error("Failed to fetch weather data");
+            }
+        }
+
+        // If weather adjustments are disabled, return the base shipping method
+        return {
+            ...shippingMethod.toJSON(),
+            externalFactors, // Return parsed external factors
+            adjustedFee: adjustedFee,
+        };
     },
 
     // Update a shipping method
