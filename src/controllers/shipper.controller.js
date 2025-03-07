@@ -1,6 +1,6 @@
-import { Op, where } from "sequelize";
-import emergencyContact from "../models/emergencyContact.model.js";
-import { Role } from "../models/role.model.js";
+//./src/controllers/shipper.controller.js
+import { Op } from "sequelize";
+
 import { Shipper } from "../models/shipper.model.js";
 import ShipperServices from "../services/shipper.service.js";
 
@@ -60,10 +60,7 @@ export const getShipperById = async (req, res) => {
 
 export const updateShipperPending = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { status } = req.body;
-        const newStatus = status === "rejected" ? "rejected" : "Active";
-        const shipper = await ShipperServices.updateShipperPending(id, newStatus);
+        const shipper = await ShipperServices.updateShipperPending(req.params.id, req.body);
         return res.status(200).json({
             success: true,
             message: "Update pending shipper successfully",
@@ -78,7 +75,7 @@ export const updateShipperPending = async (req, res) => {
 export const updateShipperStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const shipper = await ShipperService.updateShipperStatus(id, req.body.status);
+        const shipper = await ShipperServices.updateShipperStatus(id, req.body.status);
 
         res.status(200).json(shipper);
     } catch (error) {
@@ -119,5 +116,80 @@ export const getAllPendingShippers = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal server error: " });
+    }
+};
+
+export const getSumShippingFeeAllShippers = async (req, res) => {
+    try {
+        const { offset = 0, limit = 10 } = req.query;
+        const { sumShippingFee, totalRevenue, totalOrders } =
+            await ShipperServices.getSumShippingFeeAllShippers();
+        return res.json({
+            success: true,
+            message: "get sum shipping fee successfully",
+            data: {
+                sumShippingFee,
+                totalRevenue,
+                totalOrders,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error: " });
+    }
+};
+
+export const getOrdersOfShipper = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Shipper ID is required",
+            });
+        }
+
+        const shipper = await ShipperServices.getOrdersOfShipper(id);
+
+        if (!shipper) {
+            return res.status(404).json({
+                success: false,
+                message: "Shipper not found or no orders available",
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: "Get all orders successfully",
+            data: shipper,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error: " });
+    }
+};
+
+export const getTopShippers = async (req, res) => {
+    try {
+        const topShippers = await ShipperServices.getTopShippers();
+        res.status(200).json({ success: true, data: topShippers });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const getShippingStatus = async (req, res) => {
+    try {
+        const data = await ShipperServices.getShippingStatusSummary();
+        res.status(200).json({
+            success: true,
+            data,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
 };
