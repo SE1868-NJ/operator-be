@@ -68,7 +68,7 @@ OrderItem.associate = (models) => {
     });
     OrderItem.belongsTo(models.Product, {
         foreignKey: "product_id",
-        as: "ProductIT",
+        as: "Product",
     });
 };
 

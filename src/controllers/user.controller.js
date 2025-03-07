@@ -54,3 +54,55 @@ export const updateUserStatus = async (req, res) => {
         });
     }
 };
+
+export const getOrdersList = async (req, res) => {
+    try {
+        console.log(123);
+        const { id, page, limit } = req.query;
+        console.log(456);
+        const response = await userService.getOrderList(page, limit, id);
+        res.status(200).json({
+            success: true,
+            messsage: `Get order list of user ${id} successfully`,
+            data: response,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: `An error eccured during get order list? ${error}`,
+        });
+    }
+};
+
+export const getOrderRecent4Months = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const response = await userService.getOrderRecent4Months(id);
+        res.status(200).json({
+            success: true,
+            message: `Get order recent 4 months of user ${id} successfully`,
+            data: response,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: `An error eccured during get 4 months recent orders? ${error}`,
+        });
+    }
+};
+
+export const getTop3Customer = async (req, res) => {
+    try {
+        const response = await userService.getTop3Customer();
+        res.status(200).json({
+            success: true,
+            message: "Get top 3 customer successfully",
+            data: response,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: `An error eccured during get top 3 customer ${error}`,
+        });
+    }
+};

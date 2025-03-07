@@ -1,3 +1,4 @@
+//./src/vailidation/insertData.js
 import sequelize from "./config/sequelize.config.js";
 import { Address } from "./models/address.model.js";
 // import { EmergencyContact } from "./models/emergencyContact.model.js";

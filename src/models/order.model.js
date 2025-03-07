@@ -86,7 +86,7 @@ export const Order = sequelize.define(
             defaultValue: "not_yet_shipped",
         },
         payment_method: {
-            type: DataTypes.STRING, // Ví dụ: "COD", "Credit Card"
+            type: DataTypes.STRING,
             allowNull: false,
         },
         // created_at: {
@@ -100,7 +100,6 @@ export const Order = sequelize.define(
     },
 );
 
-// Định nghĩa mối quan hệ (nếu cần, sau khi định nghĩa model Shop và User)
 Order.associate = (models) => {
     Order.belongsTo(models.Shop, {
         foreignKey: "shop_id",
