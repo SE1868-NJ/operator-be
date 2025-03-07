@@ -51,44 +51,44 @@ const ShipperServices = {
     },
 
     async updateShipperPending(id, updatedStatus) {
-        const transaction = await sequelize.transaction();
+        // const transaction = await sequelize.transaction();
         try {
             const { status, description } = updatedStatus;
-            const newStatus = status === "rejected" ? "inactive" : "active";
+            const newStatus = status === "rejected" ? "Rejected" : "Active";
             const reason = description;
 
+            console.log("--------------", id, newStatus, "------------");
             try {
                 const updatedShipper = await Shipper.update(
                     {
                         status: newStatus,
-                        joinedDate: new Date(),
                     },
                     {
                         where: {
                             id: id,
                         },
-                        transaction: transaction,
+                        // transaction: transaction,
                     },
                 );
 
-                // Kiểm tra xem shop có tồn tại hay không
-                if (updatedShipper === null) {
-                    await transaction.rollback();
-                    throw new Error("Shipper not found");
-                }
+                // // Kiểm tra xem shop có tồn tại hay không
+                // if (updatedShipper[0] === 0) {
+                //   await transaction.rollback();
+                //   throw new Error("Shipper not found");
+                // }
 
-                await ReasonChangeStatus.create(
-                    {
-                        operatorID: 1,
-                        pendingID: id,
-                        role: "Shipper",
-                        changedStatus: status,
-                        reason: reason,
-                    },
-                    {
-                        transaction: transaction,
-                    },
-                );
+                // await ReasonChangeStatus.create(
+                //   {
+                //     operatorID: 1,
+                //     pendingID: id,
+                //     role: "Shipper",
+                //     changedStatus: status,
+                //     reason: reason,
+                //   },
+                //   {
+                //     transaction: transaction,
+                //   }
+                // );
 
                 await transaction.commit();
                 return updatedShipper;
