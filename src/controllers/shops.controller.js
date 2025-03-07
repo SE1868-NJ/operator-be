@@ -199,7 +199,7 @@ export const getShopById = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: "Get shop by id successfully",
+            message: "Get shop by id successfullykk",
             shop,
             feedbacks,
         });
