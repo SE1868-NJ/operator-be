@@ -375,7 +375,7 @@ const ShopService = {
                             },
                             {
                                 model: Product,
-                                as: "ProductIT",
+                                as: "Product",
                             },
                         ],
                     },
@@ -536,13 +536,11 @@ const ShopService = {
                 throw new Error("Invalid time range");
         }
 
-        const whereCondition = startTime
-            ? { created_at: { [Op.gte]: startTime }, shop_id: id }
-            : {};
+        const whereCondition = startTime ? { createdAt: { [Op.gte]: startTime }, shop_id: id } : {};
 
         const orders = await Order.findAll({
             attributes: [
-                [sequelize.fn("DATE_FORMAT", sequelize.col("created_at"), dateGroupFormat), "date"],
+                [sequelize.fn("DATE_FORMAT", sequelize.col("createdAt"), dateGroupFormat), "date"],
                 [sequelize.fn("COUNT", sequelize.col("id")), "count"],
             ],
             where: whereCondition,
