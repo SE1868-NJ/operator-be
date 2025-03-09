@@ -1,3 +1,4 @@
+//./src/models/shipper.model.js
 import { DataTypes } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
 

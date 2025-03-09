@@ -21,9 +21,9 @@ const route = (app) => {
     app.use("/notification", notifRouter);
     app.use("/report_categories", reportCategoriesRouter);
     app.use("/ban", banRouter);
-    app.use("/shipping-methods", shippingMethodRouter);
     app.use("/orders", orderRouter);
     app.use("/operator", operatorRoute);
+    app.use("/shipping-methods", shippingMethodRouter);
 };
 
 export default route;
