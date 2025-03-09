@@ -62,7 +62,6 @@ export const unbanAccountManualController = async (req, res) => {
 export const getBanAccount = async (req, res) => {
     try {
         const { userId, userType } = req.query;
-        console.log(userId, userType);
         if (!userId) {
             return res.status(400).json({ message: "Missing userID" });
         }
