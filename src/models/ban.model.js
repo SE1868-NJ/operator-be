@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
-import { Operator } from "./operator.model.js"; // Import bảng Operator
+import { Operator } from "./operator.model.js";
 
 export const Ban = sequelize.define(
     "Ban",
@@ -23,7 +23,7 @@ export const Ban = sequelize.define(
             allowNull: false,
             references: {
                 model: Operator, // Liên kết với bảng Operator
-                key: "operatorId",
+                key: "operatorID",
             },
             onDelete: "CASCADE", // Nếu operator bị xóa, các bản ghi trong Ban cũng bị xóa
         },
