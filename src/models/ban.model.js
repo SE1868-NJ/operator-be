@@ -23,7 +23,7 @@ export const Ban = sequelize.define(
             allowNull: false,
             references: {
                 model: Operator, // Liên kết với bảng Operator
-                key: "operatorId",
+                key: "operatorID",
             },
             onDelete: "CASCADE", // Nếu operator bị xóa, các bản ghi trong Ban cũng bị xóa
         },
