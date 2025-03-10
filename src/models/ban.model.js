@@ -21,11 +21,6 @@ export const Ban = sequelize.define(
         operatorId: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            references: {
-                model: Operator, // Liên kết với bảng Operator
-                key: "operatorID",
-            },
-            onDelete: "CASCADE", // Nếu operator bị xóa, các bản ghi trong Ban cũng bị xóa
         },
         reason: {
             type: DataTypes.TEXT,
@@ -50,10 +45,12 @@ export const Ban = sequelize.define(
         timestamps: true,
     },
 );
+
 Ban.associate = (models) => {
     Ban.belongsTo(models.Operator, {
         foreignKey: "operatorId",
         as: "operator",
+        onDelete: "CASCADE",
     });
 };
 

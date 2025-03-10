@@ -80,7 +80,8 @@ export const User = sequelize.define(
         avatar: {
             type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: "https://i.pinimg.com/236x/5e/e0/82/5ee082781b8c41406a2a50a0f32d6aa6.jpg",
+            defaultValue:
+                "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/top-36-anh-dai-dien-dep-cho-nu/avatar-facebook-anime-nu-cute.jpg?1708401979608",
         },
     },
     {
