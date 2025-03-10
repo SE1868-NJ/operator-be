@@ -4,11 +4,12 @@ import { Order } from "../models/order.model.js";
 import orderService from "../services/order.service.js";
 
 export const getAllOrders = async (req, res) => {
-    const { offset, limit } = req.query;
+    const { offset, limit, Status, PaymentStatus, ShippingStatus } = req.query;
+    const filterData = { Status, PaymentStatus, ShippingStatus };
     const o = Number.parseInt(offset);
     const l = Number.parseInt(limit);
     try {
-        const Orders = await orderService.getAllOrders(o, l);
+        const Orders = await orderService.getAllOrders(o, l, filterData);
         res.status(200).json({
             success: true,
             message: "Lấy danh sách tất cả đơn hàng thành công",
