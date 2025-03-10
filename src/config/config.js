@@ -3,7 +3,7 @@ dotenv.config();
 
 // DB config
 
-export const DATABASE = process.env.DATABASE || "operator";
+export const DATABASE = process.env.DATABASE || "operator2";
 export const USERNAME = "root";
 export const PASSWORD = "";
 export const DIALECT = process.env.DIALECT || "mysql";

@@ -375,7 +375,7 @@ const ShopService = {
                             },
                             {
                                 model: Product,
-                                as: "ProductIT",
+                                as: "Product",
                             },
                         ],
                     },
@@ -396,7 +396,7 @@ const ShopService = {
                 .map(
                     (fb, index) =>
                         `${index + 1}. **Khách hàng**: ${fb.Customer.fullName} | **Sản phẩm**: ${
-                            fb.OrderItems?.ProductIT?.product_name || "Không xác định"
+                            fb.OrderItems?.Product?.product_name || "Không xác định"
                         } | **Số sao**: ${fb.star}/5\n**Nội dung**: ${fb.content}\n`,
                 )
                 .join("\n");
@@ -536,13 +536,11 @@ const ShopService = {
                 throw new Error("Invalid time range");
         }
 
-        const whereCondition = startTime
-            ? { created_at: { [Op.gte]: startTime }, shop_id: id }
-            : {};
+        const whereCondition = startTime ? { createdAt: { [Op.gte]: startTime }, shop_id: id } : {};
 
         const orders = await Order.findAll({
             attributes: [
-                [sequelize.fn("DATE_FORMAT", sequelize.col("created_at"), dateGroupFormat), "date"],
+                [sequelize.fn("DATE_FORMAT", sequelize.col("createdAt"), dateGroupFormat), "date"],
                 [sequelize.fn("COUNT", sequelize.col("id")), "count"],
             ],
             where: whereCondition,

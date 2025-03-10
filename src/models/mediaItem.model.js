@@ -23,6 +23,8 @@ export const MediaItem = sequelize.define(
             validate: {
                 notEmpty: true,
             },
+            defaultValue:
+                "https://mirro.io/hs-fs/hubfs/Imported_Blog_Media/1-feedback-descriptive-2.jpg?width=600&height=400&name=1-feedback-descriptive-2.jpg",
         },
         type: {
             type: DataTypes.ENUM("image", "video"),

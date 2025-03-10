@@ -1,6 +1,5 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
-import { Ban } from "./ban.model.js";
 
 export const Operator = sequelize.define("Operator", {
     operatorID: {
@@ -50,15 +49,15 @@ export const Operator = sequelize.define("Operator", {
         allowNull: false,
         validate: {
             notEmpty: true,
-            len: [10, 15], // Số điện thoại từ 10-15 ký tự
+            len: [10, 15],
         },
     },
     dateOfBirth: {
-        type: DataTypes.DATEONLY, // Chỉ lưu ngày (YYYY-MM-DD)
+        type: DataTypes.DATEONLY,
         allowNull: false,
     },
     gender: {
-        type: DataTypes.ENUM("male", "female", "other"), // Giới tính có thể là Nam, Nữ hoặc Khác
+        type: DataTypes.ENUM("male", "female", "other"),
         allowNull: false,
     },
     status: {
@@ -71,6 +70,13 @@ export const Operator = sequelize.define("Operator", {
         allowNull: false,
     },
 });
+
+Operator.associate = (models) => {
+    Operator.hasMany(models.Ban, {
+        foreignKey: "operatorId",
+        as: "bans",
+    });
+};
 
 export default (sequelize, DataTypes) => {
     return Operator;
