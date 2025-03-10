@@ -6,6 +6,7 @@ import { getShipperById, updateShipperPending } from "../controllers/shipper.con
 // import { updateShipperPending } from "../controllers/shipper.controller.js";
 import { Order } from "../models/order.model.js";
 import { OrderItem } from "../models/orderItem.model.js"; // { OrderItem }
+import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shipper } from "../models/shipper.model.js";
 
 const ShipperServices = {
@@ -55,7 +56,7 @@ const ShipperServices = {
         try {
             const { status, description } = updatedStatus;
             const newStatus = status === "rejected" ? "inactive" : "active";
-            const reason = description;
+            const reason = description || "Hệ thống đã lưu thông tin";
 
             try {
                 const updatedShipper = await Shipper.update(
@@ -72,7 +73,7 @@ const ShipperServices = {
                 );
 
                 // Kiểm tra xem shop có tồn tại hay không
-                if (updatedShipper === null) {
+                if (updatedShipper[0] === null) {
                     await transaction.rollback();
                     throw new Error("Shipper not found");
                 }
