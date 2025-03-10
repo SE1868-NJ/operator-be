@@ -6,6 +6,7 @@ import { getShipperById, updateShipperPending } from "../controllers/shipper.con
 // import { updateShipperPending } from "../controllers/shipper.controller.js";
 import { Order } from "../models/order.model.js";
 import { OrderItem } from "../models/orderItem.model.js"; // { OrderItem }
+import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shipper } from "../models/shipper.model.js";
 
 const ShipperServices = {
@@ -55,7 +56,7 @@ const ShipperServices = {
         try {
             const { status, description } = updatedStatus;
             const newStatus = status === "rejected" ? "inactive" : "active";
-            const reason = description;
+            const reason = description || "Hệ thống đã lưu thông tin";
 
             try {
                 const updatedShipper = await Shipper.update(
@@ -72,7 +73,7 @@ const ShipperServices = {
                 );
 
                 // Kiểm tra xem shop có tồn tại hay không
-                if (updatedShipper === null) {
+                if (updatedShipper[0] === null) {
                     await transaction.rollback();
                     throw new Error("Shipper not found");
                 }
@@ -136,7 +137,23 @@ const ShipperServices = {
         return shipper;
     },
 
-    async getSumShippingFeeAllShippers(offset = 0, limit = 10) {
+    async getSumShippingFeeAllShippers(
+        offset = 0,
+        limit = 10,
+        nameOrPhone = "",
+        status = "",
+        date = "",
+    ) {
+        const whereCondition = {
+            ...(nameOrPhone && {
+                [Op.or]: [
+                    { name: { [Op.like]: `%${nameOrPhone}%` } },
+                    { phone: { [Op.like]: `%${nameOrPhone}%` } },
+                ],
+            }),
+            ...(status && { status }),
+            ...(date && { joinedDate: { [Op.gte]: new Date(date) } }),
+        };
         const sumShippingFee = await Order.findAll({
             attributes: [
                 "shipper_id",
@@ -150,6 +167,7 @@ const ShipperServices = {
                 {
                     model: Shipper,
                     as: "Shipper",
+                    where: whereCondition,
                 },
             ],
             where: {
@@ -278,6 +296,45 @@ const ShipperServices = {
         } catch (error) {
             console.error("Error fetching shipping status summary:", error);
             throw new Error("Failed to fetch shipping status summary");
+        }
+    },
+
+    async getTop10Shippers() {
+        try {
+            const topShippers = await Order.findAll({
+                attributes: [
+                    "shipper_id",
+                    [Sequelize.col("Shipper.name"), "shipper_name"],
+                    [
+                        Sequelize.fn("DATE_FORMAT", Sequelize.col("Order.createdAt"), "%Y-%m"),
+                        "order_month",
+                    ],
+                    [Sequelize.fn("SUM", Sequelize.col("Order.shippingFee")), "total_shipping_fee"],
+                ],
+                include: [
+                    {
+                        model: Shipper,
+                        as: "Shipper",
+                        attributes: [],
+                    },
+                ],
+                where: {
+                    shipper_id: {
+                        [Sequelize.Op.ne]: null, // shipper_id IS NOT NULL
+                    },
+                },
+                group: ["shipper_id", "Shipper.name", "order_month"],
+                order: [
+                    [Sequelize.literal("order_month"), "DESC"],
+                    [Sequelize.literal("total_shipping_fee"), "DESC"],
+                ],
+                limit: 10,
+                raw: true, // Trả về dữ liệu dưới dạng đối tượng JSON thuần túy
+            });
+
+            return topShippers;
+        } catch (error) {
+            console.error("Error fetching top 10 shippers:", error);
         }
     },
 };
