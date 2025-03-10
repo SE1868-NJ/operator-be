@@ -76,7 +76,7 @@ export const Shop = sequelize.define(
             type: DataTypes.STRING, // URL hoặc đường dẫn file
             allowNull: true,
             defaultValue:
-                "https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg",
+                "https://cdn2.vectorstock.com/i/1000x1000/86/76/pet-shop-with-avatar-dog-obedience-vector-11868676.jpg",
         },
         shopOperationHours: {
             type: DataTypes.STRING,

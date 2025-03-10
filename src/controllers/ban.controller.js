@@ -5,8 +5,8 @@ import BanService from "../services/ban.service.js";
  */
 export const banAccountController = async (req, res) => {
     try {
-        const { userId, userType, operatorId, reason, banEnd } = req.body;
-
+        const { userId, operatorId, userType, reason, banEnd } = req.body;
+        console.log(userId, operatorId, userType, reason, banEnd);
         // Kiểm tra dữ liệu hợp lệ
         if (
             !userId ||
