@@ -432,3 +432,36 @@ export const getInforOneShop = async (req, res) => {
         });
     }
 };
+
+export const getShopDraftById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const shopDraft = await ShopService.getShopDraftById(id);
+        res.status(200).json({
+            success: true,
+            message: "Get infor draft one shop successfully",
+            shopInfor: shopDraft,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: `Get infor draft one shop fail: ${error.message}`,
+        });
+    }
+};
+
+export const updateShopDraftById = async (req, res) => {
+    const { id } = req.params;
+    const data = req.body;
+    try {
+        const shopDraft = await ShopService.updateShopDraftById(id, data);
+        res.status(200).json({
+            success: true,
+            message: "Update infor draft one shop successfully",
+            shopInfor: shopDraft,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: `Update infor draft one shop fail: ${error.message}`,
+        });
+    }
+};

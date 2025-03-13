@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Op, Sequelize, literal } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
+import { getShopDraftById } from "../controllers/shops.controller.js";
 import { Address } from "../models/address.model.js";
 import { Feedback } from "../models/feedback.model.js";
 import { Media } from "../models/media.model.js";
@@ -444,9 +445,8 @@ const ShopService = {
     async updateShopStatus(id, updatedStatus) {
         const transaction = await sequelize.transaction();
         try {
-            const { status, description } = updatedStatus;
+            const { status, reason } = updatedStatus;
             const newStatus = status === "accepted" ? "active" : "rejected";
-            const reason = description || "Được chấp nhận";
             try {
                 const updatedShop = await Shop.update(
                     {
@@ -1399,6 +1399,64 @@ const ShopService = {
                 throw new Error("Shop not found");
             }
             return shop;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    async getShopDraftById(id) {
+        try {
+            const shopDraft = await ReasonChangeStatus.findAll({
+                attributes: ["reason"],
+                where: {
+                    pendingID: id,
+                    role: "Shop",
+                    changedStatus: "savedraft",
+                },
+            });
+            if (!shopDraft) {
+                throw new Error("Shop draft not found");
+            }
+            return shopDraft;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    async updateShopDraftById(id, data) {
+        const { status, reason } = data;
+        try {
+            if (status === "savedraft") {
+                const oldDraft = await ReasonChangeStatus.findOne({
+                    where: {
+                        pendingID: id,
+                        role: "Shop",
+                    },
+                });
+                if (!oldDraft) {
+                    const newRecord = await ReasonChangeStatus.create({
+                        operatorID: 1,
+                        pendingID: id,
+                        role: "Shop",
+                        changedStatus: "savedraft",
+                        reason: reason,
+                    });
+                    return newRecord;
+                }
+                const shopDraft = await ReasonChangeStatus.update(
+                    {
+                        reason: data.reason,
+                    },
+                    {
+                        where: {
+                            pendingID: id,
+                            role: "Shop",
+                        },
+                    },
+                );
+                return shopDraft;
+            }
+            ShopService.updateShopStatus(id, data);
         } catch (error) {
             throw new Error(error.message);
         }

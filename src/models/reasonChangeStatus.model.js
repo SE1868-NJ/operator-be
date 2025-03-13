@@ -32,15 +32,15 @@ export const ReasonChangeStatus = sequelize.define(
             },
         },
         changedStatus: {
-            type: DataTypes.ENUM("accepted", "rejected"),
+            type: DataTypes.ENUM("accepted", "rejected", "savedraft"),
             allowNull: false,
             validate: {
                 notEmpty: true,
             },
         },
         reason: {
-            type: DataTypes.STRING,
-            allowNull: true,
+            type: DataTypes.JSON,
+            allowNull: false,
         },
         // createAt: {
         //     type: DataTypes.DATE,
