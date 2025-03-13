@@ -9,8 +9,44 @@ import { Shop } from "../models/shop.model.js";
 import { User } from "../models/user.model.js";
 
 const orderService = {
-    async getAllOrders(offset = 0, limit = 10) {
+    async getAllOrders(offset = 0, limit = 10, filterData = {}) {
         try {
+            const whereClause = {};
+
+            //Loc order
+
+            if (filterData?.Status) {
+                whereClause.status = {
+                    [Op.like]: `%${filterData.Status}%`,
+                };
+            }
+            if (filterData?.PaymentStatus) {
+                whereClause.payment_status = {
+                    [Op.like]: `%${filterData.PaymentStatus}%`,
+                };
+            }
+            if (filterData?.ShippingStatus) {
+                whereClause.shipping_status = {
+                    [Op.like]: `%${filterData.ShippingStatus}%`,
+                };
+            }
+
+            //   const includeClause = [
+            //     {
+            //       model: User,
+            //       as: "Owner",
+            //       where: {},
+            //       required: true,
+            //     },
+            //   ];
+
+            //Loc user
+            //   if (filterData?.ownerName) {
+            //     includeClause[0].where.fullName = {
+            //       [Op.like]: `%${filterData.ownerName}%`,
+            //     };
+            //   }
+
             const orders = await Order.findAll({
                 attributes: [
                     "id",
@@ -28,6 +64,7 @@ const orderService = {
                     "payment_method",
                     "createdAt",
                 ],
+                where: whereClause,
                 include: [
                     {
                         model: OrderItem,
@@ -44,7 +81,9 @@ const orderService = {
                 limit,
             });
 
-            const total = await Order.count({});
+            const total = await Order.count({
+                where: whereClause,
+            });
 
             return { orders, total };
         } catch (error) {

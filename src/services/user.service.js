@@ -92,19 +92,19 @@ const userService = {
             const orders = await Order.findAll({
                 where: {
                     customer_id: id,
-                    created_at: {
+                    createdAt: {
                         [Op.between]: [fourMonthsAgo, now],
                     },
                 },
-                order: [["created_at", "ASC"]], // Sắp xếp theo thời gian tăng dần
+                order: [["createdAt", "ASC"]], // Sắp xếp theo thời gian tăng dần
             });
 
             // Nhóm đơn hàng theo tháng
             const orderStats = {};
             for (const order of orders) {
-                const month = order.created_at.getMonth() + 1; // Lấy tháng (1-12)
+                const month = order.createdAt.getMonth() + 1; // Lấy tháng (1-12)
 
-                const key = `${order.created_at.getFullYear()}-${month}`;
+                const key = `${order.createdAt.getFullYear()}-${month}`;
 
                 if (!orderStats[key]) {
                     orderStats[key] = 0;
