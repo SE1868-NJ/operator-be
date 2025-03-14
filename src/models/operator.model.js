@@ -10,10 +10,16 @@ export const Operator = sequelize.define("Operator", {
     avatar: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: "https://i.pinimg.com/236x/5e/e0/82/5ee082781b8c41406a2a50a0f32d6aa6.jpg",
+        defaultValue:
+            "https://res.cloudinary.com/dafn4ktx0/image/upload/v1741914627/default_avatar_zqgyov.jpg",
         validate: {
             notEmpty: true,
         },
+    },
+    avatar_public_id: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "swp_storage_image/default_avatar_zqgyov",
     },
     firstName: {
         type: DataTypes.STRING,
