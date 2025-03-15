@@ -2,7 +2,12 @@ import { join } from "path";
 import { Op, Sequelize, where } from "sequelize";
 // import { generateCSVReport } from '../utils/csvUtils';
 import sequelize from "../config/sequelize.config.js";
-import { getShipperById, updateShipperPending } from "../controllers/shipper.controller.js";
+import {
+    getShipperById,
+    getShipperDraftById,
+    updateShipperPending,
+    updateShipperStatus,
+} from "../controllers/shipper.controller.js";
 // import { updateShipperPending } from "../controllers/shipper.controller.js";
 import { Order } from "../models/order.model.js";
 import { OrderItem } from "../models/orderItem.model.js"; // { OrderItem }
@@ -54,10 +59,8 @@ const ShipperServices = {
     async updateShipperPending(id, updatedStatus) {
         const transaction = await sequelize.transaction();
         try {
-            const { status, description } = updatedStatus;
+            const { status, reason } = updatedStatus;
             const newStatus = status === "rejected" ? "inactive" : "active";
-            const reason = description || "Hệ thống đã lưu thông tin";
-
             try {
                 const updatedShipper = await Shipper.update(
                     {
@@ -72,7 +75,7 @@ const ShipperServices = {
                     },
                 );
 
-                // Kiểm tra xem shop có tồn tại hay không
+                // Kiểm tra xem shipper có tồn tại hay không
                 if (updatedShipper[0] === null) {
                     await transaction.rollback();
                     throw new Error("Shipper not found");
@@ -279,6 +282,65 @@ const ShipperServices = {
         } catch (error) {
             console.error("Error fetching shipping status summary:", error);
             throw new Error("Failed to fetch shipping status summary");
+        }
+    },
+    async getShipperDraftById(id) {
+        try {
+            const shipperDraft = await ReasonChangeStatus.findAll({
+                attributes: ["reason"],
+                where: {
+                    pendingID: id,
+                    role: "Shipper",
+                    changedStatus: "savedraft",
+                },
+            });
+            if (!shipperDraft) {
+                throw new Error("Shipper draft not found");
+            }
+            return shipperDraft;
+        } catch (error) {
+            console.error("Error fetching shipping status summary:", error);
+            throw new Error("Failed to fetch shipping status summary");
+        }
+    },
+
+    async updateShipperDraftById(id, data) {
+        const { status, reason } = data;
+        console.log("---------------", status, reason, "----------------");
+        try {
+            if (status === "savedraft") {
+                const oldDraft = await ReasonChangeStatus.findOne({
+                    where: {
+                        pendingID: id,
+                        role: "Shipper",
+                    },
+                });
+                if (!oldDraft) {
+                    const newRecord = await ReasonChangeStatus.create({
+                        operatorID: 1,
+                        pendingID: id,
+                        role: "Shipper",
+                        changedStatus: "savedraft",
+                        reason: reason,
+                    });
+                    return newRecord;
+                }
+                const shipperDraft = await ReasonChangeStatus.update(
+                    {
+                        reason: data.reason,
+                    },
+                    {
+                        where: {
+                            pendingID: id,
+                            role: "Shipper",
+                        },
+                    },
+                );
+                return shipperDraft;
+            }
+            ShipperServices.updateShipperPending(id, data);
+        } catch (error) {
+            throw new Error(error.message);
         }
     },
 };
