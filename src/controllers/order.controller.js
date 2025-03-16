@@ -77,3 +77,17 @@ export const getOrderStatistic = async (req, res) => {
         });
     }
 };
+
+export const cancelOrder = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const data = await orderService.cancelOrder(id);
+        res.status(200).json({
+            data,
+        });
+    } catch (error) {
+        res.status(400).json({
+            error: error.message,
+        });
+    }
+};
