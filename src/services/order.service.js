@@ -78,6 +78,8 @@ const orderService = {
                     },
                 ],
                 offset,
+
+                order: [["createdAt", "DESC"]],
                 limit,
             });
 
