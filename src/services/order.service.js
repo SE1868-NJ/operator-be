@@ -48,22 +48,22 @@ const orderService = {
             //   }
 
             const orders = await Order.findAll({
-                attributes: [
-                    "id",
-                    "shop_id",
-                    "customer_id",
-                    "shipper_id",
-                    "address_id",
-                    "productFee",
-                    "shippingFee",
-                    "status",
-                    "total",
-                    "note",
-                    "payment_status",
-                    "shipping_status",
-                    "payment_method",
-                    "createdAt",
-                ],
+                // attributes: [
+                //     "id",
+                //     "shop_id",
+                //     "customer_id",
+                //     "shipper_id",
+                //     "address_id",
+                //     "productFee",
+                //     "shippingFee",
+                //     "status",
+                //     "total",
+                //     "note",
+                //     "payment_status",
+                //     "shipping_status",
+                //     "payment_method",
+                //     "createdAt",
+                // ],
                 where: whereClause,
                 include: [
                     {
@@ -266,6 +266,24 @@ const orderService = {
             time: report.dataValues.time,
             count: report.dataValues.count,
         }));
+    },
+
+    async cancelOrder(id) {
+        try {
+            const order = Order.update(
+                {
+                    status: "cancelled",
+                },
+                {
+                    where: {
+                        id: id,
+                    },
+                },
+            );
+        } catch (error) {
+            console.error("Error cancel order by ID:", error);
+            throw error;
+        }
     },
 };
 

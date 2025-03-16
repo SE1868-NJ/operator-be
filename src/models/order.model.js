@@ -93,6 +93,18 @@ export const Order = sequelize.define(
         //     type: DataTypes.DATE,
         //     defaultValue: DataTypes.NOW,
         // },
+        start_time: {
+            type: DataTypes.DATE,
+            allowNull: true, // Thời gian bắt đầu giao hàng
+        },
+        estimated_delivery_time: {
+            type: DataTypes.DATE,
+            allowNull: true, // Thời gian dự kiến giao hàng
+        },
+        actual_delivery_time: {
+            type: DataTypes.DATE,
+            allowNull: true, // Thời gian thực tế giao hàng
+        },
     },
     {
         tableName: "Orders",
