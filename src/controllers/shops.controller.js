@@ -1,5 +1,44 @@
 import ShopService from "../services/shop.service.js";
 
+export const processPrompt = async (req, res) => {
+    try {
+        const { id, prompt } = req.body;
+
+        if (!id || !prompt) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Thiếu thông tin shopId hoặc prompt" });
+        }
+
+        // Xử lý prompt
+        const result = await ShopService.processUserPrompt(id, prompt);
+
+        res.status(200).json({
+            success: true,
+            message: "Processed user prompt successfully",
+            aiReview: result.aiReview,
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const getProductById = async (req, res) => {
+    try {
+        const product = await ShopService.getProductById(req.params.pid);
+        return res.status(200).json({
+            success: true,
+            message: "Get product by id successfully",
+            data: product,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: `An error occured during find product by ID! ${error}.`,
+        });
+    }
+};
+
 export const getPendingShops = async (req, res) => {
     const { offset, limit } = req.query;
     const o = Number.parseInt(offset);
@@ -285,7 +324,7 @@ export const getRevenueByDate = async (req, res) => {
 // dùng trong trang one shop revenue
 // lấy danh sách các orders, có bộ lọc theo ngày - tháng - năm
 export const getOneShopRevenues = async (req, res) => {
-    const { id, year, month, day, offset, limit, shipperName, customerName } = req.query;
+    const { id, day, month, year, offset, limit, shipperName, customerName } = req.query;
 
     const filter = {
         shipperName,
@@ -417,15 +456,18 @@ export const getTotalRevenueOneShopByLastTime = async (req, res) => {
     }
 };
 
-export const test = async (req, res) => {
+export const getInforOneShop = async (req, res) => {
+    const { id } = req.params;
     try {
-        const order = await ShopService.getRevenueLastMonthAllShops();
+        const shop = await ShopService.getInforOneShop(id);
         res.status(200).json({
             success: true,
-            message: "Get one order successfully",
-            order: order,
+            message: "Get infor one shop successfully",
+            shop: shop,
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({
+            message: `Get infor one shop fail: ${error.message}`,
+        });
     }
 };

@@ -1,3 +1,5 @@
+import { Sequelize } from "sequelize";
+import { Report } from "../models/report.model.js";
 import { ReportCategory } from "../models/report_categories.model.js";
 
 const ReportCategoriesServices = {
@@ -18,6 +20,7 @@ const ReportCategoriesServices = {
     async getAllCategories({ page = 1, limit = 10, filter = {} } = {}) {
         const offset = (page - 1) * limit;
 
+        // Fetch paginated categories
         const { count, rows } = await ReportCategory.findAndCountAll({
             where: filter, // Apply filters dynamically
             limit: Number.parseInt(limit),
@@ -25,12 +28,26 @@ const ReportCategoriesServices = {
             order: [["createdAt", "DESC"]],
         });
 
+        // Count reports per category
+        const reportCounts = await Report.findAll({
+            attributes: [
+                "category_id",
+                [Sequelize.fn("COUNT", Sequelize.col("category_id")), "count"],
+            ],
+            group: ["category_id"],
+            raw: true, // Ensures plain JSON output
+        });
+
         return {
             total: count,
             page: Number.parseInt(page),
             limit: Number.parseInt(limit),
             totalPages: Math.ceil(count / limit),
-            data: rows,
+            data: rows.map((category) => ({
+                ...category.toJSON(), // Ensure plain object format
+                count:
+                    reportCounts.find((report) => report.category_id === category.id)?.count || 0,
+            })),
         };
     },
 

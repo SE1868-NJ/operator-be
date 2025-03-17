@@ -1,15 +1,18 @@
 //./src/vailidation/insertData.js
 import sequelize from "./config/sequelize.config.js";
 import { Address } from "./models/address.model.js";
+import { Feedback } from "./models/feedback.model.js";
+import { Media } from "./models/media.model.js";
+import { MediaItem } from "./models/mediaItem.model.js";
 // import { EmergencyContact } from "./models/emergencyContact.model.js";
 import { Operator } from "./models/operator.model.js";
 import { Order } from "./models/order.model.js";
 import { OrderItem } from "./models/orderItem.model.js";
 import { Product } from "./models/product.model.js";
+import { ReplyFeedback } from "./models/replyFeedback.model.js";
 import { Shipper } from "./models/shipper.model.js";
 import { Shop } from "./models/shop.model.js";
 import { User } from "./models/user.model.js";
-
 // 3 operator
 const insertOperators = async () => {
     try {
@@ -17,8 +20,8 @@ const insertOperators = async () => {
             {
                 firstName: "Nguyễn",
                 lastName: "Văn A",
-                email: "nguyenvana@example.com",
-                password: "hashedpassword1",
+                email: "admin@gmail.com",
+                password: "$2b$10$kUPkr1525ZeA29dRDxQsnuRldFxrY3UKxJxuzqEp7dvAILBQojoBq",
                 phoneNumber: "0987654321",
                 dateOfBirth: "1990-05-20",
                 gender: "male",
@@ -71,8 +74,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456789",
                 userAddress: "Số 10, Đường Láng, Hà Nội",
                 identificationNumber: "ID100001",
-                idCardFrontFile: "https://example.com/id_front_1.jpg",
-                idCardBackFile: "https://example.com/id_back_1.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Trần Thị B",
@@ -83,8 +88,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456790",
                 userAddress: "Số 12, Đường Trần Hưng Đạo, Hà Nội",
                 identificationNumber: "ID100002",
-                idCardFrontFile: "https://example.com/id_front_2.jpg",
-                idCardBackFile: "https://example.com/id_back_2.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Lê Văn C",
@@ -95,8 +102,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456791",
                 userAddress: "Số 15, Đường Nguyễn Chí Thanh, TP. Hồ Chí Minh",
                 identificationNumber: "ID100003",
-                idCardFrontFile: "https://example.com/id_front_3.jpg",
-                idCardBackFile: "https://example.com/id_back_3.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Phạm Thu D",
@@ -107,8 +116,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456792",
                 userAddress: "Số 20, Đường Quang Trung, Đà Nẵng",
                 identificationNumber: "ID100004",
-                idCardFrontFile: "https://example.com/id_front_4.jpg",
-                idCardBackFile: "https://example.com/id_back_4.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Đỗ Minh E",
@@ -119,8 +130,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456793",
                 userAddress: "Số 5, Đường Lê Lợi, Hải Phòng",
                 identificationNumber: "ID100005",
-                idCardFrontFile: "https://example.com/id_front_5.jpg",
-                idCardBackFile: "https://example.com/id_back_5.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Hoàng Anh F",
@@ -131,8 +144,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456794",
                 userAddress: "Số 8, Đường Võ Văn Kiệt, Cần Thơ",
                 identificationNumber: "ID100006",
-                idCardFrontFile: "https://example.com/id_front_6.jpg",
-                idCardBackFile: "https://example.com/id_back_6.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Nguyễn Thị G",
@@ -143,8 +158,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456795",
                 userAddress: "Số 25, Đường Hoàng Hoa Thám, Huế",
                 identificationNumber: "ID100007",
-                idCardFrontFile: "https://example.com/id_front_7.jpg",
-                idCardBackFile: "https://example.com/id_back_7.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Trịnh Văn H",
@@ -155,8 +172,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456796",
                 userAddress: "Số 18, Đường Nguyễn Văn Cừ, Bắc Ninh",
                 identificationNumber: "ID100008",
-                idCardFrontFile: "https://example.com/id_front_8.jpg",
-                idCardBackFile: "https://example.com/id_back_8.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Bùi Hữu I",
@@ -167,8 +186,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456797",
                 userAddress: "Số 30, Đường Phạm Văn Đồng, Vinh",
                 identificationNumber: "ID100009",
-                idCardFrontFile: "https://example.com/id_front_9.jpg",
-                idCardBackFile: "https://example.com/id_back_9.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Đặng Thị J",
@@ -179,8 +200,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456798",
                 userAddress: "Số 40, Đường Trường Chinh, Nha Trang",
                 identificationNumber: "ID100010",
-                idCardFrontFile: "https://example.com/id_front_10.jpg",
-                idCardBackFile: "https://example.com/id_back_10.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Lý Văn K",
@@ -191,8 +214,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456799",
                 userAddress: "Số 7, Đường 30/4, Cần Thơ",
                 identificationNumber: "ID100011",
-                idCardFrontFile: "https://example.com/id_front_11.jpg",
-                idCardBackFile: "https://example.com/id_back_11.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Vũ Thị L",
@@ -203,8 +228,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456800",
                 userAddress: "Số 11, Đường Trần Phú, Huế",
                 identificationNumber: "ID100012",
-                idCardFrontFile: "https://example.com/id_front_12.jpg",
-                idCardBackFile: "https://example.com/id_back_12.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Đào Văn M",
@@ -215,8 +242,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456801",
                 userAddress: "Số 14, Đường Hùng Vương, Đà Lạt",
                 identificationNumber: "ID100013",
-                idCardFrontFile: "https://example.com/id_front_13.jpg",
-                idCardBackFile: "https://example.com/id_back_13.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Phan Thị N",
@@ -227,8 +256,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456802",
                 userAddress: "Số 22, Đường 2/9, Đà Nẵng",
                 identificationNumber: "ID100014",
-                idCardFrontFile: "https://example.com/id_front_14.jpg",
-                idCardBackFile: "https://example.com/id_back_14.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Hồ Văn O",
@@ -239,8 +270,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456803",
                 userAddress: "Số 35, Đường Lê Hồng Phong, Quy Nhơn",
                 identificationNumber: "ID100015",
-                idCardFrontFile: "https://example.com/id_front_15.jpg",
-                idCardBackFile: "https://example.com/id_back_15.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Lương Thị P",
@@ -251,8 +284,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456804",
                 userAddress: "Số 42, Đường Nguyễn Thị Minh Khai, Vũng Tàu",
                 identificationNumber: "ID100016",
-                idCardFrontFile: "https://example.com/id_front_16.jpg",
-                idCardBackFile: "https://example.com/id_back_16.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Trần Quốc Q",
@@ -263,8 +298,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456805",
                 userAddress: "Số 50, Đường 3/2, TP. Hồ Chí Minh",
                 identificationNumber: "ID100017",
-                idCardFrontFile: "https://example.com/id_front_17.jpg",
-                idCardBackFile: "https://example.com/id_back_17.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Hoàng Thị R",
@@ -275,8 +312,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456806",
                 userAddress: "Số 55, Đường Trần Hưng Đạo, Hội An",
                 identificationNumber: "ID100018",
-                idCardFrontFile: "https://example.com/id_front_18.jpg",
-                idCardBackFile: "https://example.com/id_back_18.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Nguyễn Hữu S",
@@ -287,8 +326,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456807",
                 userAddress: "Số 60, Đường Lê Duẩn, Huế",
                 identificationNumber: "ID100019",
-                idCardFrontFile: "https://example.com/id_front_19.jpg",
-                idCardBackFile: "https://example.com/id_back_19.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Phạm Thị T",
@@ -299,8 +340,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456808",
                 userAddress: "Số 66, Đường 3 Tháng 2, Đà Lạt",
                 identificationNumber: "ID100020",
-                idCardFrontFile: "https://example.com/id_front_20.jpg",
-                idCardBackFile: "https://example.com/id_back_20.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Trần Văn U",
@@ -311,8 +354,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456809",
                 userAddress: "Số 70, Đường Nguyễn Huệ, TP. Hồ Chí Minh",
                 identificationNumber: "ID100021",
-                idCardFrontFile: "https://example.com/id_front_21.jpg",
-                idCardBackFile: "https://example.com/id_back_21.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Lê Thị V",
@@ -323,8 +368,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456810",
                 userAddress: "Số 80, Đường Trần Phú, Đà Nẵng",
                 identificationNumber: "ID100022",
-                idCardFrontFile: "https://example.com/id_front_22.jpg",
-                idCardBackFile: "https://example.com/id_back_22.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Phan Hữu X",
@@ -335,8 +382,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456811",
                 userAddress: "Số 90, Đường Hoàng Diệu, Hải Phòng",
                 identificationNumber: "ID100023",
-                idCardFrontFile: "https://example.com/id_front_23.jpg",
-                idCardBackFile: "https://example.com/id_back_23.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Vũ Thị Y",
@@ -347,8 +396,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456812",
                 userAddress: "Số 100, Đường Ba Tháng Hai, Cần Thơ",
                 identificationNumber: "ID100024",
-                idCardFrontFile: "https://example.com/id_front_24.jpg",
-                idCardBackFile: "https://example.com/id_back_24.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Đỗ Quang Z",
@@ -359,8 +410,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456813",
                 userAddress: "Số 110, Đường Lê Lợi, Huế",
                 identificationNumber: "ID100025",
-                idCardFrontFile: "https://example.com/id_front_25.jpg",
-                idCardBackFile: "https://example.com/id_back_25.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Bùi Thị AA",
@@ -371,8 +424,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456814",
                 userAddress: "Số 120, Đường Nguyễn Văn Cừ, Bắc Ninh",
                 identificationNumber: "ID100026",
-                idCardFrontFile: "https://example.com/id_front_26.jpg",
-                idCardBackFile: "https://example.com/id_back_26.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Nguyễn Thế BB",
@@ -383,8 +438,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456815",
                 userAddress: "Số 130, Đường Phạm Văn Đồng, Vinh",
                 identificationNumber: "ID100027",
-                idCardFrontFile: "https://example.com/id_front_27.jpg",
-                idCardBackFile: "https://example.com/id_back_27.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Trần Thị CC",
@@ -395,8 +452,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456816",
                 userAddress: "Số 140, Đường Thống Nhất, Nha Trang",
                 identificationNumber: "ID100028",
-                idCardFrontFile: "https://example.com/id_front_28.jpg",
-                idCardBackFile: "https://example.com/id_back_28.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Lê Văn DD",
@@ -407,8 +466,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456817",
                 userAddress: "Số 150, Đường Ba Mươi Tháng Tư, Cần Thơ",
                 identificationNumber: "ID100029",
-                idCardFrontFile: "https://example.com/id_front_29.jpg",
-                idCardBackFile: "https://example.com/id_back_29.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Phạm Thị EE",
@@ -419,8 +480,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456818",
                 userAddress: "Số 160, Đường Hùng Vương, Đà Lạt",
                 identificationNumber: "ID100030",
-                idCardFrontFile: "https://example.com/id_front_30.jpg",
-                idCardBackFile: "https://example.com/id_back_30.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Hồ Sỹ FF",
@@ -431,8 +494,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456819",
                 userAddress: "Số 170, Đường Hai Bà Trưng, TP. HCM",
                 identificationNumber: "ID100031",
-                idCardFrontFile: "https://example.com/id_front_31.jpg",
-                idCardBackFile: "https://example.com/id_back_31.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Lương Thị GG",
@@ -443,8 +508,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456820",
                 userAddress: "Số 180, Đường Trần Quý Cáp, Hà Nội",
                 identificationNumber: "ID100032",
-                idCardFrontFile: "https://example.com/id_front_32.jpg",
-                idCardBackFile: "https://example.com/id_back_32.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Huỳnh Tấn HH",
@@ -455,8 +522,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456821",
                 userAddress: "Số 190, Đường Điện Biên Phủ, Đà Nẵng",
                 identificationNumber: "ID100033",
-                idCardFrontFile: "https://example.com/id_front_33.jpg",
-                idCardBackFile: "https://example.com/id_back_33.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Lê Thị II",
@@ -467,8 +536,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456822",
                 userAddress: "Số 200, Đường Nguyễn Tri Phương, Hải Phòng",
                 identificationNumber: "ID100034",
-                idCardFrontFile: "https://example.com/id_front_34.jpg",
-                idCardBackFile: "https://example.com/id_back_34.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Cao Văn JJ",
@@ -479,8 +550,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456823",
                 userAddress: "Số 210, Đường Ba Mươi Tháng Tư, Cần Thơ",
                 identificationNumber: "ID100035",
-                idCardFrontFile: "https://example.com/id_front_35.jpg",
-                idCardBackFile: "https://example.com/id_back_35.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Phan Thị KK",
@@ -491,8 +564,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456824",
                 userAddress: "Số 220, Đường Trần Hưng Đạo, Huế",
                 identificationNumber: "ID100036",
-                idCardFrontFile: "https://example.com/id_front_36.jpg",
-                idCardBackFile: "https://example.com/id_back_36.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Nguyễn Văn LL",
@@ -503,8 +578,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456825",
                 userAddress: "Số 230, Đường Hùng Vương, Đà Lạt",
                 identificationNumber: "ID100037",
-                idCardFrontFile: "https://example.com/id_front_37.jpg",
-                idCardBackFile: "https://example.com/id_back_37.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Trần Thị MM",
@@ -515,8 +592,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456826",
                 userAddress: "Số 240, Đường Nguyễn Thái Học, Quy Nhơn",
                 identificationNumber: "ID100038",
-                idCardFrontFile: "https://example.com/id_front_38.jpg",
-                idCardBackFile: "https://example.com/id_back_38.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Phạm Tiến NN",
@@ -527,8 +606,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456827",
                 userAddress: "Số 250, Đường Yersin, Nha Trang",
                 identificationNumber: "ID100039",
-                idCardFrontFile: "https://example.com/id_front_39.jpg",
-                idCardBackFile: "https://example.com/id_back_39.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
             {
                 fullName: "Lê Thu OO",
@@ -539,8 +620,10 @@ const insertUsers = async () => {
                 userCitizenID: "123456828",
                 userAddress: "Số 260, Đường Lê Duẩn, Buôn Ma Thuột",
                 identificationNumber: "ID100040",
-                idCardFrontFile: "https://example.com/id_front_40.jpg",
-                idCardBackFile: "https://example.com/id_back_40.jpg",
+                idCardFrontFile:
+                    "https://image.tinnhanhchungkhoan.vn/w660/Uploaded/2025/WpxlCdjwi/2014_03_17/20_RKNL.jpg",
+                idCardBackFile:
+                    "https://cafefcdn.com/thumb_w/640/203337114487263232/2022/9/12/photo1662955465034-1662955465094777553497.jpg",
             },
         ];
 
@@ -1220,7 +1303,8 @@ const insertShops = async () => {
                 shopDescription: "Your go-to place for the latest tech gadgets.",
                 shopPickUpAddress: "123 Tech Street, Hanoi",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/tech-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "9:00 AM - 9:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Electronics",
@@ -1237,7 +1321,8 @@ const insertShops = async () => {
                 shopDescription: "Trendy fashion for all ages.",
                 shopPickUpAddress: "45 Fashion Street, Ho Chi Minh",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/fashion-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "10:00 AM - 8:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Clothing",
@@ -1253,8 +1338,9 @@ const insertShops = async () => {
                 shopPhone: "0965432109",
                 shopDescription: "All your home needs in one place.",
                 shopPickUpAddress: "78 Home Street, Da Nang",
-                shopStatus: "pending",
-                shopAvatar: "https://example.com/home-avatar.jpg",
+                shopStatus: "active",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "8:00 AM - 10:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Home & Living",
@@ -1271,7 +1357,8 @@ const insertShops = async () => {
                 shopDescription: "Delicious gourmet food and drinks.",
                 shopPickUpAddress: "12 Food Court, Hue",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/food-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "7:00 AM - 11:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Food & Beverages",
@@ -1288,7 +1375,8 @@ const insertShops = async () => {
                 shopDescription: "The best place for fitness gear.",
                 shopPickUpAddress: "33 Gym Street, Nha Trang",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/fitness-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "6:00 AM - 10:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Fitness & Sports",
@@ -1305,7 +1393,8 @@ const insertShops = async () => {
                 shopDescription: "A cozy place for book lovers.",
                 shopPickUpAddress: "66 Book Street, Can Tho",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/book-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "9:00 AM - 8:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Books",
@@ -1322,7 +1411,8 @@ const insertShops = async () => {
                 shopDescription: "Discover beautiful art pieces.",
                 shopPickUpAddress: "99 Art Street, Hoi An",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/art-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "10:00 AM - 7:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Arts & Crafts",
@@ -1339,7 +1429,8 @@ const insertShops = async () => {
                 shopDescription: "Everything your pet needs.",
                 shopPickUpAddress: "11 Pet Street, Vung Tau",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/pet-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "8:00 AM - 9:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Pet Supplies",
@@ -1356,7 +1447,8 @@ const insertShops = async () => {
                 shopDescription: "A world of toys for kids.",
                 shopPickUpAddress: "22 Toy Street, Hai Phong",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/toy-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "9:30 AM - 8:30 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Toys & Games",
@@ -1373,7 +1465,8 @@ const insertShops = async () => {
                 shopDescription: "All your music needs in one place.",
                 shopPickUpAddress: "44 Music Street, Phu Quoc",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/music-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "10:30 AM - 9:30 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Music & Instruments",
@@ -1390,7 +1483,8 @@ const insertShops = async () => {
                 shopDescription: "Everything for your gardening needs.",
                 shopPickUpAddress: "55 Garden Street, Sapa",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/garden-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "8:30 AM - 7:30 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Home & Garden",
@@ -1407,7 +1501,8 @@ const insertShops = async () => {
                 shopDescription: "Your daily dose of caffeine.",
                 shopPickUpAddress: "77 Coffee Street, Buon Ma Thuot",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/coffee-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "7:00 AM - 6:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Food & Beverages",
@@ -1424,7 +1519,8 @@ const insertShops = async () => {
                 shopDescription: "Everything you need for your next adventure.",
                 shopPickUpAddress: "88 Travel Street, Ha Long",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/travel-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "9:00 AM - 8:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Travel & Outdoors",
@@ -1441,7 +1537,8 @@ const insertShops = async () => {
                 shopDescription: "Unleash your creativity.",
                 shopPickUpAddress: "99 Creative Street, Dalat",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/creative-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "10:00 AM - 9:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Arts & Crafts",
@@ -1458,7 +1555,8 @@ const insertShops = async () => {
                 shopDescription: "Your one-stop shop for health and wellness.",
                 shopPickUpAddress: "10 Health Street, Vinh",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/health-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "8:00 AM - 7:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Health & Beauty",
@@ -1475,7 +1573,8 @@ const insertShops = async () => {
                 shopDescription: "Unique vintage finds.",
                 shopPickUpAddress: "11 Vintage Street, My Tho",
                 shopStatus: "pending",
-                shopAvatar: "https://example.com/vintage-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "11:00 AM - 8:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Clothing",
@@ -1492,7 +1591,8 @@ const insertShops = async () => {
                 shopDescription: "All the tools you need for your projects.",
                 shopPickUpAddress: "22 Tool Street, Rach Gia",
                 shopStatus: "pending",
-                shopAvatar: "https://example.com/tool-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "7:30 AM - 6:30 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Hardware",
@@ -1509,7 +1609,8 @@ const insertShops = async () => {
                 shopDescription: "Everything for kids, from toys to clothes.",
                 shopPickUpAddress: "33 Kids Street, Long Xuyen",
                 shopStatus: "pending",
-                shopAvatar: "https://example.com/kids-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "9:30 AM - 7:30 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Children's Products",
@@ -1526,7 +1627,8 @@ const insertShops = async () => {
                 shopDescription: "All your sports equipment needs.",
                 shopPickUpAddress: "44 Sports Street, Cao Lanh",
                 shopStatus: "pending",
-                shopAvatar: "https://example.com/sports-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "6:30 AM - 9:30 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Fitness & Sports",
@@ -1543,7 +1645,8 @@ const insertShops = async () => {
                 shopDescription: "Your local supermarket.",
                 shopPickUpAddress: "55 Market Street, Can Tho",
                 shopStatus: "pending",
-                shopAvatar: "https://example.com/market-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "7:00 AM - 10:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Groceries",
@@ -1560,7 +1663,8 @@ const insertShops = async () => {
                 shopDescription: "Fresh produce and organic goods.",
                 shopPickUpAddress: "66 Farm Street, Hanoi",
                 shopStatus: "pending",
-                shopAvatar: "https://example.com/farm-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "8:00 AM - 8:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Organic Food",
@@ -1577,7 +1681,8 @@ const insertShops = async () => {
                 shopDescription: "The best deals on electronics.",
                 shopPickUpAddress: "77 Tech Street, Hai Phong",
                 shopStatus: "pending",
-                shopAvatar: "https://example.com/electro-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "9:00 AM - 9:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Electronics",
@@ -1594,7 +1699,8 @@ const insertShops = async () => {
                 shopDescription: "The latest fashion trends.",
                 shopPickUpAddress: "88 Fashion Street, Da Nang",
                 shopStatus: "pending",
-                shopAvatar: "https://example.com/boutique-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "10:00 AM - 7:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Clothing",
@@ -1611,7 +1717,8 @@ const insertShops = async () => {
                 shopDescription: "Your health is our priority.",
                 shopPickUpAddress: "99 Health Street, Ho Chi Minh",
                 shopStatus: "pending",
-                shopAvatar: "https://example.com/health-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "8:00 AM - 6:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Health & Beauty",
@@ -1628,7 +1735,8 @@ const insertShops = async () => {
                 shopDescription: "Handmade crafts and gifts.",
                 shopPickUpAddress: "10 Craft Street, Vinh",
                 shopStatus: "pending",
-                shopAvatar: "https://example.com/craft-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "9:00 AM - 5:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Arts & Crafts",
@@ -1645,7 +1753,8 @@ const insertShops = async () => {
                 shopDescription: "Everything for your furry friends.",
                 shopPickUpAddress: "22 Pet Street, Nha Trang",
                 shopStatus: "pending",
-                shopAvatar: "https://example.com/pet-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "10:00 AM - 8:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Pet Supplies",
@@ -1662,7 +1771,8 @@ const insertShops = async () => {
                 shopDescription: "A wonderland of toys and games.",
                 shopPickUpAddress: "33 Toy Street, Hai Phong",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/toy-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "8:00 AM - 9:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Toys & Games",
@@ -1679,7 +1789,8 @@ const insertShops = async () => {
                 shopDescription: "Your one-stop music shop.",
                 shopPickUpAddress: "44 Music Street, Can Tho",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/music-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "9:00 AM - 7:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Music & Instruments",
@@ -1696,7 +1807,8 @@ const insertShops = async () => {
                 shopDescription: "Beautify your home with our decor.",
                 shopPickUpAddress: "55 Decor Street, Dalat",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/decor-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "10:00 AM - 6:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Home & Living",
@@ -1713,7 +1825,8 @@ const insertShops = async () => {
                 shopDescription: "Your daily coffee fix.",
                 shopPickUpAddress: "66 Coffee Street, Hanoi",
                 shopStatus: "active",
-                shopAvatar: "https://example.com/coffee-avatar.jpg",
+                shopAvatar:
+                    "https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Hinh-dai-dien-buon-chiec-hop-buon-ba.jpg?1704789749713",
                 shopOperationHours: "7:00 AM - 10:00 PM",
                 shopJoinedDate: new Date(),
                 businessType: "Food & Beverages",
@@ -1745,7 +1858,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 550000,
                 quantity: 10,
-                main_image: "https://example.com/images/aosomi1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 1,
@@ -1755,7 +1867,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 750000,
                 quantity: 15,
-                main_image: "https://example.com/images/quan1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 2,
@@ -1765,7 +1876,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 3500000,
                 quantity: 20,
-                main_image: "https://example.com/images/giay1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 2,
@@ -1774,7 +1884,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 950000,
                 quantity: 12,
-                main_image: "https://example.com/images/balo1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 3,
@@ -1783,7 +1892,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 2800000,
                 quantity: 8,
-                main_image: "https://example.com/images/nuochoa1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 3,
@@ -1793,7 +1901,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 11000000,
                 quantity: 5,
-                main_image: "https://example.com/images/dongho1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 4,
@@ -1803,7 +1910,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 450000,
                 quantity: 25,
-                main_image: "https://example.com/images/but1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 4,
@@ -1813,7 +1919,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 600000,
                 quantity: 18,
-                main_image: "https://example.com/images/so1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 5,
@@ -1823,7 +1928,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 35000000,
                 quantity: 3,
-                main_image: "https://example.com/images/laptop1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 5,
@@ -1833,7 +1937,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 1800000,
                 quantity: 30,
-                main_image: "https://example.com/images/chuot1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 6,
@@ -1843,7 +1946,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 3500000,
                 quantity: 22,
-                main_image: "https://example.com/images/loa1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 6,
@@ -1853,7 +1955,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 8500000,
                 quantity: 10,
-                main_image: "https://example.com/images/tainghe1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 7,
@@ -1863,7 +1964,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 450000,
                 quantity: 40,
-                main_image: "https://example.com/images/binh1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 7,
@@ -1873,7 +1973,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 4500000,
                 quantity: 15,
-                main_image: "https://example.com/images/dao1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 8,
@@ -1883,7 +1982,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 3200000,
                 quantity: 7,
-                main_image: "https://example.com/images/banphim1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 8,
@@ -1893,7 +1991,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 22000000,
                 quantity: 4,
-                main_image: "https://example.com/images/maycafe1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 9,
@@ -1902,7 +1999,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 650000,
                 quantity: 25,
-                main_image: "https://example.com/images/sac1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 9,
@@ -1911,7 +2007,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 300000,
                 quantity: 50,
-                main_image: "https://example.com/images/capsac1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 10,
@@ -1921,7 +2016,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 4800000,
                 quantity: 6,
-                main_image: "https://example.com/images/noichien1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 10,
@@ -1931,7 +2025,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 1900000,
                 quantity: 3,
-                main_image: "https://example.com/images/loviba1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 11,
@@ -1940,7 +2033,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 12000000,
                 quantity: 2,
-                main_image: "https://example.com/images/maygiat1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 11,
@@ -1950,7 +2042,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 9000000,
                 quantity: 2,
-                main_image: "https://example.com/images/tulanh1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 12,
@@ -1960,7 +2051,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 8500000,
                 quantity: 4,
-                main_image: "https://example.com/images/bàn_ghế1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 12,
@@ -1970,7 +2060,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 750000,
                 quantity: 30,
-                main_image: "https://example.com/images/đèn1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 13,
@@ -1980,7 +2069,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 1200000,
                 quantity: 12,
-                main_image: "https://example.com/images/tranh1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 13,
@@ -1990,7 +2078,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 5500000,
                 quantity: 5,
-                main_image: "https://example.com/images/chăn_ga1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 14,
@@ -1999,7 +2086,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 950000,
                 quantity: 20,
-                main_image: "https://example.com/images/dụng_cụ_vườn1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 14,
@@ -2008,7 +2094,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 250000,
                 quantity: 100,
-                main_image: "https://example.com/images/hạt_giống1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 15,
@@ -2018,7 +2103,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 2800000,
                 quantity: 20,
-                main_image: "https://example.com/images/bàn_trà1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 15,
@@ -2027,7 +2111,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 12000000,
                 quantity: 40,
-                main_image: "https://example.com/images/ghế_sofa1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 1,
@@ -2037,7 +2120,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 350000,
                 quantity: 25,
-                main_image: "https://example.com/images/ao_phong1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 1,
@@ -2046,7 +2128,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 900000,
                 quantity: 20,
-                main_image: "https://example.com/images/ao_khoac1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 2,
@@ -2055,7 +2136,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 5800000,
                 quantity: 15,
-                main_image: "https://example.com/images/túi_xách1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 2,
@@ -2064,7 +2144,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 8500000,
                 quantity: 10,
-                main_image: "https://example.com/images/ví1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 3,
@@ -2073,7 +2152,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 300000,
                 quantity: 50,
-                main_image: "https://example.com/images/sữa_rửa_mặt1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 3,
@@ -2082,7 +2160,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 550000,
                 quantity: 40,
-                main_image: "https://example.com/images/kem_chống_nắng1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 4,
@@ -2091,7 +2168,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 5000,
                 quantity: 100,
-                main_image: "https://example.com/images/bút_bi1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 4,
@@ -2100,7 +2176,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 45000,
                 quantity: 80,
-                main_image: "https://example.com/images/giấy_note1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 5,
@@ -2109,7 +2184,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 1500000,
                 quantity: 20,
-                main_image: "https://example.com/images/bàn_phím_máy_tính1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 5,
@@ -2118,7 +2192,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 5500000,
                 quantity: 10,
-                main_image: "https://example.com/images/màn_hình_máy_tính1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 6,
@@ -2127,7 +2200,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 7500000,
                 quantity: 15,
-                main_image: "https://example.com/images/máy_nghe_nhạc1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 6,
@@ -2136,7 +2208,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 1200000,
                 quantity: 12,
-                main_image: "https://example.com/images/đĩa_than1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 7,
@@ -2145,7 +2216,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 150000,
                 quantity: 60,
-                main_image: "https://example.com/images/ly_sứ1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 7,
@@ -2154,7 +2224,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 120000,
                 quantity: 50,
-                main_image: "https://example.com/images/bát_ăn_cơm1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 8,
@@ -2163,7 +2232,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 2200000,
                 quantity: 8,
-                main_image: "https://example.com/images/máy_xay_sinh_tố1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 8,
@@ -2173,7 +2241,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 3500000,
                 quantity: 5,
-                main_image: "https://example.com/images/bếp_từ1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 9,
@@ -2182,7 +2249,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 200000,
                 quantity: 70,
-                main_image: "https://example.com/images/ốp_lưng1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 9,
@@ -2191,7 +2257,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 4500000,
                 quantity: 30,
-                main_image: "https://example.com/images/tai_nghe1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 10,
@@ -2200,7 +2265,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 4200000,
                 quantity: 3,
-                main_image: "https://example.com/images/tủ_lạnh_mini1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 10,
@@ -2210,7 +2274,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 6500000,
                 quantity: 2,
-                main_image: "https://example.com/images/máy_lọc_không_khí1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 11,
@@ -2219,7 +2282,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 8000000,
                 quantity: 2,
-                main_image: "https://example.com/images/giường1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 11,
@@ -2229,7 +2291,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 9500000,
                 quantity: 1,
-                main_image: "https://example.com/images/tủ_quần_áo1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 12,
@@ -2238,7 +2299,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 1800000,
                 quantity: 2,
-                main_image: "https://example.com/images/bàn_học1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 12,
@@ -2248,7 +2308,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 2200000,
                 quantity: 4,
-                main_image: "https://example.com/images/ghế1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 13,
@@ -2257,7 +2316,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 600000,
                 quantity: 20,
-                main_image: "https://example.com/images/rèm_cửa1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 13,
@@ -2266,7 +2324,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 500000,
                 quantity: 10,
-                main_image: "https://example.com/images/gương1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 14,
@@ -2275,7 +2332,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 150000,
                 quantity: 100,
-                main_image: "https://example.com/images/phân_bón1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 14,
@@ -2284,7 +2340,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 80000,
                 quantity: 40,
-                main_image: "https://example.com/images/chậu1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 15,
@@ -2293,7 +2348,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 1200000,
                 quantity: 5,
-                main_image: "https://example.com/images/kệ_TV1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 15,
@@ -2302,7 +2356,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 800000,
                 quantity: 5,
-                main_image: "https://example.com/images/đèn_trang_trí1.jpg", // Thêm ảnh
             },
             {
                 shop_id: 1,
@@ -2311,7 +2364,6 @@ const insertProducts = async () => {
                 status: "active",
                 price: 800000,
                 quantity: 5,
-                main_image: "https://example.com/images/thắt_lưng1.jpg", // Thêm ảnh
             },
         ];
 
@@ -2336,11 +2388,11 @@ const insertOrders = async () => {
                 address_id: 1,
                 productFee: 150000,
                 shippingFee: 30000,
-                status: "pending",
+                status: "completed",
                 total: 180000,
                 note: "Giao hàng giờ hành chính",
-                payment_status: "pending",
-                shipping_status: "not_yet_shipped",
+                payment_status: "paid",
+                shipping_status: "shipped",
                 payment_method: "COD",
                 start_time: new Date(),
                 estimated_delivery_time: new Date(new Date().getTime() + 2 * 60 * 60 * 1000),
@@ -2353,7 +2405,7 @@ const insertOrders = async () => {
                 address_id: 3,
                 productFee: 250000,
                 shippingFee: 35000,
-                status: "processing",
+                status: "completed",
                 total: 285000,
                 note: "Gọi điện trước khi giao",
                 payment_status: "paid",
@@ -2421,7 +2473,7 @@ const insertOrders = async () => {
                 address_id: 6,
                 productFee: 180000,
                 shippingFee: 32000,
-                status: "processing",
+                status: "completed",
                 total: 212000,
                 note: "Kiểm tra kỹ hàng trước khi giao",
                 payment_status: "paid",
@@ -3685,6 +3737,297 @@ const insertEmergencyContacts = async () => {
     }
 };
 
+const insertMedia = async () => {
+    try {
+        await sequelize.authenticate();
+        console.log("Kết nối với database thành công.");
+
+        const media = [
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+            { created_at: new Date(), updated_at: new Date() },
+        ];
+
+        await Media.bulkCreate(media);
+        console.log("Dữ liệu đã được chèn thành công vào bảng Media.");
+    } catch (error) {
+        console.error("Không thể kết nối với database hoặc xảy ra lỗi khi chèn dữ liệu:", error);
+    }
+};
+
+const insertMediaItems = async () => {
+    try {
+        await sequelize.authenticate();
+        console.log("Kết nối với database thành công.");
+
+        const mediaItems = [
+            // Order ID = 2
+            { mediaItemURL: "https://example.com/media1.jpg", type: "image", orderItemID: 6 },
+            { mediaItemURL: "https://example.com/media2.jpg", type: "video", orderItemID: 7 },
+            { mediaItemURL: "https://example.com/media3.jpg", type: "image", orderItemID: 8 },
+            { mediaItemURL: "https://example.com/media4.jpg", type: "video", orderItemID: 9 },
+            { mediaItemURL: "https://example.com/media5.jpg", type: "image", orderItemID: 10 },
+            // Order ID = 3
+            { mediaItemURL: "https://example.com/media6.jpg", type: "image", orderItemID: 11 },
+            { mediaItemURL: "https://example.com/media7.jpg", type: "video", orderItemID: 12 },
+            { mediaItemURL: "https://example.com/media8.jpg", type: "image", orderItemID: 13 },
+            { mediaItemURL: "https://example.com/media9.jpg", type: "video", orderItemID: 14 },
+            { mediaItemURL: "https://example.com/media10.jpg", type: "image", orderItemID: 15 },
+            // Order ID = 1
+            { mediaItemURL: "https://example.com/media1.jpg", type: "image", orderItemID: 1 },
+            { mediaItemURL: "https://example.com/media2.jpg", type: "video", orderItemID: 2 },
+            { mediaItemURL: "https://example.com/media3.jpg", type: "image", orderItemID: 3 },
+            { mediaItemURL: "https://example.com/media4.jpg", type: "video", orderItemID: 4 },
+            { mediaItemURL: "https://example.com/media5.jpg", type: "image", orderItemID: 5 },
+            // Order ID = 6
+            { mediaItemURL: "https://example.com/media1.jpg", type: "image", orderItemID: 31 },
+            { mediaItemURL: "https://example.com/media2.jpg", type: "video", orderItemID: 32 },
+            { mediaItemURL: "https://example.com/media3.jpg", type: "image", orderItemID: 33 },
+            { mediaItemURL: "https://example.com/media4.jpg", type: "video", orderItemID: 34 },
+            { mediaItemURL: "https://example.com/media5.jpg", type: "image", orderItemID: 35 },
+        ];
+
+        await MediaItem.bulkCreate(mediaItems);
+        console.log("Đã tạo thành công 15 MediaItems.");
+    } catch (error) {
+        console.error("Lỗi khi tạo dữ liệu:", error);
+    }
+};
+
+const insertReplyFeedbacks = async () => {
+    try {
+        await sequelize.authenticate();
+        console.log("Kết nối với database thành công.");
+
+        const replyFeedbacks = [
+            // Order ID = 2
+            { content: "Cảm ơn bạn", replyUserID: 2 },
+            { content: "Cảm ơn bạn", replyUserID: 2 },
+            { content: "Cảm ơn bạn", replyUserID: 2 },
+            { content: "Cảm ơn bạn", replyUserID: 2 },
+            { content: "Cảm ơn bạn", replyUserID: 2 },
+            // Order ID = 3
+            { content: "Cảm ơn bạn", replyUserID: 3 },
+            { content: "Cảm ơn bạn", replyUserID: 3 },
+            { content: "Cảm ơn bạn", replyUserID: 3 },
+            { content: "Cảm ơn bạn", replyUserID: 3 },
+            { content: "Cảm ơn bạn", replyUserID: 3 },
+            // Order ID = 1
+            { content: "Cảm ơn bạn", replyUserID: 1 },
+            { content: "Cảm ơn bạn", replyUserID: 1 },
+            { content: "Cảm ơn bạn", replyUserID: 1 },
+            { content: "Cảm ơn bạn", replyUserID: 1 },
+            { content: "Cảm ơn bạn", replyUserID: 1 },
+            // Order ID = 6
+            { content: "Cảm ơn bạn", replyUserID: 1 },
+            { content: "Cảm ơn bạn", replyUserID: 1 },
+            { content: "Cảm ơn bạn", replyUserID: 1 },
+            { content: "Cảm ơn bạn", replyUserID: 1 },
+            { content: "Cảm ơn bạn", replyUserID: 1 },
+        ];
+
+        await ReplyFeedback.bulkCreate(replyFeedbacks);
+        console.log("Đã tạo thành công 15 ReplyFeedbacks.");
+    } catch (error) {
+        console.error("Lỗi khi tạo dữ liệu:", error);
+    }
+};
+const insertFeedbacks = async () => {
+    try {
+        await sequelize.authenticate();
+        console.log("Kết nối với database thành công.");
+
+        const feedbacks = [
+            // Order ID = 2
+            {
+                content: "Sản phẩm rất tốt",
+                star: 5,
+                orderItemID: 6,
+                customerID: 5,
+                replyID: 1,
+                mediaID: 1,
+            },
+            {
+                content: "Chất lượng ổn định",
+                star: 4,
+                orderItemID: 7,
+                customerID: 5,
+                replyID: 2,
+                mediaID: 2,
+            },
+            {
+                content: "Giá cả hợp lý",
+                star: 4,
+                orderItemID: 8,
+                customerID: 5,
+                replyID: 3,
+                mediaID: 3,
+            },
+            {
+                content: "Đóng gói cẩn thận",
+                star: 5,
+                orderItemID: 9,
+                customerID: 5,
+                replyID: 4,
+                mediaID: 4,
+            },
+            {
+                content: "Giao hàng nhanh",
+                star: 5,
+                orderItemID: 10,
+                customerID: 5,
+                replyID: 5,
+                mediaID: 5,
+            },
+            // Order ID = 3
+            {
+                content: "Chất lượng sản phẩm tốt",
+                star: 5,
+                orderItemID: 11,
+                customerID: 1,
+                replyID: 6,
+                mediaID: 6,
+            },
+            {
+                content: "Phù hợp với giá tiền",
+                star: 4,
+                orderItemID: 12,
+                customerID: 1,
+                replyID: 7,
+                mediaID: 7,
+            },
+            {
+                content: "Đóng gói đẹp",
+                star: 5,
+                orderItemID: 13,
+                customerID: 1,
+                replyID: 8,
+                mediaID: 8,
+            },
+            {
+                content: "Giao hàng đúng hẹn",
+                star: 5,
+                orderItemID: 14,
+                customerID: 1,
+                replyID: 9,
+                mediaID: 9,
+            },
+            {
+                content: "Mua lần thứ 2 rất hài lòng",
+                star: 5,
+                orderItemID: 15,
+                customerID: 1,
+                replyID: 10,
+                mediaID: 10,
+            },
+            // Order ID = 1
+            {
+                content: "Sản phẩm đúng mô tả, rất hài lòng",
+                star: 5,
+                orderItemID: 1,
+                customerID: 2,
+                replyID: 11,
+                mediaID: 11,
+            },
+            {
+                content: "Chất lượng sản phẩm tuyệt vời",
+                star: 5,
+                orderItemID: 2,
+                customerID: 2,
+                replyID: 12,
+                mediaID: 12,
+            },
+            {
+                content: "Giá cả hợp lý, giao hàng nhanh",
+                star: 4,
+                orderItemID: 3,
+                customerID: 2,
+                replyID: 13,
+                mediaID: 13,
+            },
+            {
+                content: "Đóng gói cẩn thận, chất lượng tốt",
+                star: 5,
+                orderItemID: 4,
+                customerID: 2,
+                replyID: 14,
+                mediaID: 14,
+            },
+            {
+                content: "Giao hàng nhanh, phục vụ tốt",
+                star: 5,
+                orderItemID: 5,
+                customerID: 2,
+                replyID: 15,
+                mediaID: 15,
+            },
+            // Order ID = 1
+            {
+                content: "Sản phẩm đúng mô tả, rất hài lòng",
+                star: 5,
+                orderItemID: 31,
+                customerID: 6,
+                replyID: 16,
+                mediaID: 16,
+            },
+            {
+                content: "Chất lượng sản phẩm tuyệt vời",
+                star: 5,
+                orderItemID: 32,
+                customerID: 6,
+                replyID: 17,
+                mediaID: 17,
+            },
+            {
+                content: "Giá cả hợp lý, giao hàng nhanh",
+                star: 4,
+                orderItemID: 33,
+                customerID: 6,
+                replyID: 18,
+                mediaID: 18,
+            },
+            {
+                content: "Đóng gói cẩn thận, chất lượng tốt",
+                star: 5,
+                orderItemID: 34,
+                customerID: 6,
+                replyID: 19,
+                mediaID: 19,
+            },
+            {
+                content: "Giao hàng nhanh, phục vụ tốt",
+                star: 5,
+                orderItemID: 35,
+                customerID: 6,
+                replyID: 20,
+                mediaID: 20,
+            },
+        ];
+
+        await Feedback.bulkCreate(feedbacks);
+        console.log("Đã tạo thành công 15 Feedbacks.");
+    } catch (error) {
+        console.error("Lỗi khi tạo dữ liệu:", error);
+    }
+};
+
 async function insertData() {
     try {
         await sequelize.authenticate(); // Kết nối chỉ 1 lần
@@ -3698,6 +4041,10 @@ async function insertData() {
         await insertProducts();
         await insertOrders();
         await insertOrderItems();
+        await insertMedia();
+        await insertMediaItems();
+        await insertReplyFeedbacks();
+        await insertFeedbacks();
         // await insertEmergencyContacts(); // ko thấy lỗi ở đâu cả, nhưng báo không chạy
 
         console.log("Tất cả dữ liệu đã được chèn thành công!");

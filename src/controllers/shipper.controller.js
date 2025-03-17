@@ -124,9 +124,17 @@ export const getAllPendingShippers = async (req, res) => {
 
 export const getSumShippingFeeAllShippers = async (req, res) => {
     try {
-        const { offset = 0, limit = 10 } = req.query;
+        const { offset, limit, search, filterStatus, filterDate } = req.query;
+        const o = Number.parseInt(offset);
+        const l = Number.parseInt(limit);
         const { sumShippingFee, totalRevenue, totalOrders } =
-            await ShipperServices.getSumShippingFeeAllShippers();
+            await ShipperServices.getSumShippingFeeAllShippers(
+                o,
+                l,
+                search,
+                filterStatus,
+                filterDate,
+            );
         return res.json({
             success: true,
             message: "get sum shipping fee successfully",
@@ -193,6 +201,25 @@ export const getShippingStatus = async (req, res) => {
         res.status(500).json({
             success: false,
             message: error.message,
+        });
+    }
+};
+
+export const getTop10Shippers = async (req, res) => {
+    try {
+        const topShippers = await ShipperServices.getTop10Shippers();
+
+        return res.status(200).json({
+            success: true,
+            message: "Top 10 shippers retrieved successfully",
+            data: topShippers,
+        });
+    } catch (error) {
+        console.error("Error in getTopShippersController:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: error.message,
         });
     }
 };

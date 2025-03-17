@@ -8,6 +8,7 @@ import {
     getShipperDraftById,
     getShippingStatus,
     getSumShippingFeeAllShippers,
+    getTop10Shippers,
     getTopShippers,
     updateShipperDraftById,
     updateShipperPending,
@@ -16,6 +17,7 @@ import {
 
 const shipperRouter = express.Router();
 
+shipperRouter.get("/top10Shippers", getTop10Shippers);
 shipperRouter.get("/shipperdraft/:id", getShipperDraftById);
 shipperRouter.patch("/shipperdraft/:id", updateShipperDraftById);
 shipperRouter.get("/shippingStatus", getShippingStatus);

@@ -140,7 +140,23 @@ const ShipperServices = {
         return shipper;
     },
 
-    async getSumShippingFeeAllShippers(offset = 0, limit = 10) {
+    async getSumShippingFeeAllShippers(
+        offset = 0,
+        limit = 10,
+        nameOrPhone = "",
+        status = "",
+        date = "",
+    ) {
+        const whereCondition = {
+            ...(nameOrPhone && {
+                [Op.or]: [
+                    { name: { [Op.like]: `%${nameOrPhone}%` } },
+                    { phone: { [Op.like]: `%${nameOrPhone}%` } },
+                ],
+            }),
+            ...(status && { status }),
+            ...(date && { joinedDate: { [Op.gte]: new Date(date) } }),
+        };
         const sumShippingFee = await Order.findAll({
             attributes: [
                 "shipper_id",
@@ -154,6 +170,7 @@ const ShipperServices = {
                 {
                     model: Shipper,
                     as: "Shipper",
+                    where: whereCondition,
                 },
             ],
             where: {
@@ -284,6 +301,45 @@ const ShipperServices = {
             throw new Error("Failed to fetch shipping status summary");
         }
     },
+
+    async getTop10Shippers() {
+        try {
+            const topShippers = await Order.findAll({
+                attributes: [
+                    "shipper_id",
+                    [Sequelize.col("Shipper.name"), "shipper_name"],
+                    [
+                        Sequelize.fn("DATE_FORMAT", Sequelize.col("Order.createdAt"), "%Y-%m"),
+                        "order_month",
+                    ],
+                    [Sequelize.fn("SUM", Sequelize.col("Order.shippingFee")), "total_shipping_fee"],
+                ],
+                include: [
+                    {
+                        model: Shipper,
+                        as: "Shipper",
+                        attributes: [],
+                    },
+                ],
+                where: {
+                    shipper_id: {
+                        [Sequelize.Op.ne]: null, // shipper_id IS NOT NULL
+                    },
+                },
+                group: ["shipper_id", "Shipper.name", "order_month"],
+                order: [
+                    [Sequelize.literal("order_month"), "DESC"],
+                    [Sequelize.literal("total_shipping_fee"), "DESC"],
+                ],
+                limit: 10,
+                raw: true, // Trả về dữ liệu dưới dạng đối tượng JSON thuần túy
+            });
+
+            return topShippers;
+        } catch (error) {
+            console.error("Error fetching top 10 shippers:", error);
+        }
+    },
     async getShipperDraftById(id) {
         try {
             const shipperDraft = await ReasonChangeStatus.findAll({
@@ -306,7 +362,6 @@ const ShipperServices = {
 
     async updateShipperDraftById(id, data) {
         const { status, reason } = data;
-        console.log("---------------", status, reason, "----------------");
         try {
             if (status === "savedraft") {
                 const oldDraft = await ReasonChangeStatus.findOne({

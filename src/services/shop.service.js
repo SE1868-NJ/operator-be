@@ -16,6 +16,164 @@ import { User } from "../models/user.model.js";
 import { model } from "../utils/gemini.js";
 
 const ShopService = {
+    async processUserPrompt(shopId, userPrompt) {
+        try {
+            // 1️⃣ Lấy thông tin chi tiết về shop
+            const shopInfo = await this.getShopById(shopId);
+            const products = await this.getProductByShopId(shopId, 0, 10);
+            const orders = await this.getOrderByShopId(shopId, 0, 10);
+            const feedbacks = await this.getFeedbacksByShopId(shopId);
+
+            if (!shopInfo) {
+                return { aiReview: "Không tìm thấy thông tin cửa hàng." };
+            }
+
+            // 2️⃣ Định dạng dữ liệu shop
+            const shopText = `
+                **Thông tin cửa hàng:**
+                - Tên: ${shopInfo.shopName}
+                - Email: ${shopInfo.shopEmail}
+                - Số điện thoại: ${shopInfo.shopPhone}
+                - Địa chỉ: ${shopInfo.shopPickUpAddress}
+                - Trạng thái: ${shopInfo.shopStatus}
+                - Mã số thuế: ${shopInfo.taxCode}
+                - Loại hình kinh doanh: ${shopInfo.businessType}
+                - Đánh giá trung bình: ${shopInfo.shopRating || "Chưa có đánh giá"}/5
+                - Ngày tham gia: ${shopInfo.shopJoinedDate}
+                - Ngân hàng: ${shopInfo.shopBankName} (${shopInfo.shopBankAccountNumber})
+    
+                **Thông tin chủ cửa hàng:**
+                - Họ và tên: ${shopInfo.Owner?.fullName}
+                - Email: ${shopInfo.Owner?.userEmail}
+                - Số điện thoại: ${shopInfo.Owner?.userPhone}
+                - Địa chỉ: ${shopInfo.Owner?.userAddress}
+                - Ngày sinh: ${shopInfo.Owner?.dateOfBirth}
+                - Giới tính: ${shopInfo.Owner?.gender}
+            `;
+
+            // 3️⃣ Định dạng danh sách sản phẩm
+            const productText = products?.products?.length
+                ? products.products
+                      .map(
+                          (p, index) =>
+                              `  ${index + 1}. ${p.product_name} - ${p.price} VND - Số lượng: ${p.quantity}`,
+                      )
+                      .join("\n")
+                : "Không có sản phẩm nào.";
+
+            // 4️⃣ Định dạng danh sách đơn hàng
+            const orderText = orders?.orders?.length
+                ? orders.orders
+                      .map(
+                          (o, index) =>
+                              `  ${index + 1}. Đơn hàng #${o.id} - Tổng tiền: ${o.total} VND - Trạng thái: ${o.status} - Thanh toán: ${o.payment_status}`,
+                      )
+                      .join("\n")
+                : "Không có đơn hàng nào.";
+
+            // 5️⃣ Định dạng danh sách feedbacks
+            const feedbackText = feedbacks?.feedbacks?.length
+                ? feedbacks.feedbacks
+                      .map(
+                          (f, index) =>
+                              `  ${index + 1}. ${f.Customer.fullName}: ${f.content} - Đánh giá: ${f.star}/5`,
+                      )
+                      .join("\n")
+                : "Chưa có đánh giá nào.";
+
+            // 6️⃣ Tạo prompt linh hoạt cho AI
+            const prompt = `
+                ${userPrompt}
+                
+                Đây là toàn bộ thông tin về cửa hàng này:
+                ${shopText}
+                
+                **Danh sách sản phẩm:**
+                ${productText}
+                
+                **Danh sách đơn hàng:**
+                ${orderText}
+                
+                **Phản hồi từ khách hàng:**
+                ${feedbackText}
+                
+                Dựa vào dữ liệu trên, hãy trả lời theo hướng dẫn của người dùng.
+            `;
+
+            // 7️⃣ Gửi prompt đến AI
+            const result = await model.generateContent(prompt);
+            const aiReview = result.response.text();
+
+            return { aiReview };
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+    async getProductById(id) {
+        try {
+            const product = await Product.findByPk(id, {
+                include: [
+                    {
+                        model: OrderItem,
+                        as: "OrderItems",
+                        required: false,
+                        include: [
+                            {
+                                model: Order,
+                                as: "Order",
+                                include: [
+                                    {
+                                        model: User,
+                                        as: "Customer",
+                                    },
+                                ],
+                            },
+                            {
+                                model: Feedback,
+                                as: "Feedbacks",
+                                required: false,
+                                include: [
+                                    {
+                                        model: User,
+                                        as: "Customer", // ✅ Người mua feedback
+                                    },
+                                    {
+                                        model: ReplyFeedback,
+                                        as: "Reply",
+                                        include: [
+                                            {
+                                                model: User,
+                                                as: "ReplyUser", // ✅ Người phản hồi
+                                            },
+                                        ],
+                                    },
+                                    {
+                                        model: Media,
+                                        as: "Media",
+                                        include: [
+                                            {
+                                                model: MediaItem,
+                                                as: "MediaItems",
+                                            },
+                                        ],
+                                    },
+                                ],
+                                order: [["ID", "DESC"]],
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            if (!product) {
+                throw new Error("Product not found");
+            }
+
+            return product;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
     async getAllShops(offset, limit, filterData = {}) {
         const o = Number.parseInt(offset) || 0;
         const l = Number.parseInt(limit) || 10;
@@ -157,13 +315,6 @@ const ShopService = {
                         model: OrderItem,
                         as: "OrderItems",
                         required: false,
-                        include: [
-                            {
-                                model: Feedback,
-                                as: "Feedbacks",
-                                required: false,
-                            },
-                        ],
                     },
                 ],
                 offset: o,
@@ -375,7 +526,7 @@ const ShopService = {
                             },
                             {
                                 model: Product,
-                                as: "ProductIT",
+                                as: "Product",
                             },
                         ],
                     },
@@ -396,7 +547,7 @@ const ShopService = {
                 .map(
                     (fb, index) =>
                         `${index + 1}. **Khách hàng**: ${fb.Customer.fullName} | **Sản phẩm**: ${
-                            fb.OrderItems?.ProductIT?.product_name || "Không xác định"
+                            fb.OrderItems?.Product?.product_name || "Không xác định"
                         } | **Số sao**: ${fb.star}/5\n**Nội dung**: ${fb.content}\n`,
                 )
                 .join("\n");
@@ -446,12 +597,12 @@ const ShopService = {
         try {
             const { status, description } = updatedStatus;
             const newStatus = status === "accepted" ? "active" : "rejected";
-            const reason = description;
-
+            const reason = description || "Được chấp nhận";
             try {
                 const updatedShop = await Shop.update(
                     {
                         shopStatus: newStatus,
+                        shopJoindedDate: new Date(),
                     },
                     {
                         where: {
@@ -470,7 +621,8 @@ const ShopService = {
                 await ReasonChangeStatus.create(
                     {
                         operatorID: 1,
-                        shopID: id,
+                        pendingID: id,
+                        role: "Shop",
                         changedStatus: status,
                         reason: reason,
                     },
@@ -536,13 +688,11 @@ const ShopService = {
                 throw new Error("Invalid time range");
         }
 
-        const whereCondition = startTime
-            ? { created_at: { [Op.gte]: startTime }, shop_id: id }
-            : {};
+        const whereCondition = startTime ? { createdAt: { [Op.gte]: startTime }, shop_id: id } : {};
 
         const orders = await Order.findAll({
             attributes: [
-                [sequelize.fn("DATE_FORMAT", sequelize.col("created_at"), dateGroupFormat), "date"],
+                [sequelize.fn("DATE_FORMAT", sequelize.col("createdAt"), dateGroupFormat), "date"],
                 [sequelize.fn("COUNT", sequelize.col("id")), "count"],
             ],
             where: whereCondition,
@@ -844,11 +994,6 @@ const ShopService = {
         const startDate = `${year}-${monthDown}-${dayDown} 00:00:00`;
         const endDate = `${year}-${monthUp}-${dayUp} 23:59:59`;
 
-        const startDateWith7Hours = new Date(startDate);
-        startDateWith7Hours.setHours(startDateWith7Hours.getHours() + 7);
-        const endDateWith7Hours = new Date(endDate);
-        endDateWith7Hours.setHours(endDateWith7Hours.getHours() + 7);
-
         try {
             const totalRevenue = await Order.findAll({
                 attributes: [
@@ -858,10 +1003,7 @@ const ShopService = {
                 ],
                 where: {
                     createdAt: {
-                        [Op.and]: [
-                            { [Op.gte]: startDateWith7Hours },
-                            { [Op.lt]: endDateWith7Hours },
-                        ],
+                        [Op.and]: [{ [Op.gte]: startDate }, { [Op.lt]: endDate }],
                     },
                 },
                 include: [
@@ -891,10 +1033,7 @@ const ShopService = {
                         attributes: [],
                         where: {
                             createdAt: {
-                                [Op.and]: [
-                                    { [Op.gte]: startDateWith7Hours },
-                                    { [Op.lt]: endDateWith7Hours },
-                                ],
+                                [Op.and]: [{ [Op.gte]: startDate }, { [Op.lt]: startDate }],
                             },
                         },
                     },
@@ -952,19 +1091,11 @@ const ShopService = {
         const startDate = `${year}-${monthDown}-${dayDown} 00:00:00`;
         const endDate = `${year}-${monthUp}-${dayUp} 23:59:59`;
 
-        const startDateWith7Hours = new Date(startDate);
-        startDateWith7Hours.setHours(startDateWith7Hours.getHours() + 7);
-        const endDateWith7Hours = new Date(endDate);
-        endDateWith7Hours.setHours(endDateWith7Hours.getHours() + 7);
-
         try {
             const orders = await Order.findAll({
                 where: {
                     createdAt: {
-                        [Op.and]: [
-                            { [Op.gte]: startDateWith7Hours },
-                            { [Op.lt]: endDateWith7Hours },
-                        ],
+                        [Op.and]: [{ [Op.gte]: startDate }, { [Op.lt]: endDate }],
                     },
                     shop_id: id,
                 },
@@ -1001,10 +1132,7 @@ const ShopService = {
             const total = await Order.count({
                 where: {
                     createdAt: {
-                        [Op.and]: [
-                            { [Op.gte]: startDateWith7Hours },
-                            { [Op.lt]: endDateWith7Hours },
-                        ],
+                        [Op.and]: [{ [Op.gte]: startDate }, { [Op.lt]: endDate }],
                     },
                     shop_id: id,
                 },
@@ -1290,6 +1418,137 @@ const ShopService = {
                 "Request Body:",
                 req.body,
             );
+            throw new Error(error.message);
+        }
+    },
+    async updateStatusByTax() {
+        const recivedTaxData = [
+            {
+                bankCode: "VCB",
+                transactionId: "VCB202503100001",
+                orderId: "ORDER10001",
+                amount: 500000,
+                currency: "VND",
+                status: "SUCCESS",
+                responseCode: "00",
+                message: "Tax code: 123456789",
+                transactionTime: "2025-03-10T10:15:30+07:00",
+                signature: "a1b2c3d4e5f6",
+            },
+            {
+                bankCode: "VCB",
+                transactionId: "VCB202503100002",
+                orderId: "ORDER10002",
+                amount: 250000,
+                currency: "VND",
+                status: "FAILED",
+                responseCode: "05",
+                message: "Tax code: 234567890",
+                transactionTime: "2025-03-10T10:20:45+07:00",
+                signature: "a7b8c9d0e1f2",
+            },
+            {
+                bankCode: "VCB",
+                transactionId: "VCB202503100003",
+                orderId: "ORDER10003",
+                amount: 1200000,
+                currency: "VND",
+                status: "SUCCESS",
+                responseCode: "00",
+                message: "Tax code: 567890123",
+                transactionTime: "2025-03-10T10:25:00+07:00",
+                signature: "z9y8x7w6v5u4",
+            },
+            {
+                bankCode: "VCB",
+                transactionId: "VCB202503100004",
+                orderId: "ORDER10004",
+                amount: 300000,
+                currency: "VND",
+                status: "PENDING",
+                responseCode: "99",
+                message: "Tax code: 556677889",
+                transactionTime: "2025-03-10T10:30:20+07:00",
+                signature: "k1l2m3n4o5p6",
+            },
+            {
+                bankCode: "VCB",
+                transactionId: "VCB202503100005",
+                orderId: "ORDER10005",
+                amount: 800000,
+                currency: "VND",
+                status: "SUCCESS",
+                responseCode: "00",
+                message: "Tax code: 778899001",
+                transactionTime: "2025-03-10T10:35:10+07:00",
+                signature: "u1v2w3x4y5z6",
+            },
+        ];
+        try {
+            const updateAllShop = await Shop.update(
+                {
+                    shopStatus: "tax-warning",
+                },
+                {
+                    where: {
+                        shopStatus: "active",
+                    },
+                },
+            );
+        } catch (error) {
+            console.error("Update all shops to tax-warning error!", error.message);
+            throw new Error(error.message);
+        }
+
+        for (const item of recivedTaxData) {
+            if (item.status !== "SUCCESS") continue;
+            const taxCode = item.message.split(": ")[1];
+            const transaction = await sequelize.transaction();
+            try {
+                const updatedShop = await Shop.update(
+                    {
+                        shopStatus: "active",
+                    },
+                    {
+                        where: {
+                            taxCode: taxCode,
+                        },
+                        transaction: transaction,
+                    },
+                );
+                await transaction.commit();
+            } catch (error) {
+                await transaction.rollback();
+                console.error(
+                    "Error during updateShopStatus (inner try) - Shop ID:",
+                    id,
+                    "Error:",
+                    error,
+                    "Request Body:",
+                    req.body,
+                );
+                throw new Error(error.message);
+            }
+        }
+    },
+
+    async getInforOneShop(id) {
+        try {
+            const shop = await Shop.findByPk(id, {
+                attributes: ["shopID", "shopName", "shopEmail", "shopPhone", "shopPickUpAddress"],
+                include: [
+                    {
+                        model: User,
+                        as: "Owner",
+                        attributes: ["userID", "fullName", "userEmail", "userPhone", "userAddress"],
+                    },
+                ],
+            });
+            if (!shop) {
+                throw new Error("Shop not found");
+            }
+            return shop;
+        } catch (error) {
             throw new Error(error.message);
         }
     },

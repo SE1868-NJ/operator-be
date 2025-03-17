@@ -10,10 +10,16 @@ export const Operator = sequelize.define("Operator", {
     avatar: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: "https://i.pinimg.com/236x/5e/e0/82/5ee082781b8c41406a2a50a0f32d6aa6.jpg",
+        defaultValue:
+            "https://res.cloudinary.com/dafn4ktx0/image/upload/v1741914627/default_avatar_zqgyov.jpg",
         validate: {
             notEmpty: true,
         },
+    },
+    avatar_public_id: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "swp_storage_image/default_avatar_zqgyov",
     },
     firstName: {
         type: DataTypes.STRING,
@@ -49,15 +55,15 @@ export const Operator = sequelize.define("Operator", {
         allowNull: false,
         validate: {
             notEmpty: true,
-            len: [10, 15], // Số điện thoại từ 10-15 ký tự
+            len: [10, 15],
         },
     },
     dateOfBirth: {
-        type: DataTypes.DATEONLY, // Chỉ lưu ngày (YYYY-MM-DD)
+        type: DataTypes.DATEONLY,
         allowNull: false,
     },
     gender: {
-        type: DataTypes.ENUM("male", "female", "other"), // Giới tính có thể là Nam, Nữ hoặc Khác
+        type: DataTypes.ENUM("male", "female", "other"),
         allowNull: false,
     },
     status: {
@@ -70,6 +76,13 @@ export const Operator = sequelize.define("Operator", {
         allowNull: false,
     },
 });
+
+Operator.associate = (models) => {
+    Operator.hasMany(models.Ban, {
+        foreignKey: "operatorId",
+        as: "bans",
+    });
+};
 
 export default (sequelize, DataTypes) => {
     return Operator;
