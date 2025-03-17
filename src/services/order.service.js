@@ -285,6 +285,24 @@ const orderService = {
             throw error;
         }
     },
+
+    async reopenOrder(id) {
+        try {
+            const order = Order.update(
+                {
+                    status: "pending",
+                },
+                {
+                    where: {
+                        id: id,
+                    },
+                },
+            );
+        } catch (error) {
+            console.error("Error reopen order by ID:", error);
+            throw error;
+        }
+    },
 };
 
 export default orderService;
