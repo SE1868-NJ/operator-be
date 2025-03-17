@@ -16,6 +16,164 @@ import { User } from "../models/user.model.js";
 import { model } from "../utils/gemini.js";
 
 const ShopService = {
+    async processUserPrompt(shopId, userPrompt) {
+        try {
+            // 1️⃣ Lấy thông tin chi tiết về shop
+            const shopInfo = await this.getShopById(shopId);
+            const products = await this.getProductByShopId(shopId, 0, 10);
+            const orders = await this.getOrderByShopId(shopId, 0, 10);
+            const feedbacks = await this.getFeedbacksByShopId(shopId);
+
+            if (!shopInfo) {
+                return { aiReview: "Không tìm thấy thông tin cửa hàng." };
+            }
+
+            // 2️⃣ Định dạng dữ liệu shop
+            const shopText = `
+                **Thông tin cửa hàng:**
+                - Tên: ${shopInfo.shopName}
+                - Email: ${shopInfo.shopEmail}
+                - Số điện thoại: ${shopInfo.shopPhone}
+                - Địa chỉ: ${shopInfo.shopPickUpAddress}
+                - Trạng thái: ${shopInfo.shopStatus}
+                - Mã số thuế: ${shopInfo.taxCode}
+                - Loại hình kinh doanh: ${shopInfo.businessType}
+                - Đánh giá trung bình: ${shopInfo.shopRating || "Chưa có đánh giá"}/5
+                - Ngày tham gia: ${shopInfo.shopJoinedDate}
+                - Ngân hàng: ${shopInfo.shopBankName} (${shopInfo.shopBankAccountNumber})
+    
+                **Thông tin chủ cửa hàng:**
+                - Họ và tên: ${shopInfo.Owner?.fullName}
+                - Email: ${shopInfo.Owner?.userEmail}
+                - Số điện thoại: ${shopInfo.Owner?.userPhone}
+                - Địa chỉ: ${shopInfo.Owner?.userAddress}
+                - Ngày sinh: ${shopInfo.Owner?.dateOfBirth}
+                - Giới tính: ${shopInfo.Owner?.gender}
+            `;
+
+            // 3️⃣ Định dạng danh sách sản phẩm
+            const productText = products?.products?.length
+                ? products.products
+                      .map(
+                          (p, index) =>
+                              `  ${index + 1}. ${p.product_name} - ${p.price} VND - Số lượng: ${p.quantity}`,
+                      )
+                      .join("\n")
+                : "Không có sản phẩm nào.";
+
+            // 4️⃣ Định dạng danh sách đơn hàng
+            const orderText = orders?.orders?.length
+                ? orders.orders
+                      .map(
+                          (o, index) =>
+                              `  ${index + 1}. Đơn hàng #${o.id} - Tổng tiền: ${o.total} VND - Trạng thái: ${o.status} - Thanh toán: ${o.payment_status}`,
+                      )
+                      .join("\n")
+                : "Không có đơn hàng nào.";
+
+            // 5️⃣ Định dạng danh sách feedbacks
+            const feedbackText = feedbacks?.feedbacks?.length
+                ? feedbacks.feedbacks
+                      .map(
+                          (f, index) =>
+                              `  ${index + 1}. ${f.Customer.fullName}: ${f.content} - Đánh giá: ${f.star}/5`,
+                      )
+                      .join("\n")
+                : "Chưa có đánh giá nào.";
+
+            // 6️⃣ Tạo prompt linh hoạt cho AI
+            const prompt = `
+                ${userPrompt}
+                
+                Đây là toàn bộ thông tin về cửa hàng này:
+                ${shopText}
+                
+                **Danh sách sản phẩm:**
+                ${productText}
+                
+                **Danh sách đơn hàng:**
+                ${orderText}
+                
+                **Phản hồi từ khách hàng:**
+                ${feedbackText}
+                
+                Dựa vào dữ liệu trên, hãy trả lời theo hướng dẫn của người dùng.
+            `;
+
+            // 7️⃣ Gửi prompt đến AI
+            const result = await model.generateContent(prompt);
+            const aiReview = result.response.text();
+
+            return { aiReview };
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+    async getProductById(id) {
+        try {
+            const product = await Product.findByPk(id, {
+                include: [
+                    {
+                        model: OrderItem,
+                        as: "OrderItems",
+                        required: false,
+                        include: [
+                            {
+                                model: Order,
+                                as: "Order",
+                                include: [
+                                    {
+                                        model: User,
+                                        as: "Customer",
+                                    },
+                                ],
+                            },
+                            {
+                                model: Feedback,
+                                as: "Feedbacks",
+                                required: false,
+                                include: [
+                                    {
+                                        model: User,
+                                        as: "Customer", // ✅ Người mua feedback
+                                    },
+                                    {
+                                        model: ReplyFeedback,
+                                        as: "Reply",
+                                        include: [
+                                            {
+                                                model: User,
+                                                as: "ReplyUser", // ✅ Người phản hồi
+                                            },
+                                        ],
+                                    },
+                                    {
+                                        model: Media,
+                                        as: "Media",
+                                        include: [
+                                            {
+                                                model: MediaItem,
+                                                as: "MediaItems",
+                                            },
+                                        ],
+                                    },
+                                ],
+                                order: [["ID", "DESC"]],
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            if (!product) {
+                throw new Error("Product not found");
+            }
+
+            return product;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
     async getAllShops(offset, limit, filterData = {}) {
         const o = Number.parseInt(offset) || 0;
         const l = Number.parseInt(limit) || 10;
@@ -157,13 +315,6 @@ const ShopService = {
                         model: OrderItem,
                         as: "OrderItems",
                         required: false,
-                        include: [
-                            {
-                                model: Feedback,
-                                as: "Feedbacks",
-                                required: false,
-                            },
-                        ],
                     },
                 ],
                 offset: o,

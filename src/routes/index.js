@@ -1,5 +1,6 @@
 import authRouter from "./auth.route.js";
 import banRouter from "./ban.route.js";
+import emailRouter from "./email.route.js";
 import notifRouter from "./notifications.route.js";
 import operatorRoute from "./operator.route.js";
 import orderRouter from "./order.route.js";
@@ -24,6 +25,7 @@ const route = (app) => {
     app.use("/shipping-methods", shippingMethodRouter);
     app.use("/orders", orderRouter);
     app.use("/operator", operatorRoute);
+    app.use("/email", emailRouter);
 };
 
 export default route;
