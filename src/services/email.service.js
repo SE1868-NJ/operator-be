@@ -20,6 +20,26 @@ const transporter = nodemailer.createTransport({
 });
 
 const EmailService = {
+    async sendBulkEmailToShops(shopEmails, subject, message) {
+        try {
+            if (!shopEmails.length) {
+                throw new Error("Không có email shop nào để gửi.");
+            }
+
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: shopEmails.join(","), // Gửi đến nhiều email cùng lúc
+                subject: subject,
+                text: message,
+            };
+
+            await transporter.sendMail(mailOptions);
+            return { success: true, message: `Email đã được gửi đến ${shopEmails.length} shop.` };
+        } catch (error) {
+            console.error("Lỗi gửi email hàng loạt:", error);
+            throw new Error("Không thể gửi email hàng loạt, vui lòng thử lại.");
+        }
+    },
     async sendEmailToShop(shopEmail, subject, message) {
         try {
             const mailOptions = {
