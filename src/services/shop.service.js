@@ -504,12 +504,12 @@ const ShopService = {
         try {
             const { status, description } = updatedStatus;
             const newStatus = status === "accepted" ? "active" : "rejected";
-            const reason = description;
-
+            const reason = description || "Được chấp nhận";
             try {
                 const updatedShop = await Shop.update(
                     {
                         shopStatus: newStatus,
+                        shopJoindedDate: new Date(),
                     },
                     {
                         where: {
@@ -528,7 +528,8 @@ const ShopService = {
                 await ReasonChangeStatus.create(
                     {
                         operatorID: 1,
-                        shopID: id,
+                        pendingID: id,
+                        role: "Shop",
                         changedStatus: status,
                         reason: reason,
                     },
@@ -900,11 +901,6 @@ const ShopService = {
         const startDate = `${year}-${monthDown}-${dayDown} 00:00:00`;
         const endDate = `${year}-${monthUp}-${dayUp} 23:59:59`;
 
-        const startDateWith7Hours = new Date(startDate);
-        startDateWith7Hours.setHours(startDateWith7Hours.getHours() + 7);
-        const endDateWith7Hours = new Date(endDate);
-        endDateWith7Hours.setHours(endDateWith7Hours.getHours() + 7);
-
         try {
             const totalRevenue = await Order.findAll({
                 attributes: [
@@ -914,10 +910,7 @@ const ShopService = {
                 ],
                 where: {
                     createdAt: {
-                        [Op.and]: [
-                            { [Op.gte]: startDateWith7Hours },
-                            { [Op.lt]: endDateWith7Hours },
-                        ],
+                        [Op.and]: [{ [Op.gte]: startDate }, { [Op.lt]: endDate }],
                     },
                 },
                 include: [
@@ -947,10 +940,7 @@ const ShopService = {
                         attributes: [],
                         where: {
                             createdAt: {
-                                [Op.and]: [
-                                    { [Op.gte]: startDateWith7Hours },
-                                    { [Op.lt]: endDateWith7Hours },
-                                ],
+                                [Op.and]: [{ [Op.gte]: startDate }, { [Op.lt]: startDate }],
                             },
                         },
                     },
@@ -1008,19 +998,11 @@ const ShopService = {
         const startDate = `${year}-${monthDown}-${dayDown} 00:00:00`;
         const endDate = `${year}-${monthUp}-${dayUp} 23:59:59`;
 
-        const startDateWith7Hours = new Date(startDate);
-        startDateWith7Hours.setHours(startDateWith7Hours.getHours() + 7);
-        const endDateWith7Hours = new Date(endDate);
-        endDateWith7Hours.setHours(endDateWith7Hours.getHours() + 7);
-
         try {
             const orders = await Order.findAll({
                 where: {
                     createdAt: {
-                        [Op.and]: [
-                            { [Op.gte]: startDateWith7Hours },
-                            { [Op.lt]: endDateWith7Hours },
-                        ],
+                        [Op.and]: [{ [Op.gte]: startDate }, { [Op.lt]: endDate }],
                     },
                     shop_id: id,
                 },
@@ -1057,10 +1039,7 @@ const ShopService = {
             const total = await Order.count({
                 where: {
                     createdAt: {
-                        [Op.and]: [
-                            { [Op.gte]: startDateWith7Hours },
-                            { [Op.lt]: endDateWith7Hours },
-                        ],
+                        [Op.and]: [{ [Op.gte]: startDate }, { [Op.lt]: endDate }],
                     },
                     shop_id: id,
                 },
@@ -1346,6 +1325,137 @@ const ShopService = {
                 "Request Body:",
                 req.body,
             );
+            throw new Error(error.message);
+        }
+    },
+    async updateStatusByTax() {
+        const recivedTaxData = [
+            {
+                bankCode: "VCB",
+                transactionId: "VCB202503100001",
+                orderId: "ORDER10001",
+                amount: 500000,
+                currency: "VND",
+                status: "SUCCESS",
+                responseCode: "00",
+                message: "Tax code: 123456789",
+                transactionTime: "2025-03-10T10:15:30+07:00",
+                signature: "a1b2c3d4e5f6",
+            },
+            {
+                bankCode: "VCB",
+                transactionId: "VCB202503100002",
+                orderId: "ORDER10002",
+                amount: 250000,
+                currency: "VND",
+                status: "FAILED",
+                responseCode: "05",
+                message: "Tax code: 234567890",
+                transactionTime: "2025-03-10T10:20:45+07:00",
+                signature: "a7b8c9d0e1f2",
+            },
+            {
+                bankCode: "VCB",
+                transactionId: "VCB202503100003",
+                orderId: "ORDER10003",
+                amount: 1200000,
+                currency: "VND",
+                status: "SUCCESS",
+                responseCode: "00",
+                message: "Tax code: 567890123",
+                transactionTime: "2025-03-10T10:25:00+07:00",
+                signature: "z9y8x7w6v5u4",
+            },
+            {
+                bankCode: "VCB",
+                transactionId: "VCB202503100004",
+                orderId: "ORDER10004",
+                amount: 300000,
+                currency: "VND",
+                status: "PENDING",
+                responseCode: "99",
+                message: "Tax code: 556677889",
+                transactionTime: "2025-03-10T10:30:20+07:00",
+                signature: "k1l2m3n4o5p6",
+            },
+            {
+                bankCode: "VCB",
+                transactionId: "VCB202503100005",
+                orderId: "ORDER10005",
+                amount: 800000,
+                currency: "VND",
+                status: "SUCCESS",
+                responseCode: "00",
+                message: "Tax code: 778899001",
+                transactionTime: "2025-03-10T10:35:10+07:00",
+                signature: "u1v2w3x4y5z6",
+            },
+        ];
+        try {
+            const updateAllShop = await Shop.update(
+                {
+                    shopStatus: "tax-warning",
+                },
+                {
+                    where: {
+                        shopStatus: "active",
+                    },
+                },
+            );
+        } catch (error) {
+            console.error("Update all shops to tax-warning error!", error.message);
+            throw new Error(error.message);
+        }
+
+        for (const item of recivedTaxData) {
+            if (item.status !== "SUCCESS") continue;
+            const taxCode = item.message.split(": ")[1];
+            const transaction = await sequelize.transaction();
+            try {
+                const updatedShop = await Shop.update(
+                    {
+                        shopStatus: "active",
+                    },
+                    {
+                        where: {
+                            taxCode: taxCode,
+                        },
+                        transaction: transaction,
+                    },
+                );
+                await transaction.commit();
+            } catch (error) {
+                await transaction.rollback();
+                console.error(
+                    "Error during updateShopStatus (inner try) - Shop ID:",
+                    id,
+                    "Error:",
+                    error,
+                    "Request Body:",
+                    req.body,
+                );
+                throw new Error(error.message);
+            }
+        }
+    },
+
+    async getInforOneShop(id) {
+        try {
+            const shop = await Shop.findByPk(id, {
+                attributes: ["shopID", "shopName", "shopEmail", "shopPhone", "shopPickUpAddress"],
+                include: [
+                    {
+                        model: User,
+                        as: "Owner",
+                        attributes: ["userID", "fullName", "userEmail", "userPhone", "userAddress"],
+                    },
+                ],
+            });
+            if (!shop) {
+                throw new Error("Shop not found");
+            }
+            return shop;
+        } catch (error) {
             throw new Error(error.message);
         }
     },

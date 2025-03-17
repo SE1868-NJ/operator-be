@@ -2,6 +2,7 @@ import express from "express";
 import {
     getAllShops,
     getApprovedShops,
+    getInforOneShop,
     getLastTimeRevenuesAllShops,
     getOneOrder,
     getOneShopRevenues,
@@ -15,7 +16,6 @@ import {
     getShopById,
     getTotalRevenueAllShopsByLastTime,
     getTotalRevenueOneShopByLastTime,
-    test,
     updateShopStatus,
 } from "../controllers/shops.controller.js";
 
@@ -28,8 +28,6 @@ shopRouter.get("/revenues", getRevenueByDate); // danh sách các shop cùng v�
 // - hiển thị ở trang thống kê doanh thu
 shopRouter.get("/revenues/:id", getOneShopRevenues); // dùng trong trang detail để lấy danh sách các orders
 
-shopRouter.get("/test", test);
-
 shopRouter.get("/totalrevenues", getTotalRevenueAllShopsByLastTime); // để lấy tổng doanh thu toàn sàn trong 1 ngày, 1 tuần, 1 tháng, ... gần nhất
 // - hiển thị ở trang thống kê doanh thu
 shopRouter.get("/totalrevenues/:id", getTotalRevenueOneShopByLastTime); // lấy tổng doanh thu của 1 shop trong 1 ngày, 1 tuần, ... - trang detail
@@ -39,6 +37,7 @@ shopRouter.get("/shopstatistic", getLastTimeRevenuesAllShops); // last time là 
 shopRouter.get("/orders/:id", getOneOrder); // cái này lấy của Thành, tạm thời để đây để hiển thị
 
 shopRouter.get("/pendingshop/:id", getPendingShopById);
+shopRouter.get("/getinfor/:id", getInforOneShop);
 shopRouter.patch("/pendingshop/:id", updateShopStatus);
 shopRouter.get("/:id/chart", getOrderStatistic);
 shopRouter.get("/:id", getShopById);

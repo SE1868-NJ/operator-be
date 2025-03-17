@@ -301,7 +301,7 @@ export const getRevenueByDate = async (req, res) => {
 // dùng trong trang one shop revenue
 // lấy danh sách các orders, có bộ lọc theo ngày - tháng - năm
 export const getOneShopRevenues = async (req, res) => {
-    const { id, year, month, day, offset, limit, shipperName, customerName } = req.query;
+    const { id, day, month, year, offset, limit, shipperName, customerName } = req.query;
 
     const filter = {
         shipperName,
@@ -433,15 +433,18 @@ export const getTotalRevenueOneShopByLastTime = async (req, res) => {
     }
 };
 
-export const test = async (req, res) => {
+export const getInforOneShop = async (req, res) => {
+    const { id } = req.params;
     try {
-        const order = await ShopService.getRevenueLastMonthAllShops();
+        const shop = await ShopService.getInforOneShop(id);
         res.status(200).json({
             success: true,
-            message: "Get one order successfully",
-            order: order,
+            message: "Get infor one shop successfully",
+            shop: shop,
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({
+            message: `Get infor one shop fail: ${error.message}`,
+        });
     }
 };
