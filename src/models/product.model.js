@@ -23,6 +23,8 @@ export const Product = sequelize.define(
         main_image: {
             type: DataTypes.STRING,
             allowNull: true,
+            defaultValue:
+                "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/anh-avatar-facebook-36.jpg",
         },
         product_name: {
             type: DataTypes.STRING,

@@ -39,19 +39,23 @@ const EmailService = {
 
     async sendTaxReminderEmailToAllShops() {
         const revenues = await ShopService.getRevenueLastMonthAllShops();
+        const date = new Date().toLocaleDateString("vi-VN", {
+            month: "2-digit",
+            year: "numeric",
+        });
         const emailPromises = revenues
             .filter((revenue) => revenue.Shop)
             .map((revenue) => {
                 return transporter.sendMail({
                     from: process.env.EMAIL_NAME,
                     to: revenue.Shop.shopEmail,
-                    subject: "Thông báo nộp thuế tháng này",
+                    subject: `Thông báo nộp thuế ${date} này`,
                     html: `
             <p>Xin chào <strong>${revenue.Shop.shopName}</strong>,</p>
-            <p>Đây là thông báo nhắc nhở lần 2 về việc nộp thuế tháng này.</p>
-            <p><strong>Thuế áp dụng cho  bạn: ${revenue.totalRevenue || 0} VNĐ</strong></p>
+            <p>Đây là thông báo nhắc nhở về việc nộp thuế ${date} này.</p>
+            <p><strong>Thuế áp dụng cho  bạn: ${Number.parseInt(revenue.dataValues.totalRevenue).toLocaleString("vi") || 0} VNĐ</strong></p>
             <p>Tài khoản nhận tiền: <strong>(Số tài khoản của sàn)</strong>. Ngân hàng nhận tiền: (Bank).</p>
-            <p>Nội dung chuyển khoản: <strong>Đóng thuế tháng ${date}.</strong></p>
+            <p>Nội dung chuyển khoản: <strong>Đóng thuế ${date}.</strong></p>
             <p>Vui lòng kiểm tra và hoàn thành nghĩa vụ thuế <strong>trước ngày 15</strong> của tháng.</p>
             <p>Nếu đến hạn mà không hoàn thành nghĩa vụ thuế, chúng tôi sẽ tạm ngưng việc kinh doanh của cửa hàng trên hệ thống.</p>
             <p>Trân trọng,</p>
@@ -71,6 +75,7 @@ const EmailService = {
     },
 
     async resendTaxReminderEmailToAllShops() {
+        const updateStatusAllShops = await ShopService.updateStatusByTax();
         const revenues = await ShopService.getResendEmailShops();
         const date = new Date().toLocaleDateString("vi-VN", {
             month: "2-digit",
@@ -82,13 +87,13 @@ const EmailService = {
                 return transporter.sendMail({
                     from: process.env.EMAIL_NAME,
                     to: revenue.Shop.shopEmail,
-                    subject: "Nhắc lại: Thông báo nộp thuế tháng này",
+                    subject: `Nhắc lại: Thông báo nộp thuế ${date} này`,
                     html: `
             <p>Xin chào <strong>${revenue.Shop.shopName}</strong>,</p>
             <p>Đây là thông báo nhắc nhở lần 2 về việc nộp thuế tháng này.</p>
-            <p><strong>Thuế áp dụng cho  bạn: ${revenue.totalRevenue || 0} VNĐ</strong></p>
+            <p><strong>Thuế áp dụng cho  bạn: ${Number.parseInt(revenue.dataValues.totalRevenue).toLocaleString("vi") || 0} VNĐ</strong></p>
             <p>Tài khoản nhận tiền: <strong>(Số tài khoản của sàn)</strong>. Ngân hàng nhận tiền: (Bank).</p>
-            <p>Nội dung chuyển khoản: <strong>Đóng thuế tháng ${date}.</strong></p>
+            <p>Nội dung chuyển khoản: <strong>Đóng thuế ${date}.</strong></p>
             <p>Vui lòng kiểm tra và hoàn thành nghĩa vụ thuế <strong>trước ngày 18</strong> của tháng.</p>
             <p>Nếu đến hạn mà không hoàn thành nghĩa vụ thuế, chúng tôi sẽ tạm ngưng việc kinh doanh của cửa hàng trên hệ thống.</p>
             <p>Trân trọng,</p>
