@@ -1,5 +1,44 @@
 import ShopService from "../services/shop.service.js";
 
+export const processPrompt = async (req, res) => {
+    try {
+        const { id, prompt } = req.body;
+
+        if (!id || !prompt) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Thiếu thông tin shopId hoặc prompt" });
+        }
+
+        // Xử lý prompt
+        const result = await ShopService.processUserPrompt(id, prompt);
+
+        res.status(200).json({
+            success: true,
+            message: "Processed user prompt successfully",
+            aiReview: result.aiReview,
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const getProductById = async (req, res) => {
+    try {
+        const product = await ShopService.getProductById(req.params.pid);
+        return res.status(200).json({
+            success: true,
+            message: "Get product by id successfully",
+            data: product,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: `An error occured during find product by ID! ${error}.`,
+        });
+    }
+};
+
 export const getPendingShops = async (req, res) => {
     const { offset, limit } = req.query;
     const o = Number.parseInt(offset);
