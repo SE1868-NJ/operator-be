@@ -17,8 +17,8 @@ const insertOperators = async () => {
             {
                 firstName: "Nguyễn",
                 lastName: "Văn A",
-                email: "nguyenvana@example.com",
-                password: "hashedpassword1",
+                email: "admin@gmail.com",
+                password: "$2b$10$kUPkr1525ZeA29dRDxQsnuRldFxrY3UKxJxuzqEp7dvAILBQojoBq",
                 phoneNumber: "0987654321",
                 dateOfBirth: "1990-05-20",
                 gender: "male",
