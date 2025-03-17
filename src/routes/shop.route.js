@@ -9,6 +9,7 @@ import {
     getOrderStatistic,
     getPendingShopById,
     getPendingShops,
+    getProductById,
     getProductByShopId,
     getRevenueByDate,
     getShopById,
@@ -43,6 +44,7 @@ shopRouter.get("/:id/chart", getOrderStatistic);
 shopRouter.get("/:id", getShopById);
 shopRouter.get("/:id/products", getProductByShopId);
 shopRouter.get("/:id/orders", getOrderByShopId);
+shopRouter.get("/:id/products/:pid", getProductById);
 shopRouter.get("/", getAllShops);
 
 export default shopRouter;

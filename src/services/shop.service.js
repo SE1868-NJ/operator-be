@@ -16,6 +16,71 @@ import { User } from "../models/user.model.js";
 import { model } from "../utils/gemini.js";
 
 const ShopService = {
+    async getProductById(id) {
+        try {
+            const product = await Product.findByPk(id, {
+                include: [
+                    {
+                        model: OrderItem,
+                        as: "OrderItems",
+                        required: false,
+                        include: [
+                            {
+                                model: Order,
+                                as: "Order",
+                                include: [
+                                    {
+                                        model: User,
+                                        as: "Customer",
+                                    },
+                                ],
+                            },
+                            {
+                                model: Feedback,
+                                as: "Feedbacks",
+                                required: false,
+                                include: [
+                                    {
+                                        model: User,
+                                        as: "Customer", // ✅ Người mua feedback
+                                    },
+                                    {
+                                        model: ReplyFeedback,
+                                        as: "Reply",
+                                        include: [
+                                            {
+                                                model: User,
+                                                as: "ReplyUser", // ✅ Người phản hồi
+                                            },
+                                        ],
+                                    },
+                                    {
+                                        model: Media,
+                                        as: "Media",
+                                        include: [
+                                            {
+                                                model: MediaItem,
+                                                as: "MediaItems",
+                                            },
+                                        ],
+                                    },
+                                ],
+                                order: [["ID", "DESC"]],
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            if (!product) {
+                throw new Error("Product not found");
+            }
+
+            return product;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
     async getAllShops(offset, limit, filterData = {}) {
         const o = Number.parseInt(offset) || 0;
         const l = Number.parseInt(limit) || 10;
@@ -157,13 +222,6 @@ const ShopService = {
                         model: OrderItem,
                         as: "OrderItems",
                         required: false,
-                        include: [
-                            {
-                                model: Feedback,
-                                as: "Feedbacks",
-                                required: false,
-                            },
-                        ],
                     },
                 ],
                 offset: o,

@@ -1,5 +1,21 @@
 import ShopService from "../services/shop.service.js";
 
+export const getProductById = async (req, res) => {
+    try {
+        const product = await ShopService.getProductById(req.params.pid);
+        return res.status(200).json({
+            success: true,
+            message: "Get product by id successfully",
+            data: product,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: `An error occured during find product by ID! ${error}.`,
+        });
+    }
+};
+
 export const getPendingShops = async (req, res) => {
     const { offset, limit } = req.query;
     const o = Number.parseInt(offset);
