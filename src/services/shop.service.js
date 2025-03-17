@@ -10,6 +10,7 @@ import { Order } from "../models/order.model.js";
 import { OrderItem } from "../models/orderItem.model.js";
 import { Product } from "../models/product.model.js";
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
+import { ReasonItem } from "../models/reasonItem.model.js";
 import { ReplyFeedback } from "../models/replyFeedback.model.js";
 import { Shipper } from "../models/shipper.model.js";
 import { Shop } from "../models/shop.model.js";
@@ -245,7 +246,7 @@ const ShopService = {
         }
     },
 
-    async getApprovedShops(offset = 0, limit = 10, filterData = {}) {
+    async getApprovedShops(operatorID, offset = 0, limit = 10, filterData = {}) {
         const role = "Shop";
         try {
             // Lọc Shop
@@ -289,7 +290,7 @@ const ShopService = {
 
             const approvedShops = await ReasonChangeStatus.findAll({
                 where: {
-                    operatorID: 1,
+                    operatorID: operatorID,
                     role: role,
                 },
                 include: includeClause,
@@ -300,7 +301,7 @@ const ShopService = {
 
             const totalApprovedShops = await ReasonChangeStatus.count({
                 where: {
-                    operatorID: 1,
+                    operatorID: operatorID,
                     role: role,
                 },
                 include: includeClause,
@@ -445,7 +446,7 @@ const ShopService = {
     async updateShopStatus(id, updatedStatus) {
         const transaction = await sequelize.transaction();
         try {
-            const { status, reason } = updatedStatus;
+            const { operatorID, status, reason } = updatedStatus;
             const newStatus = status === "accepted" ? "active" : "rejected";
             try {
                 const updatedShop = await Shop.update(
@@ -469,7 +470,7 @@ const ShopService = {
 
                 await ReasonChangeStatus.create(
                     {
-                        operatorID: 1,
+                        operatorID: operatorID,
                         pendingID: id,
                         role: "Shop",
                         changedStatus: status,
@@ -1422,7 +1423,7 @@ const ShopService = {
     },
 
     async updateShopDraftById(id, data) {
-        const { status, reason } = data;
+        const { operatorID, status, reason } = data;
         try {
             if (status === "savedraft") {
                 const oldDraft = await ReasonChangeStatus.findOne({
@@ -1433,7 +1434,7 @@ const ShopService = {
                 });
                 if (!oldDraft) {
                     const newRecord = await ReasonChangeStatus.create({
-                        operatorID: 1,
+                        operatorID: operatorID,
                         pendingID: id,
                         role: "Shop",
                         changedStatus: "savedraft",
@@ -1455,6 +1456,38 @@ const ShopService = {
                 return shopDraft;
             }
             ShopService.updateShopStatus(id, data);
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    async updatePendingShopReasonItem(operator_id, pending_id, index, reason, status) {
+        try {
+            const shop = await ReasonItem.create({
+                operator_id: operator_id,
+                pending_id: pending_id,
+                role: "Shop",
+                index: index,
+                reason: reason,
+                status: status,
+            });
+            return shop;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    async getPendingShopReasonItem(pending_id, index) {
+        try {
+            const listItems = await ReasonItem.findAll({
+                where: {
+                    pending_id: pending_id,
+                    role: "Shop",
+                    index: index,
+                },
+                order: [["createdAt", "DESC"]],
+            });
+            return listItems;
         } catch (error) {
             throw new Error(error.message);
         }
