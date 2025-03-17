@@ -1,24 +1,41 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import cron from "node-cron";
 import { Shop } from "../models/shop.model.js";
 import { User } from "../models/user.model.js";
 import ShopService from "./shop.service.js";
 
-import dotenv from "dotenv";
-import nodemailer from "nodemailer";
-dotenv.config();
 import e from "express";
-import { EMAIL_NAME, EMAIL_PASSWORD } from "../config/config.js";
-
+import nodemailer from "nodemailer";
 // Cấu hình SMTP
 const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465, // Hoặc 587 nếu không dùng SSL
+    secure: true, // true cho port 465, false cho 587
     auth: {
-        user: EMAIL_NAME,
-        pass: EMAIL_PASSWORD,
+        user: "khoandhe181946@fpt.edu.vn",
+        pass: "irbyfzfqdwcflhly",
     },
 });
 
 const EmailService = {
+    async sendEmailToShop(shopEmail, subject, message) {
+        try {
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: shopEmail,
+                subject: subject,
+                text: message,
+            };
+
+            await transporter.sendMail(mailOptions);
+            return { success: true, message: "Email đã được gửi thành công." };
+        } catch (error) {
+            console.error("Lỗi gửi email:", error);
+            throw new Error("Không thể gửi email, vui lòng thử lại.");
+        }
+    },
     async sendTaxReminderEmailToOneShop(shop_id, email, subject, content) {
         try {
             const shop = await Shop.findByPk(shop_id);
