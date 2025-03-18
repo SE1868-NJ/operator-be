@@ -376,6 +376,64 @@ const ShipperServices = {
             console.error("Error fetching top 10 shippers:", error);
         }
     },
+    async getShipperDraftById(id) {
+        try {
+            const shipperDraft = await ReasonChangeStatus.findAll({
+                attributes: ["reason"],
+                where: {
+                    pendingID: id,
+                    role: "Shipper",
+                    changedStatus: "savedraft",
+                },
+            });
+            if (!shipperDraft) {
+                throw new Error("Shipper draft not found");
+            }
+            return shipperDraft;
+        } catch (error) {
+            console.error("Error fetching shipping status summary:", error);
+            throw new Error("Failed to fetch shipping status summary");
+        }
+    },
+
+    async updateShipperDraftById(id, data) {
+        const { status, reason } = data;
+        try {
+            if (status === "savedraft") {
+                const oldDraft = await ReasonChangeStatus.findOne({
+                    where: {
+                        pendingID: id,
+                        role: "Shipper",
+                    },
+                });
+                if (!oldDraft) {
+                    const newRecord = await ReasonChangeStatus.create({
+                        operatorID: 1,
+                        pendingID: id,
+                        role: "Shipper",
+                        changedStatus: "savedraft",
+                        reason: reason,
+                    });
+                    return newRecord;
+                }
+                const shipperDraft = await ReasonChangeStatus.update(
+                    {
+                        reason: data.reason,
+                    },
+                    {
+                        where: {
+                            pendingID: id,
+                            role: "Shipper",
+                        },
+                    },
+                );
+                return shipperDraft;
+            }
+            ShipperServices.updateShipperPending(id, data);
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
 
     async countActiveShippers() {
         try {

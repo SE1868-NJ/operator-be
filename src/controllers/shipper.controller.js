@@ -1,6 +1,4 @@
 import { Op, where } from "sequelize";
-import emergencyContact from "../models/emergencyContact.model.js";
-import { Role } from "../models/role.model.js";
 import { Shipper } from "../models/shipper.model.js";
 import ShipperServices from "../services/shipper.service.js";
 
