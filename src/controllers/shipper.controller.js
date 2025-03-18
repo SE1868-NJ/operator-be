@@ -1,6 +1,4 @@
 import { Op, where } from "sequelize";
-import emergencyContact from "../models/emergencyContact.model.js";
-import { Role } from "../models/role.model.js";
 import { Shipper } from "../models/shipper.model.js";
 import ShipperServices from "../services/shipper.service.js";
 
@@ -153,6 +151,7 @@ export const getSumShippingFeeAllShippers = async (req, res) => {
 export const getOrdersOfShipper = async (req, res) => {
     try {
         const { id } = req.params;
+        const { status, shipping_status } = req.query; // Nhận giá trị filter từ frontend
 
         if (!id) {
             return res.status(400).json({
@@ -161,9 +160,9 @@ export const getOrdersOfShipper = async (req, res) => {
             });
         }
 
-        const shipper = await ShipperServices.getOrdersOfShipper(id);
+        const shipper = await ShipperServices.getOrdersOfShipper(id, status, shipping_status);
 
-        if (!shipper) {
+        if (!shipper || !shipper.Orders || shipper.Orders.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: "Shipper not found or no orders available",
@@ -224,6 +223,8 @@ export const getTop10Shippers = async (req, res) => {
     }
 };
 
+
+
 export const getShipperDraftById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -254,5 +255,24 @@ export const updateShipperDraftById = async (req, res) => {
         res.status(500).json({
             message: `Update infor draft one shipper fail: ${error.message}`,
         });
+    }
+};
+
+
+export const getActiveShipperCount = async (req, res) => {
+    try {
+        const totalActiveShippers = await ShipperServices.countActiveShippers();
+        res.status(200).json({ totalActiveShippers });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const getShippersJoinedToday = async (req, res) => {
+    try {
+        const totalShippersJoinedToday = await ShipperServices.countShippersJoinedToday();
+        res.status(200).json({ totalShippersJoinedToday });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 };

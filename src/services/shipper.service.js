@@ -1,16 +1,6 @@
-import { join } from "path";
 import { Op, Sequelize, where } from "sequelize";
-// import { generateCSVReport } from '../utils/csvUtils';
 import sequelize from "../config/sequelize.config.js";
-import {
-    getShipperById,
-    getShipperDraftById,
-    updateShipperPending,
-    updateShipperStatus,
-} from "../controllers/shipper.controller.js";
-// import { updateShipperPending } from "../controllers/shipper.controller.js";
 import { Order } from "../models/order.model.js";
-import { OrderItem } from "../models/orderItem.model.js"; // { OrderItem }
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shipper } from "../models/shipper.model.js";
 
@@ -187,8 +177,52 @@ const ShipperServices = {
         return { sumShippingFee, totalRevenue, totalOrders };
     },
 
-    async getOrdersOfShipper(id) {
+    // async getOrdersOfShipper(id, statusFilter, shippingStatusFilter) {
+    //     console.log("=================statusFilter: ", statusFilter);
+    //     console.log("===================shippingStatusFilter: ", shippingStatusFilter);
+    //     try {
+    //         const whereCondition = {};
+
+    //         if (statusFilter) {
+    //             whereCondition.status = statusFilter;
+    //         }
+    //         if (shippingStatusFilter) {
+    //             whereCondition.shipping_status = shippingStatusFilter;
+    //         }
+
+    //         const shipper = await Shipper.findOne({
+    //             where: { id },
+    //             attributes: ["id", "name"],
+    //             include: [
+    //                 {
+    //                     model: Order,
+    //                     as: "Orders",
+    //                     attributes: ["id", "shippingFee", "status", "shipping_status", "note"],
+    //                     where: whereCondition, // Áp dụng bộ lọc
+    //                     order: [["createdAt", "DESC"]], // Sắp xếp theo ngày tạo mới nhất
+    //                 },
+    //             ],
+    //         });
+    //         console.log("whereCondition: ", whereCondition);
+
+    //         return shipper;
+    //     } catch (error) {
+    //         throw new Error("Error fetching shipper orders: ",  error.message);
+    //     }
+    // },
+
+    async getOrdersOfShipper(id, status, shipping_status) {
         try {
+            const whereCondition = { shipper_id: id };
+
+            if (status) {
+                whereCondition.status = status;
+            }
+
+            if (shipping_status) {
+                whereCondition.shipping_status = shipping_status;
+            }
+
             const shipper = await Shipper.findOne({
                 where: { id },
                 attributes: ["id", "name"],
@@ -197,6 +231,7 @@ const ShipperServices = {
                         model: Order,
                         as: "Orders",
                         attributes: ["id", "shippingFee", "status", "shipping_status", "note"],
+                        where: whereCondition, // Lọc theo status và shipping_status
                         order: [["createdAt", "DESC"]], // Sắp xếp theo ngày tạo mới nhất
                     },
                 ],
@@ -204,7 +239,8 @@ const ShipperServices = {
 
             return shipper;
         } catch (error) {
-            throw new Error("Error fetching shipper orders: ");
+            console.error("Error fetching shipper orders:", error);
+            throw new Error("Error fetching shipper orders");
         }
     },
 
@@ -340,6 +376,8 @@ const ShipperServices = {
             console.error("Error fetching top 10 shippers:", error);
         }
     },
+
+
     async getShipperDraftById(id) {
         try {
             const shipperDraft = await ReasonChangeStatus.findAll({
@@ -396,6 +434,44 @@ const ShipperServices = {
             ShipperServices.updateShipperPending(id, data);
         } catch (error) {
             throw new Error(error.message);
+        }
+    },
+
+    async countActiveShippers() {
+        try {
+            const result = await Shipper.count({
+                where: {
+                    status: "active",
+                    joinedDate: {
+                        [Op.lte]: new Date(), // Lấy những shipper có joinedDate <= ngày hiện tại
+                    },
+                },
+            });
+
+            return result;
+        } catch (error) {
+            console.error("Error counting active shippers:", error);
+        }
+    },
+
+    async countShippersJoinedToday() {
+        try {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const count = await Shipper.count({
+                where: {
+                    joinedDate: {
+                        [Op.gte]: today,
+                        [Op.lt]: new Date(today.getTime() + 86400000),
+                    },
+                },
+            });
+
+            return count;
+        } catch (error) {
+            console.error("Error counting shippers joined today:", error);
+            throw new Error("Database query failed");
         }
     },
 };
