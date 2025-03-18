@@ -70,9 +70,10 @@ export const getPendingShops = async (req, res) => {
 
 export const getApprovedShops = async (req, res) => {
     try {
-        const { shopName, shopEmail, shopPhone, ownerName, offset, limit } = req.query;
+        const { operatorID, shopName, shopEmail, shopPhone, ownerName, offset, limit } = req.query;
         const o = Number.parseInt(offset) || 0;
         const l = Number.parseInt(limit) || 10;
+        const ope = Number.parseInt(operatorID) || 1;
         const filter = {
             shopName,
             shopEmail,
@@ -81,7 +82,7 @@ export const getApprovedShops = async (req, res) => {
         };
         // Ép kiểu operatorID về số và đảm bảo nó là số dương
 
-        const result = await ShopService.getApprovedShops(o, l, filter); // Gọi hàm ĐÚNG
+        const result = await ShopService.getApprovedShops(ope, o, l, filter); // Gọi hàm ĐÚNG
         return res.status(200).json({
             success: true,
             message: "Get approved shops successfully",
@@ -468,6 +469,79 @@ export const getInforOneShop = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: `Get infor one shop fail: ${error.message}`,
+        });
+    }
+};
+
+export const getShopDraftById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const shopDraft = await ShopService.getShopDraftById(id);
+        res.status(200).json({
+            success: true,
+            message: "Get infor draft one shop successfully",
+            shopInfor: shopDraft,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: `Get infor draft one shop fail: ${error.message}`,
+        });
+    }
+};
+
+export const updateShopDraftById = async (req, res) => {
+    const { id } = req.params;
+    const data = req.body;
+    try {
+        const shopDraft = await ShopService.updateShopDraftById(id, data);
+        res.status(200).json({
+            success: true,
+            message: "Update infor draft one shop successfully",
+            shopInfor: shopDraft,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: `Update infor draft one shop fail: ${error.message}`,
+        });
+    }
+};
+
+export const updatePendingShopReasonItem = async (req, res) => {
+    const { id } = req.params; // pending_id
+    const { operator_id, index, reason, status } = req.body;
+    try {
+        const insertReasonItem = await ShopService.updatePendingShopReasonItem(
+            operator_id,
+            id,
+            index,
+            reason,
+            status,
+        );
+        res.status(200).json({
+            success: true,
+            message: "Update reason item one shop successfully",
+            shopInfor: insertReasonItem,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: `Update reason item one shop fail: ${error.message}`,
+        });
+    }
+};
+
+export const getPendingShopReasonItem = async (req, res) => {
+    const { id } = req.params; // pending_id
+    const { index } = req.query;
+    try {
+        const listItems = await ShopService.getPendingShopReasonItem(id, index);
+        res.status(200).json({
+            success: true,
+            message: "Get reason item one shop successfully",
+            listItems: listItems,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: `Get reason item one shop fail: ${error.message}`,
         });
     }
 };
