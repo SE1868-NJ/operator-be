@@ -1,11 +1,13 @@
 import express from "express";
 import {
+    getActiveShipperCount,
     getAllPendingShippers,
     getAllShippers,
     getOrdersOfShipper,
     getPendingShipperById,
     getShipperById,
     getShipperDraftById,
+    getShippersJoinedToday,
     getShippingStatus,
     getSumShippingFeeAllShippers,
     getTop10Shippers,
@@ -17,6 +19,8 @@ import {
 
 const shipperRouter = express.Router();
 
+shipperRouter.get("/countJoinedToday", getShippersJoinedToday);
+shipperRouter.get("/countActive", getActiveShipperCount);
 shipperRouter.get("/top10Shippers", getTop10Shippers);
 shipperRouter.get("/shipperdraft/:id", getShipperDraftById);
 shipperRouter.patch("/shipperdraft/:id", updateShipperDraftById);
