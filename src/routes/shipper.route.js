@@ -5,10 +5,12 @@ import {
     getOrdersOfShipper,
     getPendingShipperById,
     getShipperById,
+    getShipperDraftById,
     getShippingStatus,
     getSumShippingFeeAllShippers,
     getTop10Shippers,
     getTopShippers,
+    updateShipperDraftById,
     updateShipperPending,
     updateShipperStatus,
 } from "../controllers/shipper.controller.js";
@@ -16,6 +18,8 @@ import {
 const shipperRouter = express.Router();
 
 shipperRouter.get("/top10Shippers", getTop10Shippers);
+shipperRouter.get("/shipperdraft/:id", getShipperDraftById);
+shipperRouter.patch("/shipperdraft/:id", updateShipperDraftById);
 shipperRouter.get("/shippingStatus", getShippingStatus);
 shipperRouter.get("/topShippers", getTopShippers);
 shipperRouter.get("/ordersOfShipper/:id", getOrdersOfShipper);

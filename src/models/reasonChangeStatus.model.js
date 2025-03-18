@@ -40,7 +40,7 @@ export const ReasonChangeStatus = sequelize.define(
         },
         reason: {
             type: DataTypes.JSON,
-            allowNull: false,
+            allowNull: true,
         },
         // createAt: {
         //     type: DataTypes.DATE,
