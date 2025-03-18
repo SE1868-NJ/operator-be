@@ -362,7 +362,6 @@ const ShipperServices = {
 
     async updateShipperDraftById(id, data) {
         const { status, reason } = data;
-        console.log("---------------", status, reason, "----------------");
         try {
             if (status === "savedraft") {
                 const oldDraft = await ReasonChangeStatus.findOne({
