@@ -258,6 +258,7 @@ export const updateShipperDraftById = async (req, res) => {
     }
 };
 
+
 export const getActiveShipperCount = async (req, res) => {
     try {
         const totalActiveShippers = await ShipperServices.countActiveShippers();

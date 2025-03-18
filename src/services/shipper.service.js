@@ -1,16 +1,6 @@
-import { join } from "path";
 import { Op, Sequelize, where } from "sequelize";
-// import { generateCSVReport } from '../utils/csvUtils';
 import sequelize from "../config/sequelize.config.js";
-import {
-    getShipperById,
-    getShipperDraftById,
-    updateShipperPending,
-    updateShipperStatus,
-} from "../controllers/shipper.controller.js";
-// import { updateShipperPending } from "../controllers/shipper.controller.js";
 import { Order } from "../models/order.model.js";
-import { OrderItem } from "../models/orderItem.model.js"; // { OrderItem }
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shipper } from "../models/shipper.model.js";
 
@@ -384,64 +374,6 @@ const ShipperServices = {
             return topShippers;
         } catch (error) {
             console.error("Error fetching top 10 shippers:", error);
-        }
-    },
-    async getShipperDraftById(id) {
-        try {
-            const shipperDraft = await ReasonChangeStatus.findAll({
-                attributes: ["reason"],
-                where: {
-                    pendingID: id,
-                    role: "Shipper",
-                    changedStatus: "savedraft",
-                },
-            });
-            if (!shipperDraft) {
-                throw new Error("Shipper draft not found");
-            }
-            return shipperDraft;
-        } catch (error) {
-            console.error("Error fetching shipping status summary:", error);
-            throw new Error("Failed to fetch shipping status summary");
-        }
-    },
-
-    async updateShipperDraftById(id, data) {
-        const { status, reason } = data;
-        try {
-            if (status === "savedraft") {
-                const oldDraft = await ReasonChangeStatus.findOne({
-                    where: {
-                        pendingID: id,
-                        role: "Shipper",
-                    },
-                });
-                if (!oldDraft) {
-                    const newRecord = await ReasonChangeStatus.create({
-                        operatorID: 1,
-                        pendingID: id,
-                        role: "Shipper",
-                        changedStatus: "savedraft",
-                        reason: reason,
-                    });
-                    return newRecord;
-                }
-                const shipperDraft = await ReasonChangeStatus.update(
-                    {
-                        reason: data.reason,
-                    },
-                    {
-                        where: {
-                            pendingID: id,
-                            role: "Shipper",
-                        },
-                    },
-                );
-                return shipperDraft;
-            }
-            ShipperServices.updateShipperPending(id, data);
-        } catch (error) {
-            throw new Error(error.message);
         }
     },
 
