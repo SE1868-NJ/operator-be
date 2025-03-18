@@ -223,6 +223,24 @@ export const getTop10Shippers = async (req, res) => {
     }
 };
 
+export const getActiveShipperCount = async (req, res) => {
+    try {
+        const totalActiveShippers = await ShipperServices.countActiveShippers();
+        res.status(200).json({ totalActiveShippers });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const getShippersJoinedToday = async (req, res) => {
+    try {
+        const totalShippersJoinedToday = await ShipperServices.countShippersJoinedToday();
+        res.status(200).json({ totalShippersJoinedToday });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 export const getShipperDraftById = async (req, res) => {
     const { id } = req.params;
     try {

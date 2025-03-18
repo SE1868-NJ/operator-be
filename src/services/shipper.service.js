@@ -376,6 +376,44 @@ const ShipperServices = {
             console.error("Error fetching top 10 shippers:", error);
         }
     },
+
+    async countActiveShippers() {
+        try {
+            const result = await Shipper.count({
+                where: {
+                    status: "active",
+                    joinedDate: {
+                        [Op.lte]: new Date(), // Lấy những shipper có joinedDate <= ngày hiện tại
+                    },
+                },
+            });
+
+            return result;
+        } catch (error) {
+            console.error("Error counting active shippers:", error);
+        }
+    },
+
+    async countShippersJoinedToday() {
+        try {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const count = await Shipper.count({
+                where: {
+                    joinedDate: {
+                        [Op.gte]: today,
+                        [Op.lt]: new Date(today.getTime() + 86400000),
+                    },
+                },
+            });
+
+            return count;
+        } catch (error) {
+            console.error("Error counting shippers joined today:", error);
+            throw new Error("Database query failed");
+        }
+    },
     async getShipperDraftById(id) {
         try {
             const shipperDraft = await ReasonChangeStatus.findAll({
