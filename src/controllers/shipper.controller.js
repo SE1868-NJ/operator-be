@@ -223,3 +223,36 @@ export const getTop10Shippers = async (req, res) => {
         });
     }
 };
+
+export const getShipperDraftById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const shipperDraft = await ShipperServices.getShipperDraftById(id);
+        res.status(200).json({
+            success: true,
+            message: "Get infor draft one shipper successfully",
+            shipperDraft: shipperDraft,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: `Get infor draft one shipper fail: ${error.message}`,
+        });
+    }
+};
+
+export const updateShipperDraftById = async (req, res) => {
+    const { id } = req.params;
+    const data = req.body;
+    try {
+        const shipperDraft = await ShipperServices.updateShipperDraftById(id, data);
+        res.status(200).json({
+            success: true,
+            message: "Update infor draft one shipper successfully",
+            shipperInfor: shipperDraft,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: `Update infor draft one shipper fail: ${error.message}`,
+        });
+    }
+};
