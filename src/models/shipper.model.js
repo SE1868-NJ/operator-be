@@ -53,10 +53,13 @@ export const Shipper = sequelize.define(
             allowNull: false,
             unique: true,
         },
-        cccd: {
+        idCardFrontFile: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true,
+        },
+        idCardBackFile: {
+            type: DataTypes.STRING,
+            allowNull: false,
         },
         email: {
             type: DataTypes.STRING,
@@ -98,17 +101,16 @@ export const Shipper = sequelize.define(
 );
 
 // Thiết lập quan hệ giữa Shipper và EmergencyContact
-// Shipper.associate = function (models) {
-//     Shipper.hasOne(models.EmergencyContact, {
-//         foreignKey: "shipperId",
-//     });
-// }
 Shipper.associate = (models) => {
+    Shipper.hasOne(models.EmergencyContact, {
+        foreignKey: "shipperId",
+        as: "EmergencyContact",
+    });
     Shipper.hasMany(models.Order, {
         foreignKey: "shipper_id",
         as: "Orders",
     });
-};
+}
 
 export default (sequelize, DataTypes) => {
     return Shipper;

@@ -13,6 +13,7 @@ import { Order } from "../models/order.model.js";
 import { OrderItem } from "../models/orderItem.model.js"; // { OrderItem }
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shipper } from "../models/shipper.model.js";
+import { EmergencyContact } from "../models/emergencyContact.model.js";
 
 const ShipperServices = {
     async getAllShippers(offset, limit) {
@@ -136,8 +137,26 @@ const ShipperServices = {
         }
     },
     async getShipperById(id) {
-        const shipper = await Shipper.findByPk(id);
-        return shipper;
+        try {
+            const shipper = await Shipper.findByPk(id, {
+                include: [
+                    {
+                        model: EmergencyContact,
+                        as: 'EmergencyContact', 
+                        required: false, 
+                    }
+                ]
+            });
+    
+            if (!shipper) {
+                throw new Error('Shipper not found');
+            }
+    
+            return shipper;
+        } catch (error) {
+            console.error("Error in getShipperById:", error);
+            throw new Error("Failed to retrieve shipper details");
+        }
     },
 
     async getSumShippingFeeAllShippers(

@@ -1,14 +1,12 @@
 import express from "express";
 import {
     getActiveShipperCount,
-    getActiveShipperCount,
     getAllPendingShippers,
     getAllShippers,
     getOrdersOfShipper,
     getPendingShipperById,
     getShipperById,
     getShipperDraftById,
-    getShippersJoinedToday,
     getShippersJoinedToday,
     getShippingStatus,
     getSumShippingFeeAllShippers,
