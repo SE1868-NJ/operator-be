@@ -10,6 +10,7 @@ import shipperRouter from "./shipper.route.js";
 import shippingMethodRouter from "./shippingMethod.route.js";
 import shopRouter from "./shop.route.js";
 import userRouter from "./user.route.js";
+import productRouter from "./product.route.js";
 
 const route = (app) => {
     app.use("/auth", authRouter);
@@ -26,6 +27,7 @@ const route = (app) => {
     app.use("/orders", orderRouter);
     app.use("/operator", operatorRoute);
     app.use("/email", emailRouter);
+    app.use("/product", productRouter);
 };
 
 export default route;

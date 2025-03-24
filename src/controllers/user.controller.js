@@ -106,3 +106,20 @@ export const getTop3Customer = async (req, res) => {
         });
     }
 };
+
+export const getTopCustomerByWeek = async (req, res) => {
+    try {
+        console.log("123")
+        const response = await userService.getTopCustomerByWeek();
+        res.status(200).json({
+            success: true,
+            message: "Get top customer in week successfully",
+            data: response
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: `An error occured during get top customer in week ${error}`
+        })
+    }
+}

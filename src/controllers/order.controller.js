@@ -105,3 +105,19 @@ export const reopenOrder = async (req, res) => {
         });
     }
 };
+
+export const completedOrderComparsion = async (req, res) => {
+    try {
+        const data = await orderService.completedOrdersComparison();
+        res.status(200).json({
+            success: true,
+            message: "get completed orders and comparsion last month successfully",
+            data: data
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        })
+    }
+}

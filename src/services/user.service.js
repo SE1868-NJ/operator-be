@@ -144,12 +144,82 @@ const userService = {
                 limit: 3,
             });
 
-            console.log(topCustomers.map((c) => c.toJSON())); // In kết quả dưới dạng JSON
+            //console.log(topCustomers.map((c) => c.toJSON())); // In kết quả dưới dạng JSON
             return topCustomers.map((c) => c.toJSON());
         } catch (error) {
-            console.error("Lỗi khi lấy top khách hàng:", error);
+            throw new Error(error.message)
         }
     },
+
+    async getTopCustomerByWeek(){
+        
+        try {
+            const now = new Date();
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(now.getDate() - 6); // vì lấy cả ngày hiện tại, tổng cộng 7
+    
+            // Query lấy top khách hàng theo số đơn hàng
+            const getTopCustomerInWeekByOrder = await Order.findAll({
+                where: {
+                    status: "completed",
+                    actual_delivery_time: {
+                        [Op.between]: [sevenDaysAgo, now],
+                    }
+                },
+                attributes: [
+                    "customer_id",
+                    [sequelize.fn("COUNT", sequelize.col("Order.id")), "totalOrders"],
+                ],
+                include: [
+                    {
+                        model: User,
+                        as: "Customer",
+                        attributes: ["avatar", "fullName"],
+                    },
+                ],
+                group: ["customer_id", "Customer.userID"],
+                order: [[sequelize.literal("totalOrders"), "DESC"]],
+                limit: 5,
+            });
+    
+            // Query lấy top khách hàng theo tổng tiền đơn hàng
+            const getTopCustomerInWeekByTotal = await Order.findAll({
+                where: {
+                    status: "completed",
+                    actual_delivery_time: {
+                        [Op.between]: [sevenDaysAgo, now],
+                    }
+                },
+                attributes: [
+                    "customer_id",
+                    [sequelize.fn("SUM", sequelize.col("Order.total")), "totalMoney"],
+                ],
+                include: [
+                    {
+                        model: User,
+                        as: "Customer", // Sửa alias thành "Customer" cho đúng
+                        attributes: ["avatar", "fullName"],
+                    },
+                ],
+                group: ["customer_id", "Customer.userID"],
+                order: [[sequelize.literal("totalMoney"), "DESC"]],
+                limit: 5,
+            });
+    
+            const topCustomerInWeekByOrder = getTopCustomerInWeekByOrder.map((c) => c.toJSON());
+            const topCustomerInWeekByTotal = getTopCustomerInWeekByTotal.map((c) => c.toJSON());
+            
+    
+            return {
+                topCustomerInWeekByOrder,
+                topCustomerInWeekByTotal
+            };
+    
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+    
 };
 
 export default userService;
