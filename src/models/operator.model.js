@@ -71,10 +71,6 @@ export const Operator = sequelize.define("Operator", {
         allowNull: false,
         defaultValue: "active",
     },
-    roleCode: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    },
 });
 
 Operator.associate = (models) => {
