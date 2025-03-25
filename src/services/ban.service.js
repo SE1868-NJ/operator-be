@@ -4,6 +4,7 @@ import { Ban } from "../models/ban.model.js";
 import { Shipper } from "../models/shipper.model.js";
 import { Shop } from "../models/shop.model.js";
 import { User } from "../models/user.model.js";
+import NotificationsServices from "./notifications.service.js";
 
 const BanService = {
     async getBanAccount({ userId, userType }) {
@@ -70,7 +71,14 @@ const BanService = {
                     console.log(
                         `🔵User ID: ${ban.userId}, Type: ${ban.userType}, Ban Start: ${ban.banStart}, Ban End: ${ban.banEnd}`,
                     );
+                    const notifPayload = {
+                        type: "Gỡ đình chỉ người dùng",
+                        message: `Tài khoản ${ban.userType} có Id ${ban.userId} đã bị đình chỉ từ ${ban.banStart} đến ${ban.banEnd}`,
+                      };
+                  
+                    NotificationsServices.createNotification(notifPayload);
                 }
+                
             } else {
                 console.log("Không có user nào cần ban.");
             }
@@ -96,12 +104,19 @@ const BanService = {
                     { status: "active" },
                     { where: { userId: { [Op.in]: accountIDs } } },
                 );
+                const date = new Date();
 
                 for (const ban of expireBans) {
                     await BanService.updateUserStatus(ban.userId, ban.userType, "active");
                     console.log(
                         `🔵User ID: ${ban.userId}, Type: ${ban.userType}, Ban Start: ${ban.banStart}, Ban End: ${ban.banEnd}`,
                     );
+                    const notifPayload = {
+                        type: "Gỡ đình chỉ người dùng",
+                        message: `Tài khoản ${ban.userType} có Id ${ban.userId} đã được gỡ đình chỉ lúc ${date}`,
+                      };
+                  
+                    NotificationsServices.createNotification(notifPayload);
                 }
             } else {
                 console.log("Không có user nào đến hạn gỡ ban.");

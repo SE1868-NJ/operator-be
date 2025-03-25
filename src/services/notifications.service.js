@@ -3,7 +3,7 @@ import { Notification } from "../models/notification.model.js";
 const NotificationsServices = {
     async createNotification(payload) {
         const { type, message, status = "unread" } = payload;
-
+        
         // Validate required fields
         if (!type || !message) {
             throw new Error("Missing required fields: type, message, or recipient_id");
