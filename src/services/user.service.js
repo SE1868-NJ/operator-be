@@ -1,4 +1,4 @@
-import { Op, where } from "sequelize";
+import { Op, Sequelize, where } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
 import { Order } from "../models/order.model.js";
 import { User } from "../models/user.model.js";
@@ -205,7 +205,6 @@ const userService = {
                 order: [[sequelize.literal("totalMoney"), "DESC"]],
                 limit: 5,
             });
-    
             const topCustomerInWeekByOrder = getTopCustomerInWeekByOrder.map((c) => c.toJSON());
             const topCustomerInWeekByTotal = getTopCustomerInWeekByTotal.map((c) => c.toJSON());
             
@@ -218,6 +217,78 @@ const userService = {
         } catch (error) {
             throw new Error(error.message);
         }
+    },
+    async getNewUsersGrouped(interval) {
+        const now = new Date();
+        let startDate, groupByFormat, unit;
+    
+        switch (interval) {
+            case "day": 
+                startDate = new Date(now.setDate(now.getDate() - 7)); // 7 ngày gần nhất
+                groupByFormat = "%Y-%m-%d"; // Nhóm theo ngày
+                unit = "DAY";
+                break;
+            case "week":
+                startDate = new Date(now.setDate(now.getDate() - 7 * 6)); // 7 tuần gần nhất
+                groupByFormat = "%Y-%m-%d"; // Nhóm theo tuần (lấy ngày đầu tuần)
+                unit = "WEEK";
+                break;
+            case "month":
+                startDate = new Date(now.setMonth(now.getMonth() - 6)); // 7 tháng gần nhất
+                groupByFormat = "%Y-%m"; // Nhóm theo tháng
+                unit = "MONTH";
+                break;
+            case "year":
+                startDate = new Date(now.setFullYear(now.getFullYear() - 6)); // 7 năm gần nhất
+                groupByFormat = "%Y"; // Nhóm theo năm
+                unit = "YEAR";
+                break;
+            default:
+                throw new Error("Invalid interval");
+        }
+
+        let users = null;
+        if(interval !== "week"){
+            users = await User.findAll({
+                attributes: [
+                    [Sequelize.fn("DATE_FORMAT", Sequelize.col("createdAt"), groupByFormat), "date"],
+                    [Sequelize.fn("COUNT", Sequelize.col("userID")), "count"]
+                ],
+                where: {
+                    createdAt: {
+                        [Op.gte]: startDate
+                    }
+                },
+                group: ["date"],
+                order: [[Sequelize.literal("date"), "ASC"]],
+                raw: true
+            });
+        }else{
+            users = await User.findAll({
+                attributes: [
+                    [
+                        Sequelize.fn(
+                            "DATE_ADD",
+                            Sequelize.fn("MAKEDATE", Sequelize.fn("YEAR", Sequelize.col("createdAt")), 1), // Lấy ngày đầu năm
+                            Sequelize.literal("INTERVAL (WEEK(createdAt, 3) - 1) WEEK") // Tính tuần ISO-8601
+                        ),
+                        "date"
+                    ],
+                    [Sequelize.fn("COUNT", Sequelize.col("userID")), "count"]
+                ],
+                where: {
+                    createdAt: {
+                        [Op.gte]: Sequelize.literal("DATE_SUB(CURDATE(), INTERVAL 7 WEEK)") // Lọc từ 7 tuần trước đến nay
+                    }
+                },
+                group: [Sequelize.literal("date")],
+                order: [[Sequelize.literal("date"), "ASC"]],
+                raw: true
+            });
+        }
+        
+    
+        return users;
     }
     
 };

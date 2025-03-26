@@ -127,7 +127,7 @@ const BanService = {
         }
     },
 
-    async unbanAccountManual(userId, userType) {
+    async unbanAccountManual(userId, userType, reason) {
         try {
             const banRecord = await Ban.findOne({
                 where: { userId, userType, status: "banned" },
@@ -159,7 +159,7 @@ const BanService = {
         }
     },
 
-    async cancelBanScheduled(userId, userType) {
+    async cancelBanScheduled(userId, userType, reason) {
         try {
             // Tìm bản ghi ban có trạng thái "scheduled" và đúng userType
             const banRecord = await Ban.findOne({

@@ -52,17 +52,17 @@ export const banAccountController = async (req, res) => {
 
 export const unbanAccountManualController = async (req, res) => {
   try {
-    const { userId, userType } = req.body;
+    const { userId, userType, reason } = req.body;
     if (!userId || !userType) {
       return res.status(400).json({ message: "Missing userId or userType" });
     }
 
-    const result = await BanService.unbanAccountManual(userId, userType);
+    const result = await BanService.unbanAccountManual(userId, userType, reason);
 
     const date = new Date();
     const notifPayload = {
       type: "Gỡ đình chỉ người dùng",
-      message: `Tài khoản ${userType} có Id ${userId} đã được gỡ đình lúc ${date}`,
+      message: `Tài khoản ${userType} có Id ${userId} đã được gỡ đình lúc ${date} \nLý do: ${reason}`,
     };
 
     NotificationsServices.createNotification(notifPayload);
@@ -106,18 +106,18 @@ export const getBanAccount = async (req, res) => {
 
 export const cancelBanScheduledController = async (req, res) => {
   try {
-    const { userId, userType } = req.body;
+    const { userId, userType, reason} = req.body;
 
     if (!userId || !userType) {
       return res.status(400).json({ message: "Missing userId or userType" });
     }
 
-    const result = await BanService.cancelBanScheduled(userId, userType);
+    const result = await BanService.cancelBanScheduled(userId, userType, reason);
 
     const date = new Date();
     const notifPayload = {
       type: "Gỡ đình chỉ người dùng",
-      message: `Tài khoản ${userType} có Id ${userId} đã được gỡ đình chỉ lúc ${date}`,
+      message: `Tài khoản ${userType} có ID ${userId} đã được gỡ đình chỉ lúc ${new Date().toLocaleString()} \nLý do: ${reason}`,
     };
 
     NotificationsServices.createNotification(notifPayload);

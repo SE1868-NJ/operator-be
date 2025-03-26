@@ -374,6 +374,101 @@ const orderService = {
       throw new Error(error.message);
     }
   },
+
+  async getTotalRevenueChange() {
+    // Lấy ngày hiện tại
+    const currentDate = new Date();
+
+    // Tính ngày đầu của 1 tháng trước và 2 tháng trước
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+
+    try {
+      // Tổng doanh thu trong 1 tháng gần nhất
+      const currentRevenue =
+        (await Order.sum("total", {
+          where: {
+            status: "completed",
+            actual_delivery_time: {
+              [Op.gte]: oneMonthAgo, // Lấy đơn hàng từ 1 tháng trước đến hiện tại
+            },
+          },
+        })) || 0; // Nếu null thì mặc định là 0
+
+      // Tổng doanh thu từ 2 tháng đến 1 tháng gần nhất
+      const previousRevenue =
+        (await Order.sum("total", {
+          where: {
+            status: "completed",
+            actual_delivery_time: {
+              [Op.gte]: twoMonthsAgo, // Từ 2 tháng trước
+              [Op.lt]: oneMonthAgo, // Đến trước 1 tháng trước
+            },
+          },
+        })) || 0;
+
+      // Tính phần trăm thay đổi doanh thu
+      let percentChange = 0;
+      if (previousRevenue > 0) {
+        percentChange =
+          ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+      } else if (currentRevenue > 0) {
+        percentChange = 100; // Trường hợp trước đó không có doanh thu
+      }
+
+      // Xác định dấu `+` hoặc `-` và làm tròn đến 2 chữ số
+      const formattedChange =
+        (percentChange >= 0 ? "+" : "") + percentChange.toFixed(2) + "%";
+      return {
+        currentRevenue,
+        previousRevenue,
+        percentChange: formattedChange,
+      };
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu doanh thu:", error);
+      throw new Error("oopps: ", error.message);
+    }
+  },
+  async totalChart(interval) {
+    let groupByFormat, unit;
+
+    switch (interval) {
+      case "month":
+        groupByFormat = "%Y-%m"; // Nhóm theo tháng
+        unit = Sequelize.fn(
+          "DATE_FORMAT",
+          Sequelize.col("actual_delivery_time"),
+          groupByFormat
+        );
+        break;
+      case "year":
+        groupByFormat = "%Y"; // Nhóm theo năm
+        unit = Sequelize.fn("YEAR", Sequelize.col("actual_delivery_time"));
+        break;
+      default:
+        throw new Error("Invalid interval");
+    }
+
+    const results = await Order.findAll({
+      attributes: [
+        [unit, "date"],
+        [Sequelize.fn("COUNT", Sequelize.col("id")), "order"],
+        [Sequelize.fn("SUM", Sequelize.col("total")), "income"],
+      ],
+      where: {
+        status: "completed",
+        actual_delivery_time: { [Op.not]: null },
+      },
+      group: ["date"],
+      order: [[Sequelize.literal("date"), "ASC"]],
+      raw: true,
+    });
+
+    return results;
+  },
 };
 
 export default orderService;
