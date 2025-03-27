@@ -1,6 +1,7 @@
 import { Op, where } from "sequelize";
 import { Shipper } from "../models/shipper.model.js";
 import ShipperServices from "../services/shipper.service.js";
+import { response } from "express";
 
 export const getAllShippers = async (req, res) => {
     try {
@@ -276,3 +277,56 @@ export const getShippersJoinedToday = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const getTop5ShipperByMonth = async (req, res) => {
+    try {
+        const top5ShipperByMonth = await ShipperServices.getTop5ShipperByMonth();
+        res.status(200).json({
+            success: true,
+            message: "Get top 5 shipper in month sucessfully",
+            data: top5ShipperByMonth
+        })
+    } catch (error) {
+        
+        res.status(500).json({
+            success: false,
+            error: error.message
+        })
+    }
+}
+
+export const getAvgDeliveryTime = async (req, res) => {
+    try {
+        const avgTime = await ShipperServices.avgDeliveryTime();
+        
+        res.status(200).json({
+            success: true,
+            message: "Get avg delivery time interval 4 month successfully",
+            data: avgTime
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "An error occured during get avg delivery time interval 4 month",
+            data: error.message
+        })
+    }
+}
+
+export const cancellationRate = async (req, res) => {
+    try {
+        const response  = await ShipperServices.cancellationRate();
+        res.status(200).json({
+            success: true,
+            message: "Get cancellation rate successfully",
+            data: response
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "An error occured during get cancellationRate",
+            data: error.message
+        })
+    }
+}

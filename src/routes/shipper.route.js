@@ -15,6 +15,9 @@ import {
     updateShipperDraftById,
     updateShipperPending,
     updateShipperStatus,
+    getTop5ShipperByMonth,
+    getAvgDeliveryTime,
+    cancellationRate
 } from "../controllers/shipper.controller.js";
 
 const shipperRouter = express.Router();
@@ -28,11 +31,14 @@ shipperRouter.get("/shipperdraft/:id", getShipperDraftById);
 shipperRouter.patch("/shipperdraft/:id", updateShipperDraftById);
 shipperRouter.get("/shippingStatus", getShippingStatus);
 shipperRouter.get("/topShippers", getTopShippers);
+shipperRouter.get("/top5ShipperInMonth", getTop5ShipperByMonth)
 shipperRouter.get("/ordersOfShipper/:id", getOrdersOfShipper);
 shipperRouter.get("/sumShippingFee", getSumShippingFeeAllShippers);
 shipperRouter.get("/pendingShippers", getAllPendingShippers);
 shipperRouter.patch("/pendingShipper/:id", updateShipperPending);
 shipperRouter.get("/pendingShipper/:id", getPendingShipperById);
+shipperRouter.get("/avgDeliveryTime", getAvgDeliveryTime)
+shipperRouter.get("/cancellationRate", cancellationRate)
 shipperRouter.patch("/:id", updateShipperStatus);
 shipperRouter.get("/:id", getShipperById);
 shipperRouter.get("/", getAllShippers);

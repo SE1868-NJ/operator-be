@@ -1,4 +1,4 @@
-import { Op, where } from "sequelize";
+import { Op, Sequelize, where } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
 import { Order } from "../models/order.model.js";
 import { User } from "../models/user.model.js";
@@ -144,12 +144,153 @@ const userService = {
                 limit: 3,
             });
 
-            console.log(topCustomers.map((c) => c.toJSON())); // In kết quả dưới dạng JSON
+            //console.log(topCustomers.map((c) => c.toJSON())); // In kết quả dưới dạng JSON
             return topCustomers.map((c) => c.toJSON());
         } catch (error) {
-            console.error("Lỗi khi lấy top khách hàng:", error);
+            throw new Error(error.message)
         }
     },
+
+    async getTopCustomerByWeek(){
+        
+        try {
+            const now = new Date();
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(now.getDate() - 6); // vì lấy cả ngày hiện tại, tổng cộng 7
+    
+            // Query lấy top khách hàng theo số đơn hàng
+            const getTopCustomerInWeekByOrder = await Order.findAll({
+                where: {
+                    status: "completed",
+                    actual_delivery_time: {
+                        [Op.between]: [sevenDaysAgo, now],
+                    }
+                },
+                attributes: [
+                    "customer_id",
+                    [sequelize.fn("COUNT", sequelize.col("Order.id")), "totalOrders"],
+                ],
+                include: [
+                    {
+                        model: User,
+                        as: "Customer",
+                        attributes: ["avatar", "fullName"],
+                    },
+                ],
+                group: ["customer_id", "Customer.userID"],
+                order: [[sequelize.literal("totalOrders"), "DESC"]],
+                limit: 5,
+            });
+    
+            // Query lấy top khách hàng theo tổng tiền đơn hàng
+            const getTopCustomerInWeekByTotal = await Order.findAll({
+                where: {
+                    status: "completed",
+                    actual_delivery_time: {
+                        [Op.between]: [sevenDaysAgo, now],
+                    }
+                },
+                attributes: [
+                    "customer_id",
+                    [sequelize.fn("SUM", sequelize.col("Order.total")), "totalMoney"],
+                ],
+                include: [
+                    {
+                        model: User,
+                        as: "Customer", // Sửa alias thành "Customer" cho đúng
+                        attributes: ["avatar", "fullName"],
+                    },
+                ],
+                group: ["customer_id", "Customer.userID"],
+                order: [[sequelize.literal("totalMoney"), "DESC"]],
+                limit: 5,
+            });
+            const topCustomerInWeekByOrder = getTopCustomerInWeekByOrder.map((c) => c.toJSON());
+            const topCustomerInWeekByTotal = getTopCustomerInWeekByTotal.map((c) => c.toJSON());
+            
+    
+            return {
+                topCustomerInWeekByOrder,
+                topCustomerInWeekByTotal
+            };
+    
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+    async getNewUsersGrouped(interval) {
+        const now = new Date();
+        let startDate, groupByFormat, unit;
+    
+        switch (interval) {
+            case "day": 
+                startDate = new Date(now.setDate(now.getDate() - 7)); // 7 ngày gần nhất
+                groupByFormat = "%Y-%m-%d"; // Nhóm theo ngày
+                unit = "DAY";
+                break;
+            case "week":
+                startDate = new Date(now.setDate(now.getDate() - 7 * 6)); // 7 tuần gần nhất
+                groupByFormat = "%Y-%m-%d"; // Nhóm theo tuần (lấy ngày đầu tuần)
+                unit = "WEEK";
+                break;
+            case "month":
+                startDate = new Date(now.setMonth(now.getMonth() - 6)); // 7 tháng gần nhất
+                groupByFormat = "%Y-%m"; // Nhóm theo tháng
+                unit = "MONTH";
+                break;
+            case "year":
+                startDate = new Date(now.setFullYear(now.getFullYear() - 6)); // 7 năm gần nhất
+                groupByFormat = "%Y"; // Nhóm theo năm
+                unit = "YEAR";
+                break;
+            default:
+                throw new Error("Invalid interval");
+        }
+
+        let users = null;
+        if(interval !== "week"){
+            users = await User.findAll({
+                attributes: [
+                    [Sequelize.fn("DATE_FORMAT", Sequelize.col("createdAt"), groupByFormat), "date"],
+                    [Sequelize.fn("COUNT", Sequelize.col("userID")), "count"]
+                ],
+                where: {
+                    createdAt: {
+                        [Op.gte]: startDate
+                    }
+                },
+                group: ["date"],
+                order: [[Sequelize.literal("date"), "ASC"]],
+                raw: true
+            });
+        }else{
+            users = await User.findAll({
+                attributes: [
+                    [
+                        Sequelize.fn(
+                            "DATE_ADD",
+                            Sequelize.fn("MAKEDATE", Sequelize.fn("YEAR", Sequelize.col("createdAt")), 1), // Lấy ngày đầu năm
+                            Sequelize.literal("INTERVAL (WEEK(createdAt, 3) - 1) WEEK") // Tính tuần ISO-8601
+                        ),
+                        "date"
+                    ],
+                    [Sequelize.fn("COUNT", Sequelize.col("userID")), "count"]
+                ],
+                where: {
+                    createdAt: {
+                        [Op.gte]: Sequelize.literal("DATE_SUB(CURDATE(), INTERVAL 7 WEEK)") // Lọc từ 7 tuần trước đến nay
+                    }
+                },
+                group: [Sequelize.literal("date")],
+                order: [[Sequelize.literal("date"), "ASC"]],
+                raw: true
+            });
+        }
+        
+    
+        return users;
+    }
+    
 };
 
 export default userService;
