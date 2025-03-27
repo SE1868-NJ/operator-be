@@ -4,7 +4,7 @@ import { Address } from "./models/address.model.js";
 import { Feedback } from "./models/feedback.model.js";
 import { Media } from "./models/media.model.js";
 import { MediaItem } from "./models/mediaItem.model.js";
-import { EmergencyContact } from "./models/emergencyContact.model.js"
+import { EmergencyContact } from "./models/emergencyContact.model.js";
 import { Operator } from "./models/operator.model.js";
 import { Order } from "./models/order.model.js";
 import { OrderItem } from "./models/orderItem.model.js";
@@ -13,6 +13,8 @@ import { ReplyFeedback } from "./models/replyFeedback.model.js";
 import { Shipper } from "./models/shipper.model.js";
 import { Shop } from "./models/shop.model.js";
 import { User } from "./models/user.model.js";
+import { Banner } from "./models/banner.model.js";
+import bcrypt from "bcrypt";
 // 3 operator
 const insertOperators = async () => {
   try {
@@ -20,41 +22,25 @@ const insertOperators = async () => {
       {
         firstName: "Nguyễn",
         lastName: "Văn A",
-        email: "admin@gmail.com",
-        password:
-          "$2b$10$kUPkr1525ZeA29dRDxQsnuRldFxrY3UKxJxuzqEp7dvAILBQojoBq",
+        email: "operator@gmail.com",
+        personalEmail: "abc@gmail.com",
+        password: "12345",
         phoneNumber: "0987654321",
         dateOfBirth: "1990-05-20",
         gender: "male",
         status: "active",
         roleCode: 1,
       },
-      {
-        firstName: "Trần",
-        lastName: "Thị B",
-        email: "tranthib@example.com",
-        password: "hashedpassword2",
-        phoneNumber: "0976543210",
-        dateOfBirth: "1995-09-15",
-        gender: "female",
-        status: "active",
-        roleCode: 2,
-      },
-      {
-        firstName: "Lê",
-        lastName: "Minh C",
-        email: "leminhc@example.com",
-        password: "hashedpassword3",
-        phoneNumber: "0965432109",
-        dateOfBirth: "1988-12-10",
-        gender: "other",
-        status: "inactive",
-        roleCode: 3,
-      },
     ];
+    // Hash passwords
+    for (const operator of operators) {
+      const salt = await bcrypt.genSalt(10);
+      operator.password = await bcrypt.hash(operator.password, salt);
+    }
 
+    // Insert data
     await Operator.bulkCreate(operators);
-    console.log("Operators inserted successfully.");
+    console.log("5 Operators inserted successfully!");
   } catch (error) {
     console.error("Error inserting operators:", error);
   }
@@ -3733,96 +3719,6 @@ const insertOrderItems = async () => {
       { order_id: 35, product_id: 33, price: 50000, quantity: 1, total: 50000 },
       { order_id: 35, product_id: 45, price: 50000, quantity: 1, total: 50000 },
       { order_id: 35, product_id: 52, price: 50000, quantity: 1, total: 50000 },
-
-      {
-        order_id: 36,
-        product_id: 41,
-        price: 125000,
-        quantity: 2,
-        total: 250000,
-      },
-      {
-        order_id: 36,
-        product_id: 58,
-        price: 70000,
-        quantity: 3,
-        total: 210000,
-      },
-      { order_id: 36, product_id: 11, price: 50000, quantity: 1, total: 50000 },
-      { order_id: 36, product_id: 23, price: 50000, quantity: 1, total: 50000 },
-      { order_id: 36, product_id: 39, price: 50000, quantity: 1, total: 50000 },
-
-      {
-        order_id: 37,
-        product_id: 4,
-        price: 125000,
-        quantity: 2,
-        total: 250000,
-      },
-      {
-        order_id: 37,
-        product_id: 27,
-        price: 70000,
-        quantity: 3,
-        total: 210000,
-      },
-      { order_id: 37, product_id: 44, price: 50000, quantity: 1, total: 50000 },
-      { order_id: 37, product_id: 59, price: 50000, quantity: 1, total: 50000 },
-      { order_id: 37, product_id: 16, price: 50000, quantity: 1, total: 50000 },
-
-      {
-        order_id: 38,
-        product_id: 35,
-        price: 125000,
-        quantity: 2,
-        total: 250000,
-      },
-      {
-        order_id: 38,
-        product_id: 52,
-        price: 70000,
-        quantity: 3,
-        total: 210000,
-      },
-      { order_id: 38, product_id: 1, price: 50000, quantity: 1, total: 50000 },
-      { order_id: 38, product_id: 18, price: 50000, quantity: 1, total: 50000 },
-      { order_id: 38, product_id: 29, price: 50000, quantity: 1, total: 50000 },
-
-      {
-        order_id: 39,
-        product_id: 28,
-        price: 125000,
-        quantity: 2,
-        total: 250000,
-      },
-      {
-        order_id: 39,
-        product_id: 46,
-        price: 70000,
-        quantity: 3,
-        total: 210000,
-      },
-      { order_id: 39, product_id: 55, price: 50000, quantity: 1, total: 50000 },
-      { order_id: 39, product_id: 13, price: 50000, quantity: 1, total: 50000 },
-      { order_id: 39, product_id: 31, price: 50000, quantity: 1, total: 50000 },
-
-      {
-        order_id: 40,
-        product_id: 17,
-        price: 125000,
-        quantity: 2,
-        total: 250000,
-      },
-      {
-        order_id: 40,
-        product_id: 34,
-        price: 70000,
-        quantity: 3,
-        total: 210000,
-      },
-      { order_id: 40, product_id: 49, price: 50000, quantity: 1, total: 50000 },
-      { order_id: 40, product_id: 2, price: 50000, quantity: 1, total: 50000 },
-      { order_id: 40, product_id: 25, price: 50000, quantity: 1, total: 50000 },
     ];
     await OrderItem.bulkCreate(orderItems);
     console.log("Đã chèn OrderItems vào cơ sở dữ liệu!");
@@ -4326,6 +4222,55 @@ const insertFeedbacks = async () => {
   }
 };
 
+// 3 banners
+const insertBanner = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log("Kết nối với database thành công.");
+
+    const banner = [
+      {
+        title: "Chăm sóc da liễu",
+        image:
+          "https://i.pinimg.com/originals/5e/5b/b3/5e5bb386badcb19db0953e2a4edd002d.jpg",
+        link: "https://example.com/tet-sale",
+        status: "hidden", 
+        approvalStatus: "pending",
+        shopID: 1, 
+        startDate: new Date(), 
+        endDate: new Date("2023-12-31"), 
+      },
+      {
+        title: "Ưu đãi 8/3",
+        image:
+          "https://mir-s3-cdn-cf.behance.net/project_modules/fs/74040b165201509.6403565e0b5a8.png",
+        link: "https://example.com/8-march-sale",
+        status: "visible", 
+        approvalStatus: "approved",
+        shopID: 2, 
+        startDate: new Date("2023-03-01"), 
+        endDate: new Date("2023-03-10"), 
+      },
+      {
+        title: "Giảm giá sập sàn",
+        image:
+          "https://img.pikbest.com/origin/10/01/53/35bpIkbEsTBzN.png!bw700",
+        link: "https://example.com/discount-sale",
+        status: "visible", 
+        approvalStatus: "approved",
+        shopID: 3, 
+        startDate: new Date("2023-05-01"), 
+        endDate: new Date("2023-05-15"), 
+      },
+    ];
+
+    await Banner.bulkCreate(banner);
+    console.log("Đã tạo thành công 1 Banner.");
+  } catch (error) {
+    console.error("Lỗi khi tạo dữ liệu:", error);
+  }
+};
+
 async function insertData() {
   try {
     await sequelize.authenticate(); // Kết nối chỉ 1 lần
@@ -4343,7 +4288,8 @@ async function insertData() {
     await insertMediaItems();
     await insertReplyFeedbacks();
     await insertFeedbacks();
-    await insertEmergencyContacts(); // ko thấy lỗi ở đâu cả, nhưng báo không chạy
+    await insertEmergencyContacts();
+    await insertBanner();
 
     console.log("Tất cả dữ liệu đã được chèn thành công!");
   } catch (error) {
@@ -4355,4 +4301,3 @@ async function insertData() {
 }
 
 insertData();
-// insertEmergencyContacts();
