@@ -16,6 +16,7 @@ import { Shipper } from "../models/shipper.model.js";
 import { Shop } from "../models/shop.model.js";
 import { User } from "../models/user.model.js";
 import { model } from "../utils/gemini.js";
+import { Operator } from "../models/operator.model.js";
 
 const ShopService = {
     async processUserPrompt(shopId, userPrompt) {
@@ -416,6 +417,12 @@ const ShopService = {
                     ],
                     required: true,
                 },
+                {
+                    model: Operator,
+                    as: "operator",
+                    where: {},
+                    required: true,
+                }
             ];
 
             if (filterData?.shopName) {
@@ -439,9 +446,13 @@ const ShopService = {
                 };
             }
 
+            if(operatorID){
+                includeClause[1].where.operatorID = operatorID
+            }
+
             const approvedShops = await ReasonChangeStatus.findAll({
                 where: {
-                    operatorID: operatorID,
+                    // operatorID: operatorID,
                     role: role,
                 },
                 include: includeClause,
@@ -452,7 +463,7 @@ const ShopService = {
 
             const totalApprovedShops = await ReasonChangeStatus.count({
                 where: {
-                    operatorID: operatorID,
+                    // operatorID: operatorID,
                     role: role,
                 },
                 include: includeClause,
@@ -956,7 +967,7 @@ const ShopService = {
     async getTotalRevenueShopsByTime(
         day,
         month,
-        year = 2025,
+        year = new Date().getFullYear(),
         offset = 0,
         limit = 10,
         filterData = {},
@@ -971,6 +982,8 @@ const ShopService = {
             if (day) {
                 dayUp = day;
                 dayDown = day;
+            }else {
+                dayUp = new Date(year, month, 0).getDate();
             }
         }
 
@@ -1060,7 +1073,7 @@ const ShopService = {
         id,
         day,
         month,
-        year = 2025,
+        year = new Date().getFullYear(),
         offset = 0,
         limit = 10,
         filterData = {},
@@ -1075,6 +1088,8 @@ const ShopService = {
             if (day) {
                 dayUp = day;
                 dayDown = day;
+            }else {
+                dayUp = new Date(year, month, 0).getDate();
             }
         }
 
@@ -1592,10 +1607,11 @@ const ShopService = {
                         reason: reason,
                     });
                     return newRecord;
-                }
+                }}
                 const shopDraft = await ReasonChangeStatus.update(
                     {
-                        reason: data.reason,
+                        reason: reason,
+                        changedStatus: status,
                     },
                     {
                         where: {
@@ -1604,9 +1620,19 @@ const ShopService = {
                         },
                     },
                 );
-                return shopDraft;
-            }
-            ShopService.updateShopStatus(id, data);
+                const updatedShop = await Shop.update(
+                    {
+                        shopStatus: status === "accepted" ? "active" : "rejected",
+                        shopJoindedDate: new Date(),
+                    },
+                    {
+                        where: {
+                            shopID: id,
+                        },
+                    },
+                );
+                return updatedShop;
+            // ShopService.updateShopStatus(id, data);
         } catch (error) {
             throw new Error(error.message);
         }

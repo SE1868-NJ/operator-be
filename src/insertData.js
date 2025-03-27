@@ -13,14 +13,17 @@ import { ReplyFeedback } from "./models/replyFeedback.model.js";
 import { Shipper } from "./models/shipper.model.js";
 import { Shop } from "./models/shop.model.js";
 import { User } from "./models/user.model.js";
-// 3 operator
+import bcrypt from "bcrypt";
+
+// 2 operator
 const insertOperators = async () => {
     try {
         const operators = [
             {
                 firstName: "Nguyễn",
                 lastName: "Văn A",
-                email: "admin@gmail.com",
+                email: "operator@gmail.com",
+                personalEmail: "abc@gmail.com",
                 password: "12345",
                 phoneNumber: "0987654321",
                 dateOfBirth: "1990-05-20",
@@ -29,37 +32,27 @@ const insertOperators = async () => {
                 roleCode: 1,
             },
             {
-                firstName: "Trần",
-                lastName: "Thị B",
-                email: "tranthib@example.com",
-                password: "hashedpassword2",
-                phoneNumber: "0976543210",
-                dateOfBirth: "1995-09-15",
-                gender: "female",
+                firstName: "Nguyễn",
+                lastName: "Thanh Việt",
+                email: "vietnthe186437@fpt.edu.vn",
+                personalEmail: "vietnt@gmail.com",
+                password: "vietnt",
+                phoneNumber: "0988888888",
+                dateOfBirth: "1990-05-20",
+                gender: "male",
                 status: "active",
-                roleCode: 2,
-            },
-            {
-                firstName: "Lê",
-                lastName: "Minh C",
-                email: "leminhc@example.com",
-                password: "hashedpassword3",
-                phoneNumber: "0965432109",
-                dateOfBirth: "1988-12-10",
-                gender: "other",
-                status: "inactive",
-                roleCode: 3,
+                roleCode: 1,
             },
         ];
-
         // Hash passwords
         for (const operator of operators) {
             const salt = await bcrypt.genSalt(10);
             operator.password = await bcrypt.hash(operator.password, salt);
         }
 
+        // Insert data
         await Operator.bulkCreate(operators);
-        console.log("Operators inserted successfully.");
+        console.log("5 Operators inserted successfully!");
     } catch (error) {
         console.error("Error inserting operators:", error);
     }
@@ -3506,114 +3499,6 @@ const insertOrderItems = async () => {
             { order_id: 34, product_id: 50, price: 50000, quantity: 1, total: 50000 },
             { order_id: 34, product_id: 41, price: 50000, quantity: 1, total: 50000 },
             { order_id: 34, product_id: 58, price: 50000, quantity: 1, total: 50000 },
-
-            {
-                order_id: 35,
-                product_id: 15,
-                price: 125000,
-                quantity: 2,
-                total: 250000,
-            },
-            {
-                order_id: 35,
-                product_id: 20,
-                price: 70000,
-                quantity: 3,
-                total: 210000,
-            },
-            { order_id: 35, product_id: 33, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 35, product_id: 45, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 35, product_id: 52, price: 50000, quantity: 1, total: 50000 },
-
-            {
-                order_id: 36,
-                product_id: 41,
-                price: 125000,
-                quantity: 2,
-                total: 250000,
-            },
-            {
-                order_id: 36,
-                product_id: 58,
-                price: 70000,
-                quantity: 3,
-                total: 210000,
-            },
-            { order_id: 36, product_id: 11, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 36, product_id: 23, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 36, product_id: 39, price: 50000, quantity: 1, total: 50000 },
-
-            {
-                order_id: 37,
-                product_id: 4,
-                price: 125000,
-                quantity: 2,
-                total: 250000,
-            },
-            {
-                order_id: 37,
-                product_id: 27,
-                price: 70000,
-                quantity: 3,
-                total: 210000,
-            },
-            { order_id: 37, product_id: 44, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 37, product_id: 59, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 37, product_id: 16, price: 50000, quantity: 1, total: 50000 },
-
-            {
-                order_id: 38,
-                product_id: 35,
-                price: 125000,
-                quantity: 2,
-                total: 250000,
-            },
-            {
-                order_id: 38,
-                product_id: 52,
-                price: 70000,
-                quantity: 3,
-                total: 210000,
-            },
-            { order_id: 38, product_id: 1, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 38, product_id: 18, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 38, product_id: 29, price: 50000, quantity: 1, total: 50000 },
-
-            {
-                order_id: 39,
-                product_id: 28,
-                price: 125000,
-                quantity: 2,
-                total: 250000,
-            },
-            {
-                order_id: 39,
-                product_id: 46,
-                price: 70000,
-                quantity: 3,
-                total: 210000,
-            },
-            { order_id: 39, product_id: 55, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 39, product_id: 13, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 39, product_id: 31, price: 50000, quantity: 1, total: 50000 },
-
-            {
-                order_id: 40,
-                product_id: 17,
-                price: 125000,
-                quantity: 2,
-                total: 250000,
-            },
-            {
-                order_id: 40,
-                product_id: 34,
-                price: 70000,
-                quantity: 3,
-                total: 210000,
-            },
-            { order_id: 40, product_id: 49, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 40, product_id: 2, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 40, product_id: 25, price: 50000, quantity: 1, total: 50000 },
         ];
         await OrderItem.bulkCreate(orderItems);
         console.log("Đã chèn OrderItems vào cơ sở dữ liệu!");
