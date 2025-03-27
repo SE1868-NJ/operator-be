@@ -13,14 +13,17 @@ import { ReplyFeedback } from "./models/replyFeedback.model.js";
 import { Shipper } from "./models/shipper.model.js";
 import { Shop } from "./models/shop.model.js";
 import { User } from "./models/user.model.js";
-// 3 operator
+import bcrypt from "bcrypt";
+
+// 2 operator
 const insertOperators = async () => {
     try {
         const operators = [
             {
                 firstName: "Nguyễn",
                 lastName: "Văn A",
-                email: "admin@gmail.com",
+                email: "operator@gmail.com",
+                personalEmail: "abc@gmail.com",
                 password: "12345",
                 phoneNumber: "0987654321",
                 dateOfBirth: "1990-05-20",
@@ -29,37 +32,27 @@ const insertOperators = async () => {
                 roleCode: 1,
             },
             {
-                firstName: "Trần",
-                lastName: "Thị B",
-                email: "tranthib@example.com",
-                password: "hashedpassword2",
-                phoneNumber: "0976543210",
-                dateOfBirth: "1995-09-15",
-                gender: "female",
+                firstName: "Nguyễn",
+                lastName: "Thanh Việt",
+                email: "vietnthe186437@fpt.edu.vn",
+                personalEmail: "vietnt@gmail.com",
+                password: "vietnt",
+                phoneNumber: "0988888888",
+                dateOfBirth: "1990-05-20",
+                gender: "male",
                 status: "active",
-                roleCode: 2,
-            },
-            {
-                firstName: "Lê",
-                lastName: "Minh C",
-                email: "leminhc@example.com",
-                password: "hashedpassword3",
-                phoneNumber: "0965432109",
-                dateOfBirth: "1988-12-10",
-                gender: "other",
-                status: "inactive",
-                roleCode: 3,
+                roleCode: 1,
             },
         ];
-
         // Hash passwords
         for (const operator of operators) {
             const salt = await bcrypt.genSalt(10);
             operator.password = await bcrypt.hash(operator.password, salt);
         }
 
+        // Insert data
         await Operator.bulkCreate(operators);
-        console.log("Operators inserted successfully.");
+        console.log("5 Operators inserted successfully!");
     } catch (error) {
         console.error("Error inserting operators:", error);
     }
