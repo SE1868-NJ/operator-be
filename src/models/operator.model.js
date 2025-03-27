@@ -35,6 +35,14 @@ export const Operator = sequelize.define("Operator", {
             notEmpty: true,
         },
     },
+    personalEmail: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+            isEmail: true,
+        },
+    },
     email: {
         type: DataTypes.STRING,
         allowNull: false,

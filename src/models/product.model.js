@@ -35,7 +35,7 @@ export const Product = sequelize.define(
             allowNull: true, // Cho phép null, mô tả có thể không bắt buộc
         },
         status: {
-            type: DataTypes.ENUM("active", "inactive", "out_of_stock"),
+            type: DataTypes.ENUM("active", "inactive", "out_of_stock", "suspended"),
             allowNull: false,
             defaultValue: "active",
         },
