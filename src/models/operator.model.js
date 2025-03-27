@@ -63,15 +63,15 @@ export const Operator = sequelize.define("Operator", {
         allowNull: false,
         validate: {
             notEmpty: true,
-            len: [10, 15],
+            len: [10, 15], // Số điện thoại từ 10-15 ký tự
         },
     },
     dateOfBirth: {
-        type: DataTypes.DATEONLY,
+        type: DataTypes.DATEONLY, // Chỉ lưu ngày (YYYY-MM-DD)
         allowNull: false,
     },
     gender: {
-        type: DataTypes.ENUM("male", "female", "other"),
+        type: DataTypes.ENUM("male", "female", "other"), // Giới tính có thể là Nam, Nữ hoặc Khác
         allowNull: false,
     },
     status: {

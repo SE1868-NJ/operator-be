@@ -22,6 +22,7 @@ import {
     updatePendingShopReasonItem,
     updateShopDraftById,
     updateShopStatus,
+    getRevenueStatistic
 } from "../controllers/shops.controller.js";
 
 const shopRouter = express.Router();
@@ -48,6 +49,7 @@ shopRouter.get("/pendingshop/:id", getPendingShopById);
 shopRouter.get("/getinfor/:id", getInforOneShop);
 shopRouter.patch("/pendingshop/:id", updateShopStatus);
 shopRouter.get("/:id/chart", getOrderStatistic);
+shopRouter.get("/:id/chartRevenue", getRevenueStatistic);
 shopRouter.get("/:id", getShopById);
 shopRouter.get("/:id/products", getProductByShopId);
 shopRouter.get("/:id/orders", getOrderByShopId);
