@@ -75,9 +75,9 @@ export const Operator = sequelize.define("Operator", {
         allowNull: false,
     },
     status: {
-        type: DataTypes.ENUM("active", "inactive"),
+        type: DataTypes.ENUM("active", "inactive", "pending"),
         allowNull: false,
-        defaultValue: "active",
+        defaultValue: "pending",
     },
 });
 
