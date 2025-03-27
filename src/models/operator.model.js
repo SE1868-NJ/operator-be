@@ -11,15 +11,15 @@ export const Operator = sequelize.define("Operator", {
         type: DataTypes.STRING,
         allowNull: false,
         defaultValue:
-            "https://res.cloudinary.com/dafn4ktx0/image/upload/v1741914627/default_avatar_zqgyov.jpg",
+            "https://res.cloudinary.com/dafn4ktx0/image/upload/v1743042455/default_avatar_h9spud.jpg",
         validate: {
             notEmpty: true,
         },
     },
     avatar_public_id: {
         type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: "swp_storage_image/default_avatar_zqgyov",
+        allowNull: false,
+        defaultValue: "swp_storage_image/default_avatar_h9spud",
     },
     firstName: {
         type: DataTypes.STRING,

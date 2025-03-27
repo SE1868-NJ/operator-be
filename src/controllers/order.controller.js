@@ -105,3 +105,59 @@ export const reopenOrder = async (req, res) => {
         });
     }
 };
+
+export const completedOrderComparsion = async (req, res) => {
+    try {
+        const data = await orderService.completedOrdersComparison();
+        res.status(200).json({
+            success: true,
+            message: "get completed orders and comparsion last month successfully",
+            data: data
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        })
+    }
+}
+
+export const getTotalRevenueChangeController = async(req, res) => {
+    try {
+        const data = await orderService.getTotalRevenueChange();
+        res.status(200).json({
+            success: true,
+            message: "get total revenue change last month and last two month successfully",
+            data: data
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        })
+    }
+}
+
+export const getTotalChart=  async (req, res) => {
+    try {
+        const {interval} = req.params;
+        if(!interval){
+            return res.status(400).json({
+                success: false,
+                message: "Missing interval when fetch total Chart data",
+            })
+        }
+        const data = await orderService.totalChart(interval);
+        res.status(200).json({
+            success: true,
+            message: "Get total chart summary successfully",
+            data: data
+        })
+        
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        })
+    }
+}

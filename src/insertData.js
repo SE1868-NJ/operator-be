@@ -3499,6 +3499,24 @@ const insertOrderItems = async () => {
             { order_id: 34, product_id: 50, price: 50000, quantity: 1, total: 50000 },
             { order_id: 34, product_id: 41, price: 50000, quantity: 1, total: 50000 },
             { order_id: 34, product_id: 58, price: 50000, quantity: 1, total: 50000 },
+
+            {
+                order_id: 35,
+                product_id: 15,
+                price: 125000,
+                quantity: 2,
+                total: 250000,
+            },
+            {
+                order_id: 35,
+                product_id: 20,
+                price: 70000,
+                quantity: 3,
+                total: 210000,
+            },
+            { order_id: 35, product_id: 33, price: 50000, quantity: 1, total: 50000 },
+            { order_id: 35, product_id: 45, price: 50000, quantity: 1, total: 50000 },
+            { order_id: 35, product_id: 52, price: 50000, quantity: 1, total: 50000 },
         ];
         await OrderItem.bulkCreate(orderItems);
         console.log("Đã chèn OrderItems vào cơ sở dữ liệu!");

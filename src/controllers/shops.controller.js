@@ -264,6 +264,22 @@ export const getOrderStatistic = async (req, res) => {
     }
 };
 
+export const getRevenueStatistic = async (req, res) => {
+    const { id } = req.params;
+    const { timeRange, interval } = req.query;
+    try {
+        const data = await ShopService.getRevenueOfOneShop(id, timeRange, interval);
+        res.status(200).json({
+            data,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
 export const getAllShopsRevenues = async (req, res) => {
     const { distanceTime, offset, limit, shopName, ownerName, shopEmail, shopPhone } = req.body;
 
