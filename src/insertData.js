@@ -21,7 +21,7 @@ const insertOperators = async () => {
                 firstName: "Nguyễn",
                 lastName: "Văn A",
                 email: "admin@gmail.com",
-                password: "$2b$10$kUPkr1525ZeA29dRDxQsnuRldFxrY3UKxJxuzqEp7dvAILBQojoBq",
+                password: "12345",
                 phoneNumber: "0987654321",
                 dateOfBirth: "1990-05-20",
                 gender: "male",
@@ -51,6 +51,12 @@ const insertOperators = async () => {
                 roleCode: 3,
             },
         ];
+
+        // Hash passwords
+        for (const operator of operators) {
+            const salt = await bcrypt.genSalt(10);
+            operator.password = await bcrypt.hash(operator.password, salt);
+        }
 
         await Operator.bulkCreate(operators);
         console.log("Operators inserted successfully.");
