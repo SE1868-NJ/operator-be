@@ -15,7 +15,7 @@ export const banAccountController = async (req, res) => {
       !userId ||
       !userType ||
       !operatorId ||
-      !["customer", "shop", "shipper"].includes(userType)
+      !["customer", "shop", "shipper","product"].includes(userType)
     ) {
       return res
         .status(400)

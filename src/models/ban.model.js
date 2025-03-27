@@ -15,7 +15,7 @@ export const Ban = sequelize.define(
             allowNull: false,
         },
         userType: {
-            type: DataTypes.ENUM("customer", "shop", "shipper"),
+            type: DataTypes.ENUM("customer", "shop", "shipper", "product"),
             allowNull: false,
         },
         operatorId: {
