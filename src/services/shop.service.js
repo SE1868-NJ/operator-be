@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Op, Sequelize, literal } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
+import { getShopDraftById } from "../controllers/shops.controller.js";
 import { Address } from "../models/address.model.js";
 import { Feedback } from "../models/feedback.model.js";
 import { Media } from "../models/media.model.js";
@@ -9,6 +10,7 @@ import { Order } from "../models/order.model.js";
 import { OrderItem } from "../models/orderItem.model.js";
 import { Product } from "../models/product.model.js";
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
+import { ReasonItem } from "../models/reasonItem.model.js";
 import { ReplyFeedback } from "../models/replyFeedback.model.js";
 import { Shipper } from "../models/shipper.model.js";
 import { Shop } from "../models/shop.model.js";
@@ -395,7 +397,7 @@ const ShopService = {
         }
     },
 
-    async getApprovedShops(offset = 0, limit = 10, filterData = {}) {
+    async getApprovedShops(operatorID, offset = 0, limit = 10, filterData = {}) {
         const role = "Shop";
         try {
             // Lọc Shop
@@ -439,7 +441,7 @@ const ShopService = {
 
             const approvedShops = await ReasonChangeStatus.findAll({
                 where: {
-                    operatorID: 1,
+                    operatorID: operatorID,
                     role: role,
                 },
                 include: includeClause,
@@ -450,7 +452,7 @@ const ShopService = {
 
             const totalApprovedShops = await ReasonChangeStatus.count({
                 where: {
-                    operatorID: 1,
+                    operatorID: operatorID,
                     role: role,
                 },
                 include: includeClause,
@@ -595,9 +597,8 @@ const ShopService = {
     async updateShopStatus(id, updatedStatus) {
         const transaction = await sequelize.transaction();
         try {
-            const { status, description } = updatedStatus;
+            const { operatorID, status, reason } = updatedStatus;
             const newStatus = status === "accepted" ? "active" : "rejected";
-            const reason = description || "Được chấp nhận";
             try {
                 const updatedShop = await Shop.update(
                     {
@@ -620,7 +621,7 @@ const ShopService = {
 
                 await ReasonChangeStatus.create(
                     {
-                        operatorID: 1,
+                        operatorID: operatorID,
                         pendingID: id,
                         role: "Shop",
                         changedStatus: status,
@@ -695,7 +696,10 @@ const ShopService = {
                 [sequelize.fn("DATE_FORMAT", sequelize.col("createdAt"), dateGroupFormat), "date"],
                 [sequelize.fn("COUNT", sequelize.col("id")), "count"],
             ],
-            where: whereCondition,
+            where: {
+                ...whereCondition,
+                status: 'completed', // Chỉ lấy đơn hàng đã hoàn thành
+            },
             group: ["date"],
             order: [["date", "ASC"]],
         });
@@ -705,7 +709,60 @@ const ShopService = {
             count: order.dataValues.count,
         }));
     },
-
+    async getRevenueOfOneShop(id, timeRange) {
+        const now = new Date();
+        let startTime;
+        let dateGroupFormat;
+    
+        switch (timeRange) {
+            case "24h":
+                startTime = new Date(now - 24 * 60 * 60 * 1000);
+                dateGroupFormat = "%Y-%m-%d %H:00:00"; // Group by hour
+                break;
+            case "7d":
+                startTime = new Date(now - 7 * 24 * 60 * 60 * 1000);
+                dateGroupFormat = "%Y-%m-%d"; // Group by day
+                break;
+            case "1m":
+                startTime = new Date(now.setMonth(now.getMonth() - 1));
+                dateGroupFormat = "%Y-%m-%d"; // Group by day
+                break;
+            case "1y":
+                startTime = new Date(now.setFullYear(now.getFullYear() - 1));
+                dateGroupFormat = "%Y-%m"; // Group by month
+                break;
+            case "all":
+                startTime = null;
+                dateGroupFormat = "%Y-%m"; // Group by month
+                break;
+            default:
+                throw new Error("Invalid time range");
+        }
+    
+        const whereCondition = startTime ? { 
+            createdAt: { [Op.gte]: startTime }, 
+            shop_id: id 
+        } : { shop_id: id };
+    
+        const total = await Order.findAll({
+            attributes: [
+                [sequelize.fn("DATE_FORMAT", sequelize.col("createdAt"), dateGroupFormat), "date"],
+                [sequelize.fn("SUM", sequelize.col("total")), "totalRevenue"], // Tính tổng doanh thu
+            ],
+            where: {
+                ...whereCondition,
+                status: 'completed', // Chỉ lấy đơn hàng đã hoàn thành
+            },
+            group: ["date"],
+            order: [["date", "ASC"]],
+        });
+    
+        return total.map((order) => ({
+            date: order.dataValues.date,
+            totalRevenue: order.dataValues.totalRevenue ? parseFloat(order.dataValues.totalRevenue) : 0, // Chuyển về dạng số
+        }));
+    },
+    
     // hàm này là để hiển thị ở bảng thống kê 7 ngày, 1 tháng, 1 năm, 5 năm
     async getLastTimesRevenues(id, distanceTime = "1 DAY", offset = 0, limit = 10) {
         let whereClause = {};
@@ -1548,6 +1605,96 @@ const ShopService = {
                 throw new Error("Shop not found");
             }
             return shop;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    async getShopDraftById(id) {
+        try {
+            const shopDraft = await ReasonChangeStatus.findAll({
+                attributes: ["reason"],
+                where: {
+                    pendingID: id,
+                    role: "Shop",
+                    changedStatus: "savedraft",
+                },
+            });
+            if (!shopDraft) {
+                throw new Error("Shop draft not found");
+            }
+            return shopDraft;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    async updateShopDraftById(id, data) {
+        const { operatorID, status, reason } = data;
+        try {
+            if (status === "savedraft") {
+                const oldDraft = await ReasonChangeStatus.findOne({
+                    where: {
+                        pendingID: id,
+                        role: "Shop",
+                    },
+                });
+                if (!oldDraft) {
+                    const newRecord = await ReasonChangeStatus.create({
+                        operatorID: operatorID,
+                        pendingID: id,
+                        role: "Shop",
+                        changedStatus: "savedraft",
+                        reason: reason,
+                    });
+                    return newRecord;
+                }
+                const shopDraft = await ReasonChangeStatus.update(
+                    {
+                        reason: data.reason,
+                    },
+                    {
+                        where: {
+                            pendingID: id,
+                            role: "Shop",
+                        },
+                    },
+                );
+                return shopDraft;
+            }
+            ShopService.updateShopStatus(id, data);
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    async updatePendingShopReasonItem(operator_id, pending_id, index, reason, status) {
+        try {
+            const shop = await ReasonItem.create({
+                operator_id: operator_id,
+                pending_id: pending_id,
+                role: "Shop",
+                index: index,
+                reason: reason,
+                status: status,
+            });
+            return shop;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    async getPendingShopReasonItem(pending_id, index) {
+        try {
+            const listItems = await ReasonItem.findAll({
+                where: {
+                    pending_id: pending_id,
+                    role: "Shop",
+                    index: index,
+                },
+                order: [["createdAt", "DESC"]],
+            });
+            return listItems;
         } catch (error) {
             throw new Error(error.message);
         }

@@ -36,8 +36,9 @@ export const Ban = sequelize.define(
             allowNull: true,
         },
         status: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true,
+            type: DataTypes.ENUM("active", "banned", "scheduled"),
+            allowNull: false,
+            defaultValue: "active",
         },
     },
     {

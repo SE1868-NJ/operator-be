@@ -66,7 +66,7 @@ OrderItem.associate = (models) => {
         foreignKey: "orderItemID",
         as: "Feedbacks",
     });
-    OrderItem.hasOne(models.Product, {
+    OrderItem.belongsTo(models.Product, {
         foreignKey: "product_id",
         as: "Product",
     });
@@ -75,3 +75,5 @@ OrderItem.associate = (models) => {
 export default (sequelize, DataTypes) => {
     return OrderItem;
 };
+
+// sửa OrderItem.hasOne sang OrderItem.belongsTo

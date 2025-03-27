@@ -9,15 +9,20 @@ import {
     getOrderByShopId,
     getOrderStatistic,
     getPendingShopById,
+    getPendingShopReasonItem,
     getPendingShops,
     getProductById,
     getProductByShopId,
     getRevenueByDate,
     getShopById,
+    getShopDraftById,
     getTotalRevenueAllShopsByLastTime,
     getTotalRevenueOneShopByLastTime,
     processPrompt,
+    updatePendingShopReasonItem,
+    updateShopDraftById,
     updateShopStatus,
+    getRevenueStatistic
 } from "../controllers/shops.controller.js";
 
 const shopRouter = express.Router();
@@ -36,11 +41,15 @@ shopRouter.get("/totalrevenues/:id", getTotalRevenueOneShopByLastTime); // lấy
 shopRouter.get("/shopstatistic", getLastTimeRevenuesAllShops); // last time là để lấy 1 ngày, 1 tuần, 1 tháng, 1 năm gần nhất
 // có chia ra các khung giờ trong ngày, thứ trong tuần, ngày trong tháng, ... để vẽ biểu đồ
 shopRouter.get("/orders/:id", getOneOrder); // cái này lấy của Thành, tạm thời để đây để hiển thị
-
+shopRouter.get("/shopdraft/:id", getShopDraftById);
+shopRouter.patch("/shopdraft/:id", updateShopDraftById);
+shopRouter.get("/reasonitems/:id", getPendingShopReasonItem);
+shopRouter.post("/reasonitems/:id", updatePendingShopReasonItem);
 shopRouter.get("/pendingshop/:id", getPendingShopById);
 shopRouter.get("/getinfor/:id", getInforOneShop);
 shopRouter.patch("/pendingshop/:id", updateShopStatus);
 shopRouter.get("/:id/chart", getOrderStatistic);
+shopRouter.get("/:id/chartRevenue", getRevenueStatistic);
 shopRouter.get("/:id", getShopById);
 shopRouter.get("/:id/products", getProductByShopId);
 shopRouter.get("/:id/orders", getOrderByShopId);

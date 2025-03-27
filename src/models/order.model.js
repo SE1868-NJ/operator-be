@@ -1,6 +1,6 @@
-// order.model.js
 import { DataTypes } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
+import { ShippingMethod } from "./shippingMethod.model.js"; // Import ShippingMethod
 
 export const Order = sequelize.define(
     "Order",
@@ -14,8 +14,8 @@ export const Order = sequelize.define(
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "Shops", // Tên bảng Shop
-                key: "shopID", // Khóa chính của bảng Shop
+                model: "Shops",
+                key: "shopID",
             },
             onUpdate: "CASCADE",
             onDelete: "CASCADE",
@@ -24,26 +24,25 @@ export const Order = sequelize.define(
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "Users", // Tên bảng Customer (Giả sử Customer là User)
-                key: "userID", // Khóa chính của bảng User
+                model: "Users",
+                key: "userID",
             },
             onUpdate: "CASCADE",
             onDelete: "CASCADE",
         },
         shipper_id: {
             type: DataTypes.INTEGER,
-            allowNull: true, // Shipper có thể không có ngay lúc đầu
+            allowNull: true,
             references: {
-                model: "Shippers", // Tên bảng Shipper (Giả sử Shipper là User)
-                key: "id", // Khóa chính của bảng User
+                model: "Shippers",
+                key: "id",
             },
             onUpdate: "CASCADE",
-            onDelete: "SET NULL", // Nếu Shipper bị xóa, set shipper_id về NULL
+            onDelete: "SET NULL",
         },
         address_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            //  Giả sử có một bảng Address
             references: {
                 model: "Addresses",
                 key: "address_id",
@@ -51,13 +50,23 @@ export const Order = sequelize.define(
             onUpdate: "CASCADE",
             onDelete: "CASCADE",
         },
+        // shipping_method_id: {
+        //   type: DataTypes.UUID,
+        //   allowNull: false,
+        //   references: {
+        //     model: "shipping_methods",
+        //     key: "id",
+        //   },
+        //   onUpdate: "CASCADE",
+        //   onDelete: "RESTRICT",
+        // },
         productFee: {
-            type: DataTypes.DECIMAL(10, 2), // Kiểu tiền tệ
+            type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
             defaultValue: 0.0,
         },
         shippingFee: {
-            type: DataTypes.DECIMAL(10, 2), // Kiểu tiền tệ
+            type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
             defaultValue: 0.0,
         },
@@ -67,7 +76,7 @@ export const Order = sequelize.define(
             defaultValue: "pending",
         },
         total: {
-            type: DataTypes.DECIMAL(10, 2), // Kiểu tiền tệ
+            type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
             defaultValue: 0.0,
         },
@@ -89,41 +98,37 @@ export const Order = sequelize.define(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        // created_at: {
-        //     type: DataTypes.DATE,
-        //     defaultValue: DataTypes.NOW,
-        // },
+        start_time: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
+        estimated_delivery_time: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
+        actual_delivery_time: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
     },
     {
         tableName: "Orders",
-        timestamps: true, // Tắt timestamps nếu bạn không muốn createdAt và updatedAt tự động
+        timestamps: true,
     },
 );
 
+// Thiết lập quan hệ
 Order.associate = (models) => {
-    Order.belongsTo(models.Shop, {
-        foreignKey: "shop_id",
-        as: "Shop",
-    });
-    Order.belongsTo(models.User, {
-        foreignKey: "customer_id",
-        as: "Customer",
-    });
-    Order.belongsTo(models.Shipper, {
-        foreignKey: "shipper_id",
-        as: "Shipper",
-    });
+    Order.belongsTo(models.Shop, { foreignKey: "shop_id", as: "Shop" });
+    Order.belongsTo(models.User, { foreignKey: "customer_id", as: "Customer" });
+    Order.belongsTo(models.Shipper, { foreignKey: "shipper_id", as: "Shipper" });
+    Order.belongsTo(models.Address, { foreignKey: "address_id", as: "Address" });
+    //   Order.belongsTo(models.ShippingMethod, {
+    //     foreignKey: "shipping_method_id",
+    //     as: "ShippingMethod",
+    //   });
 
-    Order.hasMany(models.OrderItem, {
-        foreignKey: "order_id",
-        as: "OrderItems",
-    });
-
-    // Giả sử có model Address
-    Order.belongsTo(models.Address, {
-        foreignKey: "address_id",
-        as: "Address",
-    });
+    Order.hasMany(models.OrderItem, { foreignKey: "order_id", as: "OrderItems" });
 };
 
 export default (sequelize, DataTypes) => {

@@ -18,7 +18,7 @@ export const Operator = sequelize.define("Operator", {
     },
     avatar_public_id: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
         defaultValue: "swp_storage_image/default_avatar_zqgyov",
     },
     firstName: {
@@ -75,9 +75,9 @@ export const Operator = sequelize.define("Operator", {
         allowNull: false,
     },
     status: {
-        type: DataTypes.ENUM("active", "inactive", "pending"),
+        type: DataTypes.ENUM("active", "inactive"),
         allowNull: false,
-        defaultValue: "pending",
+        defaultValue: "active",
     },
 });
 

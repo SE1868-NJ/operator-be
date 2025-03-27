@@ -1,8 +1,7 @@
 import { Op, where } from "sequelize";
-import emergencyContact from "../models/emergencyContact.model.js";
-import { Role } from "../models/role.model.js";
 import { Shipper } from "../models/shipper.model.js";
 import ShipperServices from "../services/shipper.service.js";
+import { response } from "express";
 
 export const getAllShippers = async (req, res) => {
     try {
@@ -153,6 +152,7 @@ export const getSumShippingFeeAllShippers = async (req, res) => {
 export const getOrdersOfShipper = async (req, res) => {
     try {
         const { id } = req.params;
+        const { status, shipping_status } = req.query; // Nhận giá trị filter từ frontend
 
         if (!id) {
             return res.status(400).json({
@@ -161,9 +161,9 @@ export const getOrdersOfShipper = async (req, res) => {
             });
         }
 
-        const shipper = await ShipperServices.getOrdersOfShipper(id);
+        const shipper = await ShipperServices.getOrdersOfShipper(id, status, shipping_status);
 
-        if (!shipper) {
+        if (!shipper || !shipper.Orders || shipper.Orders.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: "Shipper not found or no orders available",
@@ -223,3 +223,110 @@ export const getTop10Shippers = async (req, res) => {
         });
     }
 };
+
+
+
+export const getShipperDraftById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const shipperDraft = await ShipperServices.getShipperDraftById(id);
+        res.status(200).json({
+            success: true,
+            message: "Get infor draft one shipper successfully",
+            shipperDraft: shipperDraft,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: `Get infor draft one shipper fail: ${error.message}`,
+        });
+    }
+};
+
+export const updateShipperDraftById = async (req, res) => {
+    const { id } = req.params;
+    const data = req.body;
+    try {
+        const shipperDraft = await ShipperServices.updateShipperDraftById(id, data);
+        res.status(200).json({
+            success: true,
+            message: "Update infor draft one shipper successfully",
+            shipperInfor: shipperDraft,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: `Update infor draft one shipper fail: ${error.message}`,
+        });
+    }
+};
+
+
+export const getActiveShipperCount = async (req, res) => {
+    try {
+        const totalActiveShippers = await ShipperServices.countActiveShippers();
+        res.status(200).json({ totalActiveShippers });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const getShippersJoinedToday = async (req, res) => {
+    try {
+        const totalShippersJoinedToday = await ShipperServices.countShippersJoinedToday();
+        res.status(200).json({ totalShippersJoinedToday });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const getTop5ShipperByMonth = async (req, res) => {
+    try {
+        const top5ShipperByMonth = await ShipperServices.getTop5ShipperByMonth();
+        res.status(200).json({
+            success: true,
+            message: "Get top 5 shipper in month sucessfully",
+            data: top5ShipperByMonth
+        })
+    } catch (error) {
+        
+        res.status(500).json({
+            success: false,
+            error: error.message
+        })
+    }
+}
+
+export const getAvgDeliveryTime = async (req, res) => {
+    try {
+        const avgTime = await ShipperServices.avgDeliveryTime();
+        
+        res.status(200).json({
+            success: true,
+            message: "Get avg delivery time interval 4 month successfully",
+            data: avgTime
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "An error occured during get avg delivery time interval 4 month",
+            data: error.message
+        })
+    }
+}
+
+export const cancellationRate = async (req, res) => {
+    try {
+        const response  = await ShipperServices.cancellationRate();
+        res.status(200).json({
+            success: true,
+            message: "Get cancellation rate successfully",
+            data: response
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "An error occured during get cancellationRate",
+            data: error.message
+        })
+    }
+}

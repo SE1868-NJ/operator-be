@@ -21,7 +21,7 @@ const insertOperators = async () => {
                 firstName: "Nguyễn",
                 lastName: "Văn A",
                 email: "admin@gmail.com",
-                password: "hashedpassword1",
+                password: "12345",
                 phoneNumber: "0987654321",
                 dateOfBirth: "1990-05-20",
                 gender: "male",
@@ -51,6 +51,12 @@ const insertOperators = async () => {
                 roleCode: 3,
             },
         ];
+
+        // Hash passwords
+        for (const operator of operators) {
+            const salt = await bcrypt.genSalt(10);
+            operator.password = await bcrypt.hash(operator.password, salt);
+        }
 
         await Operator.bulkCreate(operators);
         console.log("Operators inserted successfully.");
@@ -2394,6 +2400,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipped",
                 payment_method: "COD",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 2 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 2,
@@ -2408,6 +2417,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipping",
                 payment_method: "Credit Card",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 3 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 3,
@@ -2422,6 +2434,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipped",
                 payment_method: "Bank Transfer",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 4 * 60 * 60 * 1000),
+                actual_delivery_time: new Date(),
             },
             {
                 shop_id: 4,
@@ -2436,6 +2451,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "COD",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 5 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 5,
@@ -2450,6 +2468,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "Momo",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 6 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 1,
@@ -2464,6 +2485,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipping",
                 payment_method: "Credit Card",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 2 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 2,
@@ -2478,6 +2502,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipped",
                 payment_method: "Bank Transfer",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 3 * 60 * 60 * 1000),
+                actual_delivery_time: new Date(),
             },
             {
                 shop_id: 3,
@@ -2492,6 +2519,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "COD",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 4 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 4,
@@ -2506,6 +2536,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "Momo",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 5 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 5,
@@ -2520,6 +2553,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipping",
                 payment_method: "Credit Card",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 6 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 1,
@@ -2534,6 +2570,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipped",
                 payment_method: "Bank Transfer",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 4 * 60 * 60 * 1000),
+                actual_delivery_time: new Date(),
             },
             {
                 shop_id: 2,
@@ -2548,6 +2587,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "COD",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 2 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 3,
@@ -2562,6 +2604,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "Momo",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 3 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 4,
@@ -2576,6 +2621,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipping",
                 payment_method: "Credit Card",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 4 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 5,
@@ -2590,6 +2638,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipped",
                 payment_method: "Bank Transfer",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 5 * 60 * 60 * 1000),
+                actual_delivery_time: new Date(),
             },
             {
                 shop_id: 1,
@@ -2604,6 +2655,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "COD",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 6 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 2,
@@ -2618,6 +2672,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "Momo",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 5 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 3,
@@ -2632,6 +2689,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipping",
                 payment_method: "Credit Card",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 6 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 4,
@@ -2646,6 +2706,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipped",
                 payment_method: "Bank Transfer",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 5 * 60 * 60 * 1000),
+                actual_delivery_time: new Date(),
             },
             {
                 shop_id: 5,
@@ -2660,6 +2723,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "COD",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 6 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 6,
@@ -2674,6 +2740,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "COD",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 2 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 7,
@@ -2688,6 +2757,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipping",
                 payment_method: "Credit Card",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 3 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 8,
@@ -2702,6 +2774,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipped",
                 payment_method: "Bank Transfer",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 2 * 60 * 60 * 1000),
+                actual_delivery_time: new Date(),
             },
             {
                 shop_id: 9,
@@ -2716,6 +2791,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "COD",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 3 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 10,
@@ -2730,6 +2808,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "Momo",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 4 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 11,
@@ -2744,6 +2825,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipping",
                 payment_method: "Credit Card",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 5 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 12,
@@ -2758,6 +2842,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipped",
                 payment_method: "Bank Transfer",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 3 * 60 * 60 * 1000),
+                actual_delivery_time: new Date(),
             },
             {
                 shop_id: 13,
@@ -2772,6 +2859,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "COD",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 4 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 14,
@@ -2786,6 +2876,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "Momo",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 5 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 15,
@@ -2800,6 +2893,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipping",
                 payment_method: "Credit Card",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 6 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 1,
@@ -2814,6 +2910,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipped",
                 payment_method: "Bank Transfer",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 5 * 60 * 60 * 1000),
+                actual_delivery_time: new Date(),
             },
             {
                 shop_id: 2,
@@ -2828,6 +2927,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "COD",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 4 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 3,
@@ -2842,6 +2944,9 @@ const insertOrders = async () => {
                 payment_status: "pending",
                 shipping_status: "not_yet_shipped",
                 payment_method: "Momo",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 5 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 4,
@@ -2856,6 +2961,9 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipping",
                 payment_method: "Credit Card",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 6 * 60 * 60 * 1000),
+                actual_delivery_time: null,
             },
             {
                 shop_id: 5,
@@ -2870,83 +2978,14 @@ const insertOrders = async () => {
                 payment_status: "paid",
                 shipping_status: "shipped",
                 payment_method: "Bank Transfer",
-            },
-            {
-                shop_id: 6,
-                customer_id: 16,
-                shipper_id: 3,
-                address_id: 6,
-                productFee: 90000,
-                shippingFee: 23000,
-                status: "cancelled",
-                total: 113000,
-                note: "Hủy đơn vì hết hàng",
-                payment_status: "pending",
-                shipping_status: "not_yet_shipped",
-                payment_method: "COD",
-            },
-            {
-                shop_id: 7,
-                customer_id: 17,
-                shipper_id: 1,
-                address_id: 7,
-                productFee: 250000,
-                shippingFee: 41000,
-                status: "pending",
-                total: 291000,
-                note: "Giao hàng đúng hẹn",
-                payment_status: "pending",
-                shipping_status: "not_yet_shipped",
-                payment_method: "Momo",
-            },
-            {
-                shop_id: 8,
-                customer_id: 18,
-                shipper_id: 2,
-                address_id: 8,
-                productFee: 310000,
-                shippingFee: 45000,
-                status: "processing",
-                total: 355000,
-                note: "Kiểm tra hàng trước khi thanh toán",
-                payment_status: "paid",
-                shipping_status: "shipping",
-                payment_method: "Credit Card",
-            },
-            {
-                shop_id: 9,
-                customer_id: 19,
-                shipper_id: 4,
-                address_id: 9,
-                productFee: 150000,
-                shippingFee: 31000,
-                status: "completed",
-                total: 181000,
-                note: "Shop phục vụ tốt",
-                payment_status: "paid",
-                shipping_status: "shipped",
-                payment_method: "Bank Transfer",
-            },
-            {
-                shop_id: 10,
-                customer_id: 20,
-                shipper_id: 5,
-                address_id: 10,
-                productFee: 100000,
-                shippingFee: 25000,
-                status: "cancelled",
-                total: 125000,
-                note: "Không liên lạc được",
-                payment_status: "pending",
-                shipping_status: "not_yet_shipped",
-                payment_method: "COD",
+                start_time: new Date(),
+                estimated_delivery_time: new Date(new Date().getTime() + 4 * 60 * 60 * 1000),
+                actual_delivery_time: new Date(),
             },
         ];
 
-        // Sử dụng bulkCreate để chèn nhiều bản ghi cùng lúc
         await Order.bulkCreate(orders);
-
-        console.log("Đã tạo thành công 40 đơn hàng.");
+        console.log("Đã tạo thành công các đơn hàng.");
     } catch (error) {
         console.error("Lỗi khi tạo dữ liệu:", error);
     }
@@ -3485,96 +3524,6 @@ const insertOrderItems = async () => {
             { order_id: 35, product_id: 33, price: 50000, quantity: 1, total: 50000 },
             { order_id: 35, product_id: 45, price: 50000, quantity: 1, total: 50000 },
             { order_id: 35, product_id: 52, price: 50000, quantity: 1, total: 50000 },
-
-            {
-                order_id: 36,
-                product_id: 41,
-                price: 125000,
-                quantity: 2,
-                total: 250000,
-            },
-            {
-                order_id: 36,
-                product_id: 58,
-                price: 70000,
-                quantity: 3,
-                total: 210000,
-            },
-            { order_id: 36, product_id: 11, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 36, product_id: 23, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 36, product_id: 39, price: 50000, quantity: 1, total: 50000 },
-
-            {
-                order_id: 37,
-                product_id: 4,
-                price: 125000,
-                quantity: 2,
-                total: 250000,
-            },
-            {
-                order_id: 37,
-                product_id: 27,
-                price: 70000,
-                quantity: 3,
-                total: 210000,
-            },
-            { order_id: 37, product_id: 44, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 37, product_id: 59, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 37, product_id: 16, price: 50000, quantity: 1, total: 50000 },
-
-            {
-                order_id: 38,
-                product_id: 35,
-                price: 125000,
-                quantity: 2,
-                total: 250000,
-            },
-            {
-                order_id: 38,
-                product_id: 52,
-                price: 70000,
-                quantity: 3,
-                total: 210000,
-            },
-            { order_id: 38, product_id: 1, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 38, product_id: 18, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 38, product_id: 29, price: 50000, quantity: 1, total: 50000 },
-
-            {
-                order_id: 39,
-                product_id: 28,
-                price: 125000,
-                quantity: 2,
-                total: 250000,
-            },
-            {
-                order_id: 39,
-                product_id: 46,
-                price: 70000,
-                quantity: 3,
-                total: 210000,
-            },
-            { order_id: 39, product_id: 55, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 39, product_id: 13, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 39, product_id: 31, price: 50000, quantity: 1, total: 50000 },
-
-            {
-                order_id: 40,
-                product_id: 17,
-                price: 125000,
-                quantity: 2,
-                total: 250000,
-            },
-            {
-                order_id: 40,
-                product_id: 34,
-                price: 70000,
-                quantity: 3,
-                total: 210000,
-            },
-            { order_id: 40, product_id: 49, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 40, product_id: 2, price: 50000, quantity: 1, total: 50000 },
-            { order_id: 40, product_id: 25, price: 50000, quantity: 1, total: 50000 },
         ];
         await OrderItem.bulkCreate(orderItems);
         console.log("Đã chèn OrderItems vào cơ sở dữ liệu!");
