@@ -13,7 +13,9 @@
         "insert": "node src/insertData.js"
     },
     "lint-staged": {
-        "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": ["pnpm check:fix"]
+        "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
+            "pnpm check:fix"
+        ]
     },
     "husky": {
         "hooks": {
@@ -33,6 +35,7 @@
         "dotenv": "^16.4.7",
         "express": "^4.21.2",
         "fs": "0.0.1-security",
+        "jsonwebtoken": "^9.0.2",
         "morgan": "^1.10.0",
         "multer": "1.4.5-lts.1",
         "multer-storage-cloudinary": "^4.0.0",
