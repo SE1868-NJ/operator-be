@@ -4,6 +4,7 @@ import { Ban } from "../models/ban.model.js";
 import { Shipper } from "../models/shipper.model.js";
 import { Shop } from "../models/shop.model.js";
 import { User } from "../models/user.model.js";
+import { Product } from "../models/product.model.js";
 import NotificationsServices from "./notifications.service.js";
 
 const BanService = {
@@ -197,6 +198,8 @@ const BanService = {
                 await Shipper.update({ status }, { where: { id: userId } });
             } else if (userType === "shop") {
                 await Shop.update({ shopStatus: status }, { where: { shopID: userId } });
+            } else if(userType == "product") {
+                await Product.update({status: status}, {where : {product_id: userId}})
             }
         } catch (error) {
             console.error("Lỗi khi cập nhật trạng thái tài khoản:", error);
