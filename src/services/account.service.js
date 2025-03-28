@@ -39,7 +39,7 @@ const OperatorService = {
 
             console.log(oldData?.avatar_public_id);
 
-            if (oldData?.avatar_public_id !== "swp_storage_image/default_avatar_zqgyov") {
+            if (oldData?.avatar_public_id !== "swp_storage_image/default_avatar_h9spud") {
                 const oldFileName = `${oldData?.avatar_public_id}`;
                 //console.log("Old file name: ", oldFileName);
                 await cloudinary.uploader.destroy(oldFileName);

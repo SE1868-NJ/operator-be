@@ -18,7 +18,6 @@ export const getAllUsers = async (req, res) => {
 
 export const getUserById = async (req, res) => {
     const { id } = req.params;
-    console.log(id);
     try {
         const response = await userService.getUserById(id);
         res.status(200).json({
@@ -57,9 +56,7 @@ export const updateUserStatus = async (req, res) => {
 
 export const getOrdersList = async (req, res) => {
     try {
-        console.log(123);
         const { id, page, limit } = req.query;
-        console.log(456);
         const response = await userService.getOrderList(page, limit, id);
         res.status(200).json({
             success: true,
@@ -106,3 +103,36 @@ export const getTop3Customer = async (req, res) => {
         });
     }
 };
+
+export const getTopCustomerByWeek = async (req, res) => {
+    try {
+        const response = await userService.getTopCustomerByWeek();
+        res.status(200).json({
+            success: true,
+            message: "Get top customer in week successfully",
+            data: response
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: `An error occured during get top customer in week ${error}`
+        })
+    }
+}
+
+export const getNewCustomerGroupedController = async (req, res) => {
+    try {
+        const {timeGroup} = req.params
+        const response = await userService.getNewUsersGrouped(timeGroup);
+        res.status(200).json({
+            success: true,
+            message: `Get new customer by ${timeGroup} successfully`,
+            data: response
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: `An error occured during get new Customer chart ${error}`
+        })
+    }
+}

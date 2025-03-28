@@ -15,6 +15,7 @@ import { Shipper } from "../models/shipper.model.js";
 import { Shop } from "../models/shop.model.js";
 import { User } from "../models/user.model.js";
 import { model } from "../utils/gemini.js";
+import { Operator } from "../models/operator.model.js";
 
 const ShopService = {
     async processUserPrompt(shopId, userPrompt) {
@@ -415,6 +416,12 @@ const ShopService = {
                     ],
                     required: true,
                 },
+                {
+                    model: Operator,
+                    as: "operator",
+                    where: {},
+                    required: true,
+                }
             ];
 
             if (filterData?.shopName) {
@@ -438,9 +445,13 @@ const ShopService = {
                 };
             }
 
+            if(operatorID){
+                includeClause[1].where.operatorID = operatorID
+            }
+
             const approvedShops = await ReasonChangeStatus.findAll({
                 where: {
-                    operatorID: operatorID,
+                    // operatorID: operatorID,
                     role: role,
                 },
                 include: includeClause,
@@ -451,7 +462,7 @@ const ShopService = {
 
             const totalApprovedShops = await ReasonChangeStatus.count({
                 where: {
-                    operatorID: operatorID,
+                    // operatorID: operatorID,
                     role: role,
                 },
                 include: includeClause,
@@ -695,7 +706,10 @@ const ShopService = {
                 [sequelize.fn("DATE_FORMAT", sequelize.col("createdAt"), dateGroupFormat), "date"],
                 [sequelize.fn("COUNT", sequelize.col("id")), "count"],
             ],
-            where: whereCondition,
+            where: {
+                ...whereCondition,
+                status: 'completed', // Chỉ lấy đơn hàng đã hoàn thành
+            },
             group: ["date"],
             order: [["date", "ASC"]],
         });
@@ -705,7 +719,60 @@ const ShopService = {
             count: order.dataValues.count,
         }));
     },
-
+    async getRevenueOfOneShop(id, timeRange) {
+        const now = new Date();
+        let startTime;
+        let dateGroupFormat;
+    
+        switch (timeRange) {
+            case "24h":
+                startTime = new Date(now - 24 * 60 * 60 * 1000);
+                dateGroupFormat = "%Y-%m-%d %H:00:00"; // Group by hour
+                break;
+            case "7d":
+                startTime = new Date(now - 7 * 24 * 60 * 60 * 1000);
+                dateGroupFormat = "%Y-%m-%d"; // Group by day
+                break;
+            case "1m":
+                startTime = new Date(now.setMonth(now.getMonth() - 1));
+                dateGroupFormat = "%Y-%m-%d"; // Group by day
+                break;
+            case "1y":
+                startTime = new Date(now.setFullYear(now.getFullYear() - 1));
+                dateGroupFormat = "%Y-%m"; // Group by month
+                break;
+            case "all":
+                startTime = null;
+                dateGroupFormat = "%Y-%m"; // Group by month
+                break;
+            default:
+                throw new Error("Invalid time range");
+        }
+    
+        const whereCondition = startTime ? { 
+            createdAt: { [Op.gte]: startTime }, 
+            shop_id: id 
+        } : { shop_id: id };
+    
+        const total = await Order.findAll({
+            attributes: [
+                [sequelize.fn("DATE_FORMAT", sequelize.col("createdAt"), dateGroupFormat), "date"],
+                [sequelize.fn("SUM", sequelize.col("total")), "totalRevenue"], // Tính tổng doanh thu
+            ],
+            where: {
+                ...whereCondition,
+                status: 'completed', // Chỉ lấy đơn hàng đã hoàn thành
+            },
+            group: ["date"],
+            order: [["date", "ASC"]],
+        });
+    
+        return total.map((order) => ({
+            date: order.dataValues.date,
+            totalRevenue: order.dataValues.totalRevenue ? parseFloat(order.dataValues.totalRevenue) : 0, // Chuyển về dạng số
+        }));
+    },
+    
     // hàm này là để hiển thị ở bảng thống kê 7 ngày, 1 tháng, 1 năm, 5 năm
     async getLastTimesRevenues(id, distanceTime = "1 DAY", offset = 0, limit = 10) {
         let whereClause = {};
@@ -955,7 +1022,7 @@ const ShopService = {
     async getTotalRevenueShopsByTime(
         day,
         month,
-        year = 2025,
+        year = new Date().getFullYear(),
         offset = 0,
         limit = 10,
         filterData = {},
@@ -970,6 +1037,8 @@ const ShopService = {
             if (day) {
                 dayUp = day;
                 dayDown = day;
+            }else {
+                dayUp = new Date(year, month, 0).getDate();
             }
         }
 
@@ -1059,7 +1128,7 @@ const ShopService = {
         id,
         day,
         month,
-        year = 2025,
+        year = new Date().getFullYear(),
         offset = 0,
         limit = 10,
         filterData = {},
@@ -1074,6 +1143,8 @@ const ShopService = {
             if (day) {
                 dayUp = day;
                 dayDown = day;
+            }else {
+                dayUp = new Date(year, month, 0).getDate();
             }
         }
 
@@ -1591,10 +1662,11 @@ const ShopService = {
                         reason: reason,
                     });
                     return newRecord;
-                }
+                }}
                 const shopDraft = await ReasonChangeStatus.update(
                     {
-                        reason: data.reason,
+                        reason: reason,
+                        changedStatus: status,
                     },
                     {
                         where: {
@@ -1603,9 +1675,19 @@ const ShopService = {
                         },
                     },
                 );
-                return shopDraft;
-            }
-            ShopService.updateShopStatus(id, data);
+                const updatedShop = await Shop.update(
+                    {
+                        shopStatus: status === "accepted" ? "active" : "rejected",
+                        shopJoindedDate: new Date(),
+                    },
+                    {
+                        where: {
+                            shopID: id,
+                        },
+                    },
+                );
+                return updatedShop;
+            // ShopService.updateShopStatus(id, data);
         } catch (error) {
             throw new Error(error.message);
         }

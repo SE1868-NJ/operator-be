@@ -4,6 +4,8 @@ import { Ban } from "../models/ban.model.js";
 import { Shipper } from "../models/shipper.model.js";
 import { Shop } from "../models/shop.model.js";
 import { User } from "../models/user.model.js";
+import { Product } from "../models/product.model.js";
+import NotificationsServices from "./notifications.service.js";
 
 const BanService = {
     async getBanAccount({ userId, userType }) {
@@ -70,7 +72,14 @@ const BanService = {
                     console.log(
                         `🔵User ID: ${ban.userId}, Type: ${ban.userType}, Ban Start: ${ban.banStart}, Ban End: ${ban.banEnd}`,
                     );
+                    const notifPayload = {
+                        type: "Gỡ đình chỉ người dùng",
+                        message: `Tài khoản ${ban.userType} có Id ${ban.userId} đã bị đình chỉ từ ${ban.banStart} đến ${ban.banEnd}`,
+                      };
+                  
+                    NotificationsServices.createNotification(notifPayload);
                 }
+                
             } else {
                 console.log("Không có user nào cần ban.");
             }
@@ -96,12 +105,19 @@ const BanService = {
                     { status: "active" },
                     { where: { userId: { [Op.in]: accountIDs } } },
                 );
+                const date = new Date();
 
                 for (const ban of expireBans) {
                     await BanService.updateUserStatus(ban.userId, ban.userType, "active");
                     console.log(
                         `🔵User ID: ${ban.userId}, Type: ${ban.userType}, Ban Start: ${ban.banStart}, Ban End: ${ban.banEnd}`,
                     );
+                    const notifPayload = {
+                        type: "Gỡ đình chỉ người dùng",
+                        message: `Tài khoản ${ban.userType} có Id ${ban.userId} đã được gỡ đình chỉ lúc ${date}`,
+                      };
+                  
+                    NotificationsServices.createNotification(notifPayload);
                 }
             } else {
                 console.log("Không có user nào đến hạn gỡ ban.");
@@ -112,7 +128,7 @@ const BanService = {
         }
     },
 
-    async unbanAccountManual(userId, userType) {
+    async unbanAccountManual(userId, userType, reason) {
         try {
             const banRecord = await Ban.findOne({
                 where: { userId, userType, status: "banned" },
@@ -144,7 +160,7 @@ const BanService = {
         }
     },
 
-    async cancelBanScheduled(userId, userType) {
+    async cancelBanScheduled(userId, userType, reason) {
         try {
             // Tìm bản ghi ban có trạng thái "scheduled" và đúng userType
             const banRecord = await Ban.findOne({
@@ -182,6 +198,8 @@ const BanService = {
                 await Shipper.update({ status }, { where: { id: userId } });
             } else if (userType === "shop") {
                 await Shop.update({ shopStatus: status }, { where: { shopID: userId } });
+            } else if(userType == "product") {
+                await Product.update({status: status}, {where : {product_id: userId}})
             }
         } catch (error) {
             console.error("Lỗi khi cập nhật trạng thái tài khoản:", error);

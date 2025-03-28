@@ -11,8 +11,11 @@ import shipperRouter from "./shipper.route.js";
 import shippingMethodRouter from "./shippingMethod.route.js";
 import shopRouter from "./shop.route.js";
 import userRouter from "./user.route.js";
+import productRouter from "./product.route.js";
+import verifyToken from "../middlewares/auth.js";
 
 const route = (app) => {
+    app.use(verifyToken);
     app.use("/auth", authRouter);
     app.use("/admin", authRouter);
     app.use("/shops", shopRouter);
@@ -27,6 +30,7 @@ const route = (app) => {
     app.use("/orders", orderRouter);
     app.use("/operator", operatorRoute);
     app.use("/email", emailRouter);
+    app.use("/product", productRouter);
     app.use("/banners", bannerRouter);
 };
 
