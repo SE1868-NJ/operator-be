@@ -1701,7 +1701,6 @@ const ShopService = {
                         },
                     },
                 );
-                return shopDraft;
                 return updatedShop;
             // ShopService.updateShopStatus(id, data);
         } catch (error) {
