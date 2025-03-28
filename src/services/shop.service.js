@@ -1663,7 +1663,7 @@ const ShopService = {
                         reason: reason,
                     });
                     return newRecord;
-                }}
+                }
                 const shopDraft = await ReasonChangeStatus.update(
                     {
                         reason: reason,
@@ -1676,6 +1676,8 @@ const ShopService = {
                         },
                     },
                 );
+                return shopDraft;
+            }
                 const updatedShop = await Shop.update(
                     {
                         shopStatus: status === "accepted" ? "active" : "rejected",
@@ -1684,6 +1686,18 @@ const ShopService = {
                     {
                         where: {
                             shopID: id,
+                        },
+                    },
+                );
+                const shopDraft = await ReasonChangeStatus.update(
+                    {
+                        reason: reason,
+                        changedStatus: status,
+                    },
+                    {
+                        where: {
+                            pendingID: id,
+                            role: "Shop",
                         },
                     },
                 );
