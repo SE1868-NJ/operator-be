@@ -22,7 +22,7 @@ export const BannerSevices = {
             offset: (page - 1) * size, 
             include: { 
                 model: Shop, // Hiển thị thông tin Shop sở hữu banner
-                as: "Shops",
+                as: "shop",
                 attributes: ['shopID', 'shopName'],
                 include: [
                     {
@@ -48,7 +48,8 @@ export const BannerSevices = {
             include: [
                 {
                     model: Shop,
-                    as: "Shops",
+                    as: "shop",
+                    attributes: ['shopID', 'shopName'],
                     include: [
                         {
                             model: User,

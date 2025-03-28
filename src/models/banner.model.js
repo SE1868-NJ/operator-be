@@ -59,7 +59,7 @@ export const Banner = sequelize.define(
 Banner.associate = (models) => {
     Banner.belongsTo(models.Shop, {
         foreignKey: "shopID",
-        as: "Shops", 
+        as: "shop", 
     });
 };
 

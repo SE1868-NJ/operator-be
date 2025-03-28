@@ -1,4 +1,3 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Op, Sequelize, literal } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
 import { getShopDraftById } from "../controllers/shops.controller.js";
