@@ -199,14 +199,14 @@ const ReportsServices = {
                 throw new Error("Invalid time range");
         }
 
-        const whereCondition = startTime ? { createdAt: { [Op.gte]: startTime } } : {};
+        const whereCondition = startTime ? { problem_time: { [Op.gte]: startTime } } : {};
 
         const reports = await Report.findAll({
             attributes: [
                 [
                     sequelize.fn(
                         "DATE_FORMAT",
-                        sequelize.fn("CONVERT_TZ", sequelize.col("createdAt"), "+00:00", "+07:00"),
+                        sequelize.fn("CONVERT_TZ", sequelize.col("problem_time"), "+00:00", "+07:00"),
                         dateGroupFormat,
                     ),
                     "time",
