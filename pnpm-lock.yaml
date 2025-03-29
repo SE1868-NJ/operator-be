@@ -14,6 +14,9 @@ importers:
       '@google/generative-ai':
         specifier: ^0.22.0
         version: 0.22.0
+      auth-backend-core:
+        specifier: 'link:'
+        version: 'link:'
       axios:
         specifier: ^1.8.1
         version: 1.8.1

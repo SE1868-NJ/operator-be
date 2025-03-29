@@ -45,13 +45,16 @@ export const getAllShippers = async (req, res) => {
 export const getShipperById = async (req, res) => {
     try {
         const { id } = req.params;
-        const shipper = await Shipper.findByPk(id);
+        const shipper = await ShipperServices.getShipperById(id);;
 
         if (!shipper) {
             return res.status(404).json({ message: "Shipper không tồn tại" });
         }
 
-        res.status(200).json(shipper);
+        res.status(200).json({
+            success: true,
+            shipper: shipper, 
+        });
     } catch (error) {
         res.status(500).json({ message: "Lỗi khi lấy chi tiết shipper", error: error.message });
     }
@@ -223,8 +226,6 @@ export const getTop10Shippers = async (req, res) => {
         });
     }
 };
-
-
 
 export const getShipperDraftById = async (req, res) => {
     const { id } = req.params;

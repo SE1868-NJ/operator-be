@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 import sequelize from "../config/sequelize.config.js";
 import Shipper from "./shipper.model.js";
 
-const EmergencyContact = sequelize.define(
+export const EmergencyContact = sequelize.define(
     "EmergencyContact",
     {
         id: {

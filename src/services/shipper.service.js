@@ -4,6 +4,7 @@ import { Order } from "../models/order.model.js";
 import { ReasonChangeStatus } from "../models/reasonChangeStatus.model.js";
 import { Shipper } from "../models/shipper.model.js";
 import { ShipperReview } from "../models/shipperReview.js";
+import { EmergencyContact } from "../models/emergencyContact.model.js";
 
 const ShipperServices = {
   async getAllShippers(offset, limit) {
@@ -113,23 +114,41 @@ const ShipperServices = {
     }
   },
 
-  async updateShipperStatus(id, status) {
-    try {
-      const shipper = await Shipper.findByPk(id);
-      if (!shipper) {
-        throw new Error("Shipper not found");
-      }
-      shipper.status = status;
-      await shipper.save();
-      return shipper;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  },
-  async getShipperById(id) {
-    const shipper = await Shipper.findByPk(id);
-    return shipper;
-  },
+    async updateShipperStatus(id, status) {
+        try {
+            const shipper = await Shipper.findByPk(id);
+            if (!shipper) {
+                throw new Error("Shipper not found");
+            }
+            shipper.status = status;
+            await shipper.save();
+            return shipper;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+    async getShipperById(id) {
+        try {
+            const shipper = await Shipper.findByPk(id, {
+                include: [
+                    {
+                        model: EmergencyContact,
+                        as: 'EmergencyContact', 
+                        required: false, 
+                    }
+                ]
+            });
+    
+            if (!shipper) {
+                throw new Error('Shipper not found');
+            }
+    
+            return shipper;
+        } catch (error) {
+            console.error("Error in getShipperById:", error);
+            throw new Error("Failed to retrieve shipper details");
+        }
+    },
 
   async getSumShippingFeeAllShippers(
     offset = 0,
@@ -184,39 +203,6 @@ const ShipperServices = {
     return { sumShippingFee, totalRevenue, totalOrders };
   },
 
-  // async getOrdersOfShipper(id, statusFilter, shippingStatusFilter) {
-  //     console.log("=================statusFilter: ", statusFilter);
-  //     console.log("===================shippingStatusFilter: ", shippingStatusFilter);
-  //     try {
-  //         const whereCondition = {};
-
-  //         if (statusFilter) {
-  //             whereCondition.status = statusFilter;
-  //         }
-  //         if (shippingStatusFilter) {
-  //             whereCondition.shipping_status = shippingStatusFilter;
-  //         }
-
-  //         const shipper = await Shipper.findOne({
-  //             where: { id },
-  //             attributes: ["id", "name"],
-  //             include: [
-  //                 {
-  //                     model: Order,
-  //                     as: "Orders",
-  //                     attributes: ["id", "shippingFee", "status", "shipping_status", "note"],
-  //                     where: whereCondition, // Áp dụng bộ lọc
-  //                     order: [["createdAt", "DESC"]], // Sắp xếp theo ngày tạo mới nhất
-  //                 },
-  //             ],
-  //         });
-  //         console.log("whereCondition: ", whereCondition);
-
-  //         return shipper;
-  //     } catch (error) {
-  //         throw new Error("Error fetching shipper orders: ",  error.message);
-  //     }
-  // },
 
   async getOrdersOfShipper(id, status, shipping_status) {
     try {

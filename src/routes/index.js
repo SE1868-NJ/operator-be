@@ -1,5 +1,6 @@
 import authRouter from "./auth.route.js";
 import banRouter from "./ban.route.js";
+import bannerRouter from "./banner.route.js";
 import emailRouter from "./email.route.js";
 import notifRouter from "./notifications.route.js";
 import operatorRoute from "./operator.route.js";
@@ -30,6 +31,7 @@ const route = (app) => {
     app.use("/operator", operatorRoute);
     app.use("/email", emailRouter);
     app.use("/product", productRouter);
+    app.use("/banners", bannerRouter);
 };
 
 export default route;
