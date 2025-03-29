@@ -4,6 +4,7 @@ const OperatorService = {
     async getAccountProfile(email) {
         try {
             const user = await Operator.findOne({ where: { email } });
+            //console.log(user)
             if (!user) {
                 throw new Error("No user found: ", email);
             }
