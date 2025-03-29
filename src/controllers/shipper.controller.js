@@ -227,11 +227,6 @@ export const getTop10Shippers = async (req, res) => {
     }
 };
 
-<<<<<<< HEAD
-=======
-
->>>>>>> ffc9b06725e8fee325f721839b6f989cc6626c8e
-
 export const getShipperDraftById = async (req, res) => {
     const { id } = req.params;
     try {

@@ -203,39 +203,6 @@ const ShipperServices = {
     return { sumShippingFee, totalRevenue, totalOrders };
   },
 
-  // async getOrdersOfShipper(id, statusFilter, shippingStatusFilter) {
-  //     console.log("=================statusFilter: ", statusFilter);
-  //     console.log("===================shippingStatusFilter: ", shippingStatusFilter);
-  //     try {
-  //         const whereCondition = {};
-
-  //         if (statusFilter) {
-  //             whereCondition.status = statusFilter;
-  //         }
-  //         if (shippingStatusFilter) {
-  //             whereCondition.shipping_status = shippingStatusFilter;
-  //         }
-
-  //         const shipper = await Shipper.findOne({
-  //             where: { id },
-  //             attributes: ["id", "name"],
-  //             include: [
-  //                 {
-  //                     model: Order,
-  //                     as: "Orders",
-  //                     attributes: ["id", "shippingFee", "status", "shipping_status", "note"],
-  //                     where: whereCondition, // Áp dụng bộ lọc
-  //                     order: [["createdAt", "DESC"]], // Sắp xếp theo ngày tạo mới nhất
-  //                 },
-  //             ],
-  //         });
-  //         console.log("whereCondition: ", whereCondition);
-
-  //         return shipper;
-  //     } catch (error) {
-  //         throw new Error("Error fetching shipper orders: ",  error.message);
-  //     }
-  // },
 
   async getOrdersOfShipper(id, status, shipping_status) {
     try {
